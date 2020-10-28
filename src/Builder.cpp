@@ -1,4 +1,3 @@
-#include <iostream>
 #include <string>
 #include <filesystem>
 #include <fstream>
@@ -86,73 +85,19 @@ template void Builder::file_remover<vector<string>>(const vector<string>&, const
 template void Builder::file_remover<vector<File>>(const vector<File>&, const string&);
 
 void Builder::data_cleaner(const string& target_file) {
-    //void Builder::version_cleaner(const vector<string>& rows, const vector<string>& items) {
-    // remover
-    /*string old_version_file = base.version_catch_path + "/" +
-      items.at(db_pos::path_hash) + "-" +
-      items.at(db_pos::file_hash) +
-      items.at(db_pos::file_extension);
-
-      fs::remove(old_version_file);*/
-
-    // cleaner
     ofstream target_file_ostrm(target_file, std::ios::out | std::ios::trunc);
     target_file_ostrm.exceptions(ofstream::failbit | ofstream::badbit);
+
     target_file_ostrm.close();
     target_file_ostrm.clear();
-
-    // inserter
-    /*db_file_ostrm.open(base.db_catch_file, std::ios::out | std::ios::binary | std::ios::app);
-      db_file_ostrm.exceptions(ofstream::failbit | ofstream::badbit);
-      for (const auto& row : rows) {
-      db_file_ostrm << row << endl;
-      }
-      db_file_ostrm.close();
-      db_file_ostrm.clear();*/
 }
-
-/*void Builder::version_cleaner(const vector<File>& data_container) {
-  remover
-  for (auto& data : data_container) {
-  string old_version_file = base.version_catch_path + "/" +
-  std::to_string(data.file_path_hash) + "-" +
-  std::to_string(data.file_hash) +
-  data.file_extension;
-  fs::remove(old_version_file);
-  }
-  Cleaner
-  ofstream db_file_ostrm(base.db_catch_file, std::ios::out | std::ios::trunc);
-  db_file_ostrm.exceptions(ofstream::failbit | ofstream::badbit);
-  db_file_ostrm.close();
-  db_file_ostrm.clear();
-  }*/
-
-/*
- * Inserters
- */
-
-
-
-// TAMB QUIERE SU TEMPLATE
-// TAMB QUIERE SU TEMPLATE
-// TAMB QUIERE SU TEMPLATE
-// TAMB QUIERE SU TEMPLATE
-// TAMB QUIERE SU TEMPLATE
-// TAMB QUIERE SU TEMPLATE
-// TAMB QUIER// TAMB QUIERE SU TEMPLATE
-/*void Builder::data_inserter(const string& data, const string& target_file) {
-  ofstream target_file_ostrm(target_file, std::ios::out | std::ios::binary | std::ios::app);
-  target_file_ostrm.exceptions(ofstream::failbit | ofstream::badbit);
-  target_file_ostrm << data << endl;
-  target_file_ostrm.close();
-  target_file_ostrm.clear();
-  }*/
 
 template <typename T>
 void Builder::data_inserter(const T& row_or_rows, const string& target_file) {
     //void Builder::data_inserter(const vector<string>& rows, const string& target_file) {
     ofstream target_file_ostrm(target_file, std::ios::out | std::ios::binary | std::ios::app);
     target_file_ostrm.exceptions(ofstream::failbit | ofstream::badbit);
+
     if constexpr (std::is_same_v<T,string>) {
         target_file_ostrm << row_or_rows << endl;
     } else if constexpr (std::is_same_v<T,vector<string>>) {
@@ -160,6 +105,7 @@ void Builder::data_inserter(const T& row_or_rows, const string& target_file) {
             target_file_ostrm << row << endl;
         }
     }
+
     target_file_ostrm.close();
     target_file_ostrm.clear();
 }
@@ -170,28 +116,6 @@ template void Builder::data_inserter<vector<string>>(const vector<string>&, cons
 /*
  * Catchers
  */
-
-/*void Builder::data_catcher(const File& data) {
-  string version_file = base.version_catch_path + "/" + data.version_name;
-  fs::copy_file(data.file, version_file);
-
-  ofstream db_catch_ostrm(base.db_catch_file, std::ios::out | std::ios::binary | std::ios::app);
-  db_catch_ostrm.exceptions(ofstream::failbit | ofstream::badbit);
-  db_catch_ostrm << data.file << ","
-  << data.file_hash << ","
-  << data.file_path << ","
-  << data.file_path_hash << ","
-  << data.version_name << ","
-  << data.file_name << ","
-  << data.file_extension << ","
-  << data.catch_date << ","
-  << data.snap_hash << ","
-  << data.snap_date << ","
-  << data.comment
-  << endl;
-  db_catch_ostrm.close();
-  db_catch_ostrm.clear();
-  }*/
 
 template <typename T>
 void Builder::data_catcher(const T& data_container, const string& target_file, const string& target_folder) {
@@ -214,6 +138,7 @@ void Builder::data_catcher(const T& data_container, const string& target_file, c
             << data_container.snap_date << ","
             << data_container.comment
             << endl;
+
         target_file_ostrm.close();
         target_file_ostrm.clear();
         // HACER PRUEBAS DE SACAT EL OPEN/CLOSE DEL OFSTREAM FUERA DEL IF
@@ -236,6 +161,7 @@ void Builder::data_catcher(const T& data_container, const string& target_file, c
                 << data.snap_date << ","
                 << data.comment
                 << endl;
+
             target_file_ostrm.close();
             target_file_ostrm.clear();
         }
@@ -269,6 +195,7 @@ void Builder::data_saver(const vector<string>& rows, const string& target_file, 
             << timepoint << ","
             << comment << endl;
     }
+
     db_main_file_ostrm.close();
     db_main_file_ostrm.clear();
 }
@@ -285,89 +212,20 @@ void Builder::repository_remover(const string& target_folder, int mode) {
     }
 }
 
-//void Builder::version_remover(const string& version_name) {
-// OJO, TODAVIA NO SE CORRIGE LOS SLASH Y YA SUPUESTAMENTE HEMOS TERMINADO LA REVISION
-// OJO, TODAVIA NO SE CORRIGE LOS SLASH Y YA SUPUESTAMENTE HEMOS TERMINADO LA REVISION
-// OJO, TODAVIA NO SE CORRIGE LOS SLASH Y YA SUPUESTAMENTE HEMOS TERMINADO LA REVISION
-// OJO, TODAVIA NO SE CORRIGE LOS SLASH Y YA SUPUESTAMENTE HEMOS TERMINADO LA REVISION
-// OJO, TODAVIA NO SE CORRIGE LOS SLASH Y YA SUPUESTAMENTE HEMOS TERMINADO LA REVISION
-// OJO, TODAVIA NO SE CORRIGE LOS SLASH Y YA SUPUESTAMENTE HEMOS TERMINADO LA REVISION
-//string old_version_file = base.version_catch_path + "\\" + version_name;
-//fs::remove(old_version_file);
-//}
-
-//void Builder::version_remover(const vector<string>& available_folders) {
-//unsigned int temp_counter = 0;
-//for (auto folder : available_folders) {
-// VERFICAR QUE AQUI SE DEBA USAR RECURSIVE O SOLO DIRECTORY ITERATOR
-// VERFICAR QUE AQUI SE DEBA USAR RECURSIVE O SOLO DIRECTORY ITERATOR
-// VERFICAR QUE AQUI SE DEBA USAR RECURSIVE O SOLO DIRECTORY ITERATOR
-// VERFICAR QUE AQUI SE DEBA USAR RECURSIVE O SOLO DIRECTORY ITERATOR Y DE PASO REVISAR EL COUNTER
-//for (const auto& file : fs::recursive_directory_iterator(folder)) {
-//if (!fs::is_directory(file)) {
-//temp_counter++;
-//}
-/*}
-
-  if (temp_counter == 0) {
-  fs::remove_all(folder);
-  temp_counter = 0;
-  }
-  }*/
-//}
-
-/*
- * Transporters 
- */
-
-// LA IDEA ES SEPARAR LAS FUNCIONES COMUNES PARA QUE PUEDAN SER USADAS DE SER EL CASO, Y HACER LLAMADAS INTERNAS EN EL BUILDER
-// LA IDEA ES SEPARAR LAS FUNCIONES COMUNES PARA QUE PUEDAN SER USADAS DE SER EL CASO, Y HACER LLAMADAS INTERNAS EN EL BUILDER
-// LA IDEA ES SEPARAR LAS FUNCIONES COMUNES PARA QUE PUEDAN SER USADAS DE SER EL CASO, Y HACER LLAMADAS INTERNAS EN EL BUILDER
-// LA IDEA ES SEPARAR LAS FUNCIONES COMUNES PARA QUE PUEDAN SER USADAS DE SER EL CASO, Y HACER LLAMADAS INTERNAS EN EL BUILDER
-// LA IDEA ES SEPARAR LAS FUNCIONES COMUNES PARA QUE PUEDAN SER USADAS DE SER EL CASO, Y HACER LLAMADAS INTERNAS EN EL BUILDER
-// LA IDEA ES SEPARAR LAS FUNCIONES COMUNES PARA QUE PUEDAN SER USADAS DE SER EL CASO, Y HACER LLAMADAS INTERNAS EN EL BUILDER
-// LA IDEA ES SEPARAR LAS FUNCIONES COMUNES PARA QUE PUEDAN SER USADAS DE SER EL CASO, Y HACER LLAMADAS INTERNAS EN EL BUILDER
-// LA IDEA ES SEPARAR LAS FUNCIONES COMUNES PARA QUE PUEDAN SER USADAS DE SER EL CASO, Y HACER LLAMADAS INTERNAS EN EL BUILDER
-// LA IDEA ES SEPARAR LAS FUNCIONES COMUNES PARA QUE PUEDAN SER USADAS DE SER EL CASO, Y HACER LLAMADAS INTERNAS EN EL BUILDER
-// LA IDEA ES SEPARAR LAS FUNCIONES COMUNES PARA QUE PUEDAN SER USADAS DE SER EL CASO, Y HACER LLAMADAS INTERNAS EN EL BUILDER
-// LA IDEA ES SEPARAR LAS FUNCIONES COMUNES PARA QUE PUEDAN SER USADAS DE SER EL CASO, Y HACER LLAMADAS INTERNAS EN EL BUILDER
-// LA IDEA ES SEPARAR LAS FUNCIONES COMUNES PARA QUE PUEDAN SER USADAS DE SER EL CASO, Y HACER LLAMADAS INTERNAS EN EL BUILDER
-// LA IDEA ES SEPARAR LAS FUNCIONES COMUNES PARA QUE PUEDAN SER USADAS DE SER EL CASO, Y HACER LLAMADAS INTERNAS EN EL BUILDER
-// LA IDEA ES SEPARAR LAS FUNCIONES COMUNES PARA QUE PUEDAN SER USADAS DE SER EL CASO, Y HACER LLAMADAS INTERNAS EN EL BUILDER
-// LA IDEA ES SEPARAR LAS FUNCIONES COMUNES PARA QUE PUEDAN SER USADAS DE SER EL CASO, Y HACER LLAMADAS INTERNAS EN EL BUILDER
-// LA IDEA ES SEPARAR LAS FUNCIONES COMUNES PARA QUE PUEDAN SER USADAS DE SER EL CASO, Y HACER LLAMADAS INTERNAS EN EL BUILDER
-// LA IDEA ES SEPARAR LAS FUNCIONES COMUNES PARA QUE PUEDAN SER USADAS DE SER EL CASO, Y HACER LLAMADAS INTERNAS EN EL BUILDER
-
 void Builder::file_transporter(const vector<string>& files, const string& original_location, const string& target_folder, const string& target_sub_folder) {
-    //string temporal_folder = base.version_main_path + "/" + version_temp;
     string temporal_location = target_folder + "/" + target_sub_folder;
     fs::create_directory(temporal_location);
 
     for (const auto& file : files) {
         string original_file = original_location + "/" + file;
-        //string version_catch_file = base.version_catch_path + "/" + item;
         string temporal_file = temporal_location + "/" + file;
-        //string version_main_file = temporal_folder + "/" + item;
+
         fs::copy_file(original_file, temporal_file);
         fs::remove(original_file);
     }
-
-    /*ofstream db_catch_file_ostrm(base.db_catch_file, std::ios::out | std::ios::trunc);
-    db_catch_file_ostrm.exceptions(ofstream::failbit | ofstream::badbit);
-    db_catch_file_ostrm.close();
-    db_catch_file_ostrm.clear();*/
 }
 
 /*
-Momentaneamene comentado porque se creo en return este duplicao, nose si se mantendraaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-Momentaneamene comentado porque se creo en return este duplicao, nose si se mantendraaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-Momentaneamene comentado porque se creo en return este duplicao, nose si se mantendraaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-Momentaneamene comentado porque se creo en return este duplicao, nose si se mantendraaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-Momentaneamene comentado porque se creo en return este duplicao, nose si se mantendraaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-Momentaneamene comentado porque se creo en return este duplicao, nose si se mantendraaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-Momentaneamene comentado porque se creo en return este duplicao, nose si se mantendraaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-Momentaneamene comentado porque se creo en return este duplicao, nose si se mantendraaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-Momentaneamene comentado porque se creo en return este duplicao, nose si se mantendraaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 Momentaneamene comentado porque se creo en return este duplicao, nose si se mantendraaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 void Builder::version_transporter(const vector<File>& datas, const string& target_file) {
     for (auto data : datas) {
@@ -379,4 +237,3 @@ void Builder::version_transporter(const vector<File>& datas, const string& targe
 }*/
 
 Builder::~Builder() {}
-

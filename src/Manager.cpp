@@ -149,7 +149,6 @@ void Manager::simple_catch_manager() {
                     vector<string> protected_rows;
                     helper.rows_extractor(protected_rows, base.db_catch_file, catch_row);
                     helper.timepoint_generator(data.catch_date);
-                    //builder.version_cleaner(rows, items);
                     builder.file_remover<vector<string>>(catch_row_items, base.version_catch_path);
                     builder.data_cleaner(base.db_catch_file);
                     builder.data_inserter<vector<string>>(protected_rows, base.db_catch_file);
@@ -236,9 +235,7 @@ void Manager::multiple_catch_manager() {
         }
 
         Builder builder;
-        //if (!old_data.empty()) builder.version_cleaner(old_data);
         if (!old_data.empty()) {
-            //builder.version_cleaner(old_data);
             builder.file_remover<vector<File>>(old_data, base.version_catch_path);
             builder.data_cleaner(base.db_catch_file);
         }
@@ -278,7 +275,6 @@ void Manager::simple_drop_manager() {
 
             bool is_same_hash = helper.hash_comparator(catch_row_items, data);
             if (is_same_hash) {
-                //builder.version_cleaner(rows, items);
                 builder.file_remover<vector<string>>(catch_row_items, base.version_catch_path);
                 builder.data_cleaner(base.db_catch_file);
                 builder.data_inserter<vector<string>>(protected_rows, base.db_catch_file);
@@ -289,7 +285,6 @@ void Manager::simple_drop_manager() {
                 string authorization;
                 std::cin >> authorization;
                 if (authorization == confirmed_auth) {
-                    //builder.version_cleaner(rows, items);
                     builder.file_remover<vector<string>>(catch_row_items, base.version_catch_path);
                     builder.data_cleaner(base.db_catch_file);
                     builder.data_inserter<vector<string>>(protected_rows, base.db_catch_file);
@@ -316,10 +311,6 @@ void Manager::multiple_drop_manager() {
 
     vector<string> ignored_files_or_folders;
     helper.rows_extractor(ignored_files_or_folders, base.config_ignore_file);
-    // REVISAR multuple catch... porq aqui no hay condicional en caso se haga drop sin tener ningun archivo o solo ignores
-    // REVISAR multuple catch... porq aqui no hay condicional en caso se haga drop sin tener ningun archivo o solo ignores
-    // REVISAR multuple catch... porq aqui no hay condicional en caso se haga drop sin tener ningun archivo o solo ignores
-    // REVISAR multuple catch... porq aqui no hay condicional en caso se haga drop sin tener ningun archivo o solo ignores
     // REVISAR multuple catch... porq aqui no hay condicional en caso se haga drop sin tener ningun archivo o solo ignores
     helper.available_files_organizer(untracked_files, ignored_files_or_folders, current_path);
     bool catch_has_data = helper.content_checker(base.db_catch_file);
@@ -388,7 +379,6 @@ void Manager::snapshot_manager() {
             vector<string> catch_file_rows;
             helper.rows_extractor(catch_file_rows, base.db_catch_file);
             helper.timepoint_generator(timepoint);
-            //string temporal_folder = base.version_main_path + "/" + version_temp; 
             builder.file_transporter(version_names, base.version_catch_path, base.version_main_path, version_temp);
             builder.data_cleaner(base.db_catch_file);
             builder.file_renamer(timepoint, base.version_main_path, version_temp);
@@ -544,4 +534,3 @@ void Manager::bye_manager() {
 }
 
 Manager::~Manager() {}
-
