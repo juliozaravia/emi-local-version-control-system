@@ -124,15 +124,15 @@ bool Helper::existence_checker(const T& file_or_files, const string& target_fold
             exists = true;
         }
     } else if constexpr (std::is_same_v<T, vector<string>>) {
-        unsigned int match_counter = 0;
+        unsigned int temp_counter = 0;
         for (const auto& file : file_or_files) {
             string file_to_check = target_folder + "/" + file;
             if (fs::exists(file_to_check)) {
-                match_counter++;
+                temp_counter++;
             }
         }
 
-        if (match_counter == file_or_files.size()) {
+        if (temp_counter == file_or_files.size()) {
             exists = true;
         }
     }
@@ -266,7 +266,7 @@ template void Helper::data_organizer<std::unordered_map<std::string,std::string>
 template void Helper::data_organizer<std::vector<std::string>>(vector<File>&, const vector<string>&);
 
 // REVISAR LOGICA DE ESTAS DOS FUNCIONES A DETALLE PARA VER SI PUEDEN UNIFICARSE
-void Helper::available_files_organizer(unordered_map<string,string>& available_files, const vector<string>& rows, const string& current_path) {
+void Helper::availability_organizer(unordered_map<string,string>& available_files, const vector<string>& rows, const string& current_path) {
     for (const auto& file_or_folder : fs::recursive_directory_iterator(current_path)) {
         if (!fs::is_directory(file_or_folder)) {
             unsigned int temp_counter = 0;
@@ -290,15 +290,15 @@ void Helper::available_files_organizer(unordered_map<string,string>& available_f
 }
 
 // ESTE AVAILABLE PUEDE ESPERAR ANTES DE SER UBIDO A SU HERMANO DE ARRIBA DEBIDO A QUE AUN NO ESTAMOS EN "RETURN":w
-void Helper::available_files_folders_organizer(vector<string>& available_files, vector<string>& available_folders, const vector<string>& rows, const string& current_path) {
-    for (const auto& file : fs::recursive_directory_iterator(current_path)) {
+void Helper::availability_organizer(vector<string>& available_files, vector<string>& available_folders, const vector<string>& rows, const string& current_path) {
+    for (const auto& file_or_folder : fs::recursive_directory_iterator(current_path)) {
         unsigned int temp_counter = 0;
-        string formatted_file = file.path().string();
+        string formatted_file = file_or_folder.path().string();
         string trimmed_file = formatted_file.substr((current_path.size() + 1), formatted_file.size());
 
-        for (auto& ignored_file : rows) {
-            string comparison_file = trimmed_file.substr(0, ignored_file.size());
-            if (ignored_file != comparison_file) { temp_counter++; } 
+        for (auto& ignored_file_or_folder : rows) {
+            string comparison_file = trimmed_file.substr(0, ignored_file_or_folder.size());
+            if (ignored_file_or_folder != comparison_file) { temp_counter++; } 
         }
 
         if (temp_counter == rows.size()) {

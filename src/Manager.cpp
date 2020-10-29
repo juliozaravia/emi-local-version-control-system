@@ -2,6 +2,7 @@
 #include <vector>
 #include <unordered_map>
 #include <algorithm>
+#include <iostream>
 
 #include "../include/Manager.h"
 #include "../include/Builder.h"
@@ -93,6 +94,16 @@ Manager::Manager(string current_path, vector<string> arg_container)
 // VERIFICAR QUE SE ESTEN SUANDO RUTAS COMPLETAS
 // VERIFICAR QUE SE ESTEN SUANDO RUTAS COMPLETAS
 
+
+// REVISAR LOS DATOS DEL DATA ORGANIZER PARA VER SI ESTA TRABAJANDO CON RUTAS COMPLETAS DE SER ASÍ SE PODRIA REDUCIR LA FUNCION
+// REVISAR LOS DATOS DEL DATA ORGANIZER PARA VER SI ESTA TRABAJANDO CON RUTAS COMPLETAS DE SER ASÍ SE PODRIA REDUCIR LA FUNCION
+// REVISAR LOS DATOS DEL DATA ORGANIZER PARA VER SI ESTA TRABAJANDO CON RUTAS COMPLETAS DE SER ASÍ SE PODRIA REDUCIR LA FUNCION
+// REVISAR LOS DATOS DEL DATA ORGANIZER PARA VER SI ESTA TRABAJANDO CON RUTAS COMPLETAS DE SER ASÍ SE PODRIA REDUCIR LA FUNCION
+// REVISAR LOS DATOS DEL DATA ORGANIZER PARA VER SI ESTA TRABAJANDO CON RUTAS COMPLETAS DE SER ASÍ SE PODRIA REDUCIR LA FUNCION
+// REVISAR LOS DATOS DEL DATA ORGANIZER PARA VER SI ESTA TRABAJANDO CON RUTAS COMPLETAS DE SER ASÍ SE PODRIA REDUCIR LA FUNCION
+// REVISAR LOS DATOS DEL DATA ORGANIZER PARA VER SI ESTA TRABAJANDO CON RUTAS COMPLETAS DE SER ASÍ SE PODRIA REDUCIR LA FUNCION
+// REVISAR LOS DATOS DEL DATA ORGANIZER PARA VER SI ESTA TRABAJANDO CON RUTAS COMPLETAS DE SER ASÍ SE PODRIA REDUCIR LA FUNCION
+
 void Manager::start_manager() {
     Builder builder(base);
     builder.repository_builder(current_path);
@@ -115,8 +126,8 @@ void Manager::simple_catch_manager() {
     Helper helper;
     bool file_exists = helper.existence_checker<string>(arg_container[2], current_path);
     if (file_exists) {
-        bool ignored_file = helper.ignored_file_checker(arg_container[2], base.config_ignore_file);
-        if (!ignored_file) {
+        bool file_is_ignored = helper.ignored_file_checker(arg_container[2], base.config_ignore_file);
+        if (!file_is_ignored) {
             File data;
             helper.data_organizer(data, arg_container[2]);
             Builder builder;
@@ -125,7 +136,7 @@ void Manager::simple_catch_manager() {
                 string main_row = helper.row_extractor(data.file, base.db_main_file);
                 if (main_row.empty()) {
                     helper.timepoint_generator(data.catch_date);
-                    builder.data_catcher(data, base.db_catch_file, base.version_catch_path);
+                    builder.data_catcher<File>(data, base.db_catch_file, base.version_catch_path);
                     printer.event_reporter(success_codes::version_catched);
                 } else {
                     vector<string> main_row_items;
@@ -135,7 +146,7 @@ void Manager::simple_catch_manager() {
                         printer.event_reporter(warning_codes::identical_version_saved);
                     } else {
                         helper.timepoint_generator(data.catch_date);
-                        builder.data_catcher(data, base.db_catch_file, base.version_catch_path);
+                        builder.data_catcher<File>(data, base.db_catch_file, base.version_catch_path);
                         printer.event_reporter(success_codes::version_catched);
                     }
                 }
@@ -152,7 +163,7 @@ void Manager::simple_catch_manager() {
                     builder.file_remover<vector<string>>(catch_row_items, base.version_catch_path);
                     builder.data_cleaner(base.db_catch_file);
                     builder.data_inserter<vector<string>>(protected_rows, base.db_catch_file);
-                    builder.data_catcher(data, base.db_catch_file, base.version_catch_path);
+                    builder.data_catcher<File>(data, base.db_catch_file, base.version_catch_path);
                     printer.event_reporter(success_codes::version_catched);
                 }
             }
@@ -175,7 +186,7 @@ void Manager::multiple_catch_manager() {
     Helper helper;
     vector<string> ignored_files_or_folders;
     helper.rows_extractor(ignored_files_or_folders, base.config_ignore_file);
-    helper.available_files_organizer(untracked_files, ignored_files_or_folders, current_path);
+    helper.availability_organizer(untracked_files, ignored_files_or_folders, current_path);
 
     if (untracked_files.empty()) {
         printer.event_reporter(notification_codes::no_files_found, catch_command);
@@ -240,9 +251,9 @@ void Manager::multiple_catch_manager() {
             builder.data_cleaner(base.db_catch_file);
         }
         if (!catched_not_modified.empty()) builder.data_inserter<vector<string>>(catched_not_modified, base.db_catch_file);
-        if (!catched_modified_data.empty()) builder.data_catcher(catched_modified_data, base.db_catch_file, base.version_catch_path);
-        if (!saved_modified_data.empty()) builder.data_catcher(saved_modified_data, base.db_catch_file, base.version_catch_path);
-        if (!untracked_data.empty()) builder.data_catcher(untracked_data, base.db_catch_file, base.version_catch_path);
+        if (!catched_modified_data.empty()) builder.data_catcher<vector<File>>(catched_modified_data, base.db_catch_file, base.version_catch_path);
+        if (!saved_modified_data.empty()) builder.data_catcher<vector<File>>(saved_modified_data, base.db_catch_file, base.version_catch_path);
+        if (!untracked_data.empty()) builder.data_catcher<vector<File>>(untracked_data, base.db_catch_file, base.version_catch_path);
         printer.event_reporter(success_codes::version_catched);
     }
 }
@@ -312,7 +323,7 @@ void Manager::multiple_drop_manager() {
     vector<string> ignored_files_or_folders;
     helper.rows_extractor(ignored_files_or_folders, base.config_ignore_file);
     // REVISAR multuple catch... porq aqui no hay condicional en caso se haga drop sin tener ningun archivo o solo ignores
-    helper.available_files_organizer(untracked_files, ignored_files_or_folders, current_path);
+    helper.availability_organizer(untracked_files, ignored_files_or_folders, current_path);
     bool catch_has_data = helper.content_checker(base.db_catch_file);
     if (catch_has_data) {
         vector<string> catched_modified;
@@ -379,6 +390,21 @@ void Manager::snapshot_manager() {
             vector<string> catch_file_rows;
             helper.rows_extractor(catch_file_rows, base.db_catch_file);
             helper.timepoint_generator(timepoint);
+            // ACA HOYYYYYYYYYYYY 12:00
+            // ACA HOYYYYYYYYYYYY 12:00
+            // ACA HOYYYYYYYYYYYY 12:00
+            // ACA HOYYYYYYYYYYYY 12:00
+            // ACA HOYYYYYYYYYYYY 12:00
+            // ACA HOYYYYYYYYYYYY 12:00
+            // ACA HOYYYYYYYYYYYY 12:00
+            // ESto no está del todo boien, se está usando una ruta para una carpeta de tipo version_ZZZZ_path dentro de otra carpeta del
+            // mismo tipo, este version_temp deberia ser asignado dentro de la funcion quizá con un control enum
+            // Esto puede ayudar a estandarizar el file_transporter
+            // Esto puede ayudar a estandarizar el file_transporter
+            // Esto puede ayudar a estandarizar el file_transporter
+            // Esto puede ayudar a estandarizar el file_transporter
+            // Esto puede ayudar a estandarizar el file_transporter
+            // Esto puede ayudar a estandarizar el file_transporter
             builder.file_transporter(version_names, base.version_catch_path, base.version_main_path, version_temp);
             builder.data_cleaner(base.db_catch_file);
             builder.file_renamer(timepoint, base.version_main_path, version_temp);
@@ -402,7 +428,7 @@ void Manager::look_manager() {
     vector<string> ignored_files_or_folders;
     Helper helper;
     helper.rows_extractor(ignored_files_or_folders, base.config_ignore_file);
-    helper.available_files_organizer(untracked_files, ignored_files_or_folders, current_path);
+    helper.availability_organizer(untracked_files, ignored_files_or_folders, current_path);
 
     Communicator printer;
     if (untracked_files.empty()) {
@@ -458,8 +484,8 @@ void Manager::ignore_manager() {
         string catch_row = helper.row_extractor(arg_container[2], base.db_catch_file);
         string main_row = helper.row_extractor(arg_container[2], base.db_main_file);
         if (catch_row.empty() && main_row.empty()) {
-            bool ignored_file = helper.ignored_file_checker(arg_container[2], base.config_ignore_file);
-            if (ignored_file) {
+            bool file_or_folder_is_ignored = helper.ignored_file_checker(arg_container[2], base.config_ignore_file);
+            if (file_or_folder_is_ignored) {
                 printer.event_reporter(warning_codes::file_already_ignored, ignore_command);
             } else {
                 Builder builder;
@@ -475,25 +501,37 @@ void Manager::ignore_manager() {
 }
 
 void Manager::return_manager() {
-    /*Helper helper;
+    Helper helper;
+    //Verificar si hay datos en main
     bool main_has_data = helper.content_checker(base.db_main_file);
-    if (main_has_data) {
-        vector<string> rows;
-        helper.rows_extractor(rows, base.config_ignore_file);
-
+    //if (main_has_data) {
+        vector<string> ignored_files_or_folders;
+        helper.rows_extractor(ignored_files_or_folders, base.config_ignore_file);
+        //Excluir archivos ignorados de los archivos que serán movidos
         vector<string> available_files;
         vector<string> available_folders;
-        helper.available_files_organizer(available_files, available_folders, rows, current_path);
+        helper.availability_organizer(available_files, available_folders, ignored_files_or_folders, current_path);
+        // Para mover fisicamente los archivos y/o insertarlos en la base de datos temporal
+        // necesito un data de tipo File para guardar su estructura
         
-        vector<File> datas;
-        helper.data_organizer<vector<string>>(datas, available_files);
+        vector<File> available_files_data;
+        helper.data_organizer<vector<string>>(available_files_data, available_files);
+        
+        for (auto data : available_files_data) {
+            std::cout << "data.file -> " << data.file << std::endl; 
+            std::cout << "data.file_name -> " << data.file_name << std::endl; 
+            std::cout << "data.file_path -> " << data.file_path << std::endl; 
+            std::cout << "data.file_path_hash -> " << data.file_path_hash << std::endl; 
+            std::cout << "......................................" << std::endl; 
+        }
+
         Builder builder;
-        builder.version_transporter(datas, base.version_temp_path);
-        builder.version_remover(available_folders);
-        helper.deception(datas, base.version_temp_path, current_path, available_folders);
-    } else {
-        std::cout << "No tiene data" << std::endl;
-    }*/
+        builder.file_transporter(available_files_data, base.version_temp_path);
+        builder.folder_remover(available_folders);
+        builder.data_catcher<vector<File>>(available_files_data, base.db_temp_file, base.version_temp_path);
+    //} else {
+        //std::cout << "No tiene data" << std::endl;
+    //}
 }
 
 //Tested in Ubuntu
@@ -504,7 +542,7 @@ void Manager::restart_manager() {
     string authorization;
     std::cin >> authorization;
     if (authorization == confirmed_auth) {
-        Builder builder;
+        Builder builder(base);
         builder.repository_remover(base.emi_default_path, action_mode::recursive);
         builder.repository_builder(current_path);
         printer.event_reporter(success_codes::emi_repository_restarted);

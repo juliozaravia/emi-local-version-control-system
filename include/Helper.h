@@ -35,14 +35,10 @@ class Helper {
         void data_organizer(std::vector<File>&, const std::vector<std::string>&, int);
         template<typename T> 
         void data_organizer(std::vector<File>&, const T&);
-        void available_files_organizer(std::unordered_map<std::string,std::string>&,
+        void availability_organizer(std::unordered_map<std::string,std::string>&,
                 const std::vector<std::string>&,
                 const std::string&);
-        void available_files_organizer(std::vector<std::string>&,
-                std::vector<std::string>&,
-                const std::vector<std::string>&,
-                const std::string&);
-        void available_files_folders_organizer(std::vector<std::string>&, std::vector<std::string>&, const std::vector<std::string>&, const std::string&); 
+        void availability_organizer(std::vector<std::string>&, std::vector<std::string>&, const std::vector<std::string>&, const std::string&); 
         void processed_files_organizer(std::vector<std::string>&,
                 std::vector<std::string>&,
                 const std::unordered_map<std::string,std::string>&,

@@ -49,19 +49,19 @@ int main(int argc, char* argv[]) {
 				try {
 					manager.restart_manager();
 				} catch (const fs::filesystem_error& err) {
-					printer.event_reporter(error_codes::emi_directories_not_created, start_command, err.what());
+					printer.event_reporter(error_codes::emi_directories_not_created, restart_command, err.what());
 				} catch (const std::ios_base::failure& err) {
-					printer.event_reporter(error_codes::emi_files_not_created, start_command, err.what());
+					printer.event_reporter(error_codes::emi_files_not_created, restart_command, err.what());
 				} catch (const std::exception& err) {
-					printer.event_reporter(error_codes::emi_unknown_error, start_command, err.what());
+					printer.event_reporter(error_codes::emi_unknown_error, restart_command, err.what());
 				}
 			} else if (arg_container[1] == bye_command) {
 				try {
 					manager.bye_manager();
 				} catch (const fs::filesystem_error& err) {
-					printer.event_reporter(error_codes::emi_directories_not_created, start_command, err.what());
+					printer.event_reporter(error_codes::emi_directories_not_created, bye_command, err.what());
 				} catch (const std::exception& err) {
-					printer.event_reporter(error_codes::emi_unknown_error, start_command, err.what());
+					printer.event_reporter(error_codes::emi_unknown_error, bye_command, err.what());
 				}
 			} else {
 				printer.event_reporter(warning_codes::unknown_command);

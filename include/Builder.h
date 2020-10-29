@@ -24,10 +24,13 @@ public:
     void data_inserter(const T&, const std::string&);
     // Removers
     void repository_remover(const std::string&, int);
+    void folder_remover(std::vector<std::string>&); 
+
     template <typename T>
     void file_remover(const T&, const std::string&);
     // Others
     void file_transporter(const std::vector<std::string>&, const std::string&, const std::string&, const std::string&);
+    void file_transporter(const std::vector<File>&, const std::string&);
 
     virtual ~Builder();
 };

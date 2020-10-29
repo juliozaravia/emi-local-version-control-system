@@ -3,6 +3,8 @@
 #include <fstream>
 #include <vector>
 #include <type_traits>
+#include <algorithm>
+#include <iostream>
 
 #include "../include/Builder.h"
 #include "../include/Helper.h"
@@ -64,7 +66,7 @@ void Builder::repository_builder(const string& current_path) {
 
 template <typename T>
 void Builder::file_remover(const T& items_or_data, const string& target_folder) {
-//void Builder::file_remover(const vector<string>& items) {
+    //void Builder::file_remover(const vector<string>& items) {
     if constexpr (std::is_same_v<T,vector<string>>) {
         string file_to_remove = target_folder + "/" +
             items_or_data.at(db_pos::path_hash) + "-" +
@@ -83,6 +85,25 @@ void Builder::file_remover(const T& items_or_data, const string& target_folder) 
 }
 template void Builder::file_remover<vector<string>>(const vector<string>&, const string&);
 template void Builder::file_remover<vector<File>>(const vector<File>&, const string&);
+
+void Builder::folder_remover(vector<string>& folders) {
+    std::sort(folders.begin(), folders.end(), [](const std::string& first, const std::string& second){
+            return first.size() > second.size();});
+
+    for (const auto& folder : folders) {
+        unsigned int temp_counter = 0;
+        for (const auto& file_or_folder : fs::recursive_directory_iterator(folder)) {
+            if (!fs::is_directory(file_or_folder)) {
+                temp_counter++;
+            } 
+        }
+
+        if (temp_counter == 0) {
+            //fs::remove_all(folder);
+            temp_counter = 0;
+        }
+    }
+}
 
 void Builder::data_cleaner(const string& target_file) {
     ofstream target_file_ostrm(target_file, std::ios::out | std::ios::trunc);
@@ -119,7 +140,9 @@ template void Builder::data_inserter<vector<string>>(const vector<string>&, cons
 
 template <typename T>
 void Builder::data_catcher(const T& data_container, const string& target_file, const string& target_folder) {
-    //void Builder::data_catcher(const vector<File>& data_container) {
+    // El data catcher esta compusto de:
+    // 1. Un file_transporter (para esto el file transporter no debe contener un remover, es decir el remover debe ser aparte)
+    // 2. Un catcher que si debe permanecer aquí
     if constexpr (std::is_same_v<T,File>) {
         string version_file = target_folder + "/" + data_container.version_name;
         fs::copy_file(data_container.file, version_file);
@@ -212,6 +235,7 @@ void Builder::repository_remover(const string& target_folder, int mode) {
     }
 }
 
+// Quiza este deba ser el specific_file_transporter, y el que sigue seria el normal_file_transp o file_transp
 void Builder::file_transporter(const vector<string>& files, const string& original_location, const string& target_folder, const string& target_sub_folder) {
     string temporal_location = target_folder + "/" + target_sub_folder;
     fs::create_directory(temporal_location);
@@ -225,15 +249,19 @@ void Builder::file_transporter(const vector<string>& files, const string& origin
     }
 }
 
-/*
-Momentaneamene comentado porque se creo en return este duplicao, nose si se mantendraaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-void Builder::version_transporter(const vector<File>& datas, const string& target_file) {
-    for (auto data : datas) {
+void Builder::file_transporter(const vector<File>& files_data, const string& target_file) {
+    for (const auto& data : files_data) {
         string original_file = data.file;
-        string temporal_file = target_file  + "/" + data.version_name;
-        fs::copy_file(original_file, temporal_file);
-        fs::remove(original_file);
+        string temporal_file = target_file + "/" + data.version_name;
+        
+        /*
+            string version_file = target_folder + "/" + data.version_name;
+            fs::copy_file(data.file, version_file);
+        */
+
+        //fs::copy_file(original_file, temporal_file);
+        //fs::remove(original_file);
     }
-}*/
+}
 
 Builder::~Builder() {}
