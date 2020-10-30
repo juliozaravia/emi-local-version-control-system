@@ -16,7 +16,7 @@ public:
     void data_cleaner(const std::string&);
     // Catchers & Savers
     template <typename T>
-    void data_catcher(const T&, const std::string&, const std::string&);
+    void data_catcher(const T&, const std::string&);
     void file_renamer(const std::string&, const std::string&, const std::string&);
     void data_saver(const std::vector<std::string>&, const std::string&, const std::string&, const std::string&);
     // Inserters
@@ -27,10 +27,11 @@ public:
     void folder_remover(std::vector<std::string>&); 
 
     template <typename T>
-    void file_remover(const T&, const std::string&);
+    void file_remover(const T&, const std::string& = std::string());
     // Others
     void file_transporter(const std::vector<std::string>&, const std::string&, const std::string&, const std::string&);
-    void file_transporter(const std::vector<File>&, const std::string&);
+    template <typename T>
+    void file_transporter(const T&, const std::string&);
 
     virtual ~Builder();
 };

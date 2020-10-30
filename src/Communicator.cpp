@@ -20,7 +20,7 @@ void Communicator::event_reporter(int com_identifier, const std::string& command
         cout << "[Success Code: SC" << success_codes::emi_repository_created << "] The emi repository has been created successfully." << endl;
         cout << "Tip: Use the -look command to view files without tracking." << endl;
     } else if (com_identifier == success_codes::version_catched) {
-        cout << "[Success Code: SC" << success_codes::version_catched << "] The latest version(s) of the file(s) has been successfully put on standby stage." << endl;
+        cout << "[Success Code: SC" << success_codes::version_catched << "] The latest version(s) of the file(s) has(have) been successfully put on standby stage." << endl;
         cout << "Tip: Use -snapshot to save all standby versions. (Usage info: Use --help)" << endl;
     } else if (com_identifier == success_codes::version_saved) {
         cout << "[Success Code: SC" << success_codes::version_saved << "] The latest version of the files found in the standby stage have been successfully saved." << endl;
@@ -34,7 +34,7 @@ void Communicator::event_reporter(int com_identifier, const std::string& command
     } else if (com_identifier == success_codes::emi_repository_deleted) {
         cout << "[Success Code: SC" << success_codes::emi_repository_deleted << "] The emi repository has been successfully deleted." << endl;
     } else if (com_identifier == success_codes::version_dropped) {
-        cout << "[Success Code: SC" << success_codes::version_dropped << "] The file has been successfully dropped from the standby stage." << endl;
+        cout << "[Success Code: SC" << success_codes::version_dropped << "] The file(s) has(have) been successfully dropped from the standby stage." << endl;
     } else if (com_identifier == warning_codes::emi_repository_exists) {
         cout << "[Warning Code: WC" << warning_codes::emi_repository_exists << "] The emi repository already exists." << endl;
         cout << "Tip: Use the -look command to view files without tracking." << endl;

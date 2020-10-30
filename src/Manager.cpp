@@ -88,13 +88,6 @@ Manager::Manager(string current_path, vector<string> arg_container)
 // VERIFICAR QUE TODOS LOS "CONTADORES" SE JUSTIFIQUEN CON UNA CUENTA NUMERICA O NO SEAN UN BOOL, UN MEJOR APROACHE
 // VERIFICAR QUE TODOS LOS "CONTADORES" SE JUSTIFIQUEN CON UNA CUENTA NUMERICA O NO SEAN UN BOOL, UN MEJOR APROACHE
 
-// VERIFICAR QUE SE ESTEN SUANDO RUTAS COMPLETAS
-// VERIFICAR QUE SE ESTEN SUANDO RUTAS COMPLETAS
-// VERIFICAR QUE SE ESTEN SUANDO RUTAS COMPLETAS
-// VERIFICAR QUE SE ESTEN SUANDO RUTAS COMPLETAS
-// VERIFICAR QUE SE ESTEN SUANDO RUTAS COMPLETAS
-
-
 // REVISAR LOS DATOS DEL DATA ORGANIZER PARA VER SI ESTA TRABAJANDO CON RUTAS COMPLETAS DE SER ASÍ SE PODRIA REDUCIR LA FUNCION
 // REVISAR LOS DATOS DEL DATA ORGANIZER PARA VER SI ESTA TRABAJANDO CON RUTAS COMPLETAS DE SER ASÍ SE PODRIA REDUCIR LA FUNCION
 // REVISAR LOS DATOS DEL DATA ORGANIZER PARA VER SI ESTA TRABAJANDO CON RUTAS COMPLETAS DE SER ASÍ SE PODRIA REDUCIR LA FUNCION
@@ -130,13 +123,26 @@ void Manager::simple_catch_manager() {
         if (!file_is_ignored) {
             File data;
             helper.data_organizer(data, arg_container[2]);
-            Builder builder;
+
+            std::cout << "data.file-> " << data.file << std::endl;
+            std::cout << "data.file_hash-> " << data.file_hash << std::endl;
+            std::cout << "data.file_path-> " << data.file_path << std::endl;
+            std::cout << "data.file_path_hash-> " << data.file_path_hash << std::endl;
+            std::cout << "data.version_name-> " << data.version_name << std::endl;
+            std::cout << "data.file_name-> " << data.file_name << std::endl;
+            std::cout << "data.file_extension-> " << data.file_extension << std::endl;
+            std::cout << "data.catch_date-> " << data.catch_date << std::endl;
+            std::cout << "data.snap_hash-> " << data.snap_hash << std::endl;
+            std::cout << "data.snap_date-> " << data.snap_date << std::endl;
+            std::cout << "data.comment-> " << data.comment << std::endl;
+            /*Builder builder;
             string catch_row = helper.row_extractor(data.file, base.db_catch_file);
             if (catch_row.empty()) {
                 string main_row = helper.row_extractor(data.file, base.db_main_file);
                 if (main_row.empty()) {
                     helper.timepoint_generator(data.catch_date);
-                    builder.data_catcher<File>(data, base.db_catch_file, base.version_catch_path);
+                    builder.file_transporter<File>(data, base.version_catch_path);
+                    builder.data_catcher<File>(data, base.db_catch_file);
                     printer.event_reporter(success_codes::version_catched);
                 } else {
                     vector<string> main_row_items;
@@ -146,7 +152,8 @@ void Manager::simple_catch_manager() {
                         printer.event_reporter(warning_codes::identical_version_saved);
                     } else {
                         helper.timepoint_generator(data.catch_date);
-                        builder.data_catcher<File>(data, base.db_catch_file, base.version_catch_path);
+                        builder.file_transporter<File>(data, base.version_catch_path);
+                        builder.data_catcher<File>(data, base.db_catch_file);
                         printer.event_reporter(success_codes::version_catched);
                     }
                 }
@@ -163,10 +170,11 @@ void Manager::simple_catch_manager() {
                     builder.file_remover<vector<string>>(catch_row_items, base.version_catch_path);
                     builder.data_cleaner(base.db_catch_file);
                     builder.data_inserter<vector<string>>(protected_rows, base.db_catch_file);
-                    builder.data_catcher<File>(data, base.db_catch_file, base.version_catch_path);
+                    builder.file_transporter<File>(data, base.version_catch_path);
+                    builder.data_catcher<File>(data, base.db_catch_file);
                     printer.event_reporter(success_codes::version_catched);
                 }
-            }
+            }*/
         } else {
             printer.event_reporter(warning_codes::file_already_ignored, catch_command);
         }
@@ -247,13 +255,26 @@ void Manager::multiple_catch_manager() {
 
         Builder builder;
         if (!old_data.empty()) {
+            /*for (auto data : old_data) {
+                std::cout << "old_data file -> " << data.file << std::endl;
+                std::cout << "old_data file version -> " << data.version_name<< std::endl;
+            }*/
             builder.file_remover<vector<File>>(old_data, base.version_catch_path);
             builder.data_cleaner(base.db_catch_file);
-        }
+        }         
         if (!catched_not_modified.empty()) builder.data_inserter<vector<string>>(catched_not_modified, base.db_catch_file);
-        if (!catched_modified_data.empty()) builder.data_catcher<vector<File>>(catched_modified_data, base.db_catch_file, base.version_catch_path);
-        if (!saved_modified_data.empty()) builder.data_catcher<vector<File>>(saved_modified_data, base.db_catch_file, base.version_catch_path);
-        if (!untracked_data.empty()) builder.data_catcher<vector<File>>(untracked_data, base.db_catch_file, base.version_catch_path);
+        if (!catched_modified_data.empty()) {
+            builder.file_transporter<vector<File>>(catched_modified_data, base.version_catch_path);
+            builder.data_catcher<vector<File>>(catched_modified_data, base.db_catch_file);
+        }
+        if (!saved_modified_data.empty()) { 
+            builder.file_transporter<vector<File>>(saved_modified_data, base.version_catch_path);
+            builder.data_catcher<vector<File>>(saved_modified_data, base.db_catch_file);
+        }
+        if (!untracked_data.empty()) {
+            builder.file_transporter<vector<File>>(untracked_data, base.version_catch_path);
+            builder.data_catcher<vector<File>>(untracked_data, base.db_catch_file);
+        }
         printer.event_reporter(success_codes::version_catched);
     }
 }
@@ -344,6 +365,7 @@ void Manager::multiple_drop_manager() {
                 builder.file_remover<vector<File>>(catched_not_modified_data, base.version_catch_path);
                 builder.data_cleaner(base.db_catch_file);
             }
+            printer.event_reporter(success_codes::version_dropped);
         } else {
             printer.authorization_reporter(drop_command);
             string authorization;
@@ -390,13 +412,6 @@ void Manager::snapshot_manager() {
             vector<string> catch_file_rows;
             helper.rows_extractor(catch_file_rows, base.db_catch_file);
             helper.timepoint_generator(timepoint);
-            // ACA HOYYYYYYYYYYYY 12:00
-            // ACA HOYYYYYYYYYYYY 12:00
-            // ACA HOYYYYYYYYYYYY 12:00
-            // ACA HOYYYYYYYYYYYY 12:00
-            // ACA HOYYYYYYYYYYYY 12:00
-            // ACA HOYYYYYYYYYYYY 12:00
-            // ACA HOYYYYYYYYYYYY 12:00
             // ESto no está del todo boien, se está usando una ruta para una carpeta de tipo version_ZZZZ_path dentro de otra carpeta del
             // mismo tipo, este version_temp deberia ser asignado dentro de la funcion quizá con un control enum
             // Esto puede ayudar a estandarizar el file_transporter
@@ -405,6 +420,13 @@ void Manager::snapshot_manager() {
             // Esto puede ayudar a estandarizar el file_transporter
             // Esto puede ayudar a estandarizar el file_transporter
             // Esto puede ayudar a estandarizar el file_transporter
+
+            //Ademas de lo de arriba, el file_transporter echo para el snapshot es especifico, verificar si puede ser utilizado  standarizado para usar el general
+            //Ademas de lo de arriba, el file_transporter echo para el snapshot es especifico, verificar si puede ser utilizado  standarizado para usar el general
+            //Ademas de lo de arriba, el file_transporter echo para el snapshot es especifico, verificar si puede ser utilizado  standarizado para usar el general
+            //Ademas de lo de arriba, el file_transporter echo para el snapshot es especifico, verificar si puede ser utilizado  standarizado para usar el general
+            //Ademas de lo de arriba, el file_transporter echo para el snapshot es especifico, verificar si puede ser utilizado  standarizado para usar el general
+            //Ademas de lo de arriba, el file_transporter echo para el snapshot es especifico, verificar si puede ser utilizado  standarizado para usar el general
             builder.file_transporter(version_names, base.version_catch_path, base.version_main_path, version_temp);
             builder.data_cleaner(base.db_catch_file);
             builder.file_renamer(timepoint, base.version_main_path, version_temp);
@@ -517,19 +539,21 @@ void Manager::return_manager() {
         vector<File> available_files_data;
         helper.data_organizer<vector<string>>(available_files_data, available_files);
         
-        for (auto data : available_files_data) {
+        /*for (auto data : available_files_data) {
             std::cout << "data.file -> " << data.file << std::endl; 
             std::cout << "data.file_name -> " << data.file_name << std::endl; 
             std::cout << "data.file_path -> " << data.file_path << std::endl; 
             std::cout << "data.file_path_hash -> " << data.file_path_hash << std::endl; 
             std::cout << "......................................" << std::endl; 
-        }
+        }*/
 
         Builder builder;
-        builder.file_transporter(available_files_data, base.version_temp_path);
+        //builder.file_transporter(available_files_data, base.version_temp_path);
+        builder.file_transporter<vector<File>>(available_files_data, base.version_temp_path);
+        builder.file_remover<vector<File>>(available_files_data);
         builder.folder_remover(available_folders);
-        builder.data_catcher<vector<File>>(available_files_data, base.db_temp_file, base.version_temp_path);
-    //} else {
+        builder.data_catcher<vector<File>>(available_files_data, base.db_temp_file);
+            //} else {
         //std::cout << "No tiene data" << std::endl;
     //}
 }
