@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <algorithm>
 #include <type_traits>
+#include <iostream>
 
 #include "../include/Helper.h"
 #include "../include/Structures.h"
@@ -26,13 +27,22 @@ Helper::Helper() {}
  * Comparators
  */
 
-bool Helper::hash_comparator(const vector<string>& items, const File& data) {
+/*bool Helper::hash_comparator(const vector<string>& items, const File& data) {
+  bool is_same_hash = false;
+  if (std::to_string(data.file_hash) == items.at(db_pos::file_hash) && data.file == items.at(db_pos::file)) {
+  is_same_hash = true;
+  }
+  return is_same_hash;
+  }*/
+
+bool Helper::hash_comparator(const string& temporal_file_hash, const unsigned int& data_file_hash) {
     bool is_same_hash = false;
-    if (std::to_string(data.file_hash) == items.at(db_pos::file_hash) && data.file == items.at(db_pos::file)) {
+    if (std::to_string(data_file_hash) == temporal_file_hash) {
         is_same_hash = true;
     }
     return is_same_hash;
 }
+
 
 /*
  * Extractors
@@ -70,7 +80,10 @@ string Helper::row_extractor(const string& file, const string& target_file) {
 
     for (const auto& row : rows) {
         string trimmed_file = row.substr(0, file.size());
+        //std::cout << "trimmed file -> " << trimmed_file << std::endl;
+        //std::cout << "user file -> " << file << std::endl;
         if (file == trimmed_file) {
+            //std::cout << "Son iguales. " << std::endl;
             extracted_row = row;
             break;
         }
@@ -87,16 +100,36 @@ void Helper::items_extractor(vector<string>& items, const string& row, char sepa
     }
 }
 
-void Helper::items_extractor(vector<string>& items, const string& target_file, int item_position) {
-    vector<string> rows;
-    rows_extractor(rows, target_file);
+template <typename T>
+void Helper::content_extractor(T& item_or_items, const string& target_container, int item_position) {
+    if constexpr (std::is_same_v<T,string>) {
+        vector<string> extracted_items;
+        items_extractor(extracted_items, target_container);
+        item_or_items = extracted_items.at(item_position);
+    } else if constexpr (std::is_same_v<T,vector<string>>) {
+        vector<string> rows;
+        rows_extractor(rows, target_container);
 
-    for (const auto& row : rows) {
-        vector<string> db_items;
-        items_extractor(db_items, row);
-        items.push_back(db_items.at(item_position));
+        for (const auto& row : rows) {
+            vector<string> extracted_items;
+            items_extractor(extracted_items, row);
+            item_or_items.push_back(extracted_items.at(item_position));
+        }
     }
 }
+template void Helper::content_extractor<std::string>(string&, const string&, int);
+template void Helper::content_extractor<std::vector<std::string>>(vector<string>&, const string&, int);
+
+/*void Helper::content_extractor(vector<string>& items, const string& target_file, int item_position) {
+  vector<string> rows;
+  rows_extractor(rows, target_file);
+
+  for (const auto& row : rows) {
+  vector<string> db_items;
+  items_extractor(db_items, row);
+  items.push_back(db_items.at(item_position));
+  }
+  }*/
 
 /*
  * Checkers
@@ -116,18 +149,17 @@ bool Helper::content_checker(const string& target_file) {
 }
 
 template <typename T>
-bool Helper::existence_checker(const T& file_or_files, const string& target_folder) { 
+bool Helper::existence_checker(const T& file_or_files) { 
     bool exists = false;
-    if constexpr (std::is_same_v<T, string>) {
-        string file_to_check = target_folder + "/" + file_or_files;
-        if (fs::exists(file_to_check)) {
+    if constexpr (std::is_same_v<T,string>) {
+        //string file_to_check = target_folder + "/" + file_or_files;
+        if (fs::exists(file_or_files)) {
             exists = true;
         }
-    } else if constexpr (std::is_same_v<T, vector<string>>) {
+    } else if constexpr (std::is_same_v<T,vector<string>>) {
         unsigned int temp_counter = 0;
         for (const auto& file : file_or_files) {
-            string file_to_check = target_folder + "/" + file;
-            if (fs::exists(file_to_check)) {
+            if (fs::exists(file)) {
                 temp_counter++;
             }
         }
@@ -138,8 +170,8 @@ bool Helper::existence_checker(const T& file_or_files, const string& target_fold
     }
     return exists;
 }
-template bool Helper::existence_checker<std::string>(const string&, const string&);
-template bool Helper::existence_checker<std::vector<std::string>>(const vector<string>&, const string&);
+template bool Helper::existence_checker<std::string>(const string&);
+template bool Helper::existence_checker<std::vector<std::string>>(const vector<string>&);
 
 bool Helper::ignored_file_checker(const string& file, const string& target_file) {
     bool is_ignored = false;
@@ -148,6 +180,7 @@ bool Helper::ignored_file_checker(const string& file, const string& target_file)
 
     for (const auto& ignored_item : ignored_rows) {
         string ignored_folder = file.substr(0, ignored_item.size());
+        // en standby hasta llegar al ignore_manager y ver como funciona
         if (file == ignored_item || ignored_folder == ignored_item) {
             is_ignored = true;
         }
@@ -159,21 +192,32 @@ bool Helper::ignored_file_checker(const string& file, const string& target_file)
  * Generators
  */
 
-unsigned int Helper::hash_generator(const string& target_file) {
-    ifstream target_file_istrm(target_file, std::ios::in | std::ios::binary);
-    target_file_istrm.exceptions(ifstream::failbit | ifstream::badbit);
+string Helper::location_generator(const string& file, const string& absolute_path) {
+    string file_location = absolute_path + "/" + file;
+    return file_location;
+}
 
-    string argumentfile_data_container {
-        std::istreambuf_iterator<char>(target_file_istrm),
-            std::istreambuf_iterator<char>()
-    };
-    unsigned int file_hash = 0;
-    file_hash = std::hash<string> {}(argumentfile_data_container);
 
-    target_file_istrm.close();
-    target_file_istrm.clear();
+unsigned int Helper::hash_generator(const string& target_container, int mode) {
+    unsigned int hash_value = 0;
 
-    return file_hash;
+    if (mode == action_mode::recursive) {
+        ifstream target_container_istrm(target_container, std::ios::in | std::ios::binary);
+        target_container_istrm.exceptions(ifstream::failbit | ifstream::badbit);
+
+        string argumentfile_data_container {
+            std::istreambuf_iterator<char>(target_container_istrm),
+                std::istreambuf_iterator<char>()
+        };
+        target_container_istrm.close();
+        target_container_istrm.clear();
+
+        hash_value = std::hash<string> {}(argumentfile_data_container);
+    } else if (mode == action_mode::simple) {
+        hash_value = std::hash<string> {}(target_container);
+    }
+
+    return hash_value;
 }
 
 void Helper::timepoint_generator(string& timepoint) {
@@ -188,29 +232,26 @@ void Helper::timepoint_generator(string& timepoint) {
  * Organizers
  */
 
-void Helper::data_organizer(File& data, const string& file) {
+void Helper::data_organizer(File& data, const string& file, const string& target_folder) {
+    //void Helper::data_organizer(File& data, const string& file, const string& target_folder) {
     data.file = file;
-    data.file_hash = hash_generator(data.file);
+    data.file_hash = hash_generator(data.file, action_mode::recursive);
     data.file_name = fs::path(data.file).filename().string();
     data.file_extension = fs::path(data.file).extension().string();
-
-    if (data.file != data.file_name) {
-        data.file_path = file.substr(0, (file.length() - data.file_name.length() - 1));
-        data.file_path_hash = std::hash<string> {}(data.file_path);
-    } else {
-        data.file_path = "no_path";
-        data.file_path_hash = 1000000000;
-    }
+    data.file_path = fs::path(data.file).parent_path().string();
+    data.file_path_hash = std::hash<string> {}(data.file_path);
     data.version_name = std::to_string(data.file_path_hash) + "-" + std::to_string(data.file_hash) + data.file_extension;
+    data.version = target_folder + "/" + data.version_name;
 }
 
-void Helper::data_organizer(vector<File>& data_container, const vector<string>& rows, int mode) {
+void Helper::data_organizer(vector<File>& data_container, const vector<string>& rows, const string& target_folder, int mode) {
     string temporal_date;
     timepoint_generator(temporal_date);
 
     for (const auto& row : rows) {
         vector<string> items;
-        items_extractor(items, row, ',');
+        //items_extractor(items, row, ',');
+        items_extractor(items, row);
 
         File data;
         data.file = items.at(db_pos::file);
@@ -222,10 +263,12 @@ void Helper::data_organizer(vector<File>& data_container, const vector<string>& 
         if (mode == action_mode::built) {
             data.file_hash = std::stoul(items.at(db_pos::file_hash));
             data.version_name = items.at(db_pos::version_name);
+            data.version = items.at(db_pos::version);
             data.catch_date = items.at(db_pos::catch_date);
         } else if (mode == action_mode::to_build) {
-            data.file_hash = hash_generator(data.file);
+            data.file_hash = hash_generator(data.file, action_mode::recursive);
             data.version_name = std::to_string(data.file_path_hash) + "-" + std::to_string(data.file_hash) + data.file_extension;
+            data.version = target_folder + "/" + data.version_name;
             data.catch_date = temporal_date;
         }
         data_container.push_back(data);
@@ -233,7 +276,7 @@ void Helper::data_organizer(vector<File>& data_container, const vector<string>& 
 }
 
 template<typename T> 
-void Helper::data_organizer(vector<File>& data_container, const T& files) {
+void Helper::data_organizer(vector<File>& data_container, const T& files, const string& target_folder) {
     string temporal_date;
     timepoint_generator(temporal_date);
 
@@ -244,26 +287,29 @@ void Helper::data_organizer(vector<File>& data_container, const T& files) {
         } else if constexpr (std::is_same_v<T,vector<string>>) {
             data.file = file;
         }
-        data.file_hash = hash_generator(data.file);
+        data.file_hash = hash_generator(data.file, action_mode::recursive);
         data.file_name = fs::path(data.file).filename().string();
         data.file_extension = fs::path(data.file).extension().string();
+        data.file_path = fs::path(data.file).parent_path().string();
+        data.file_path_hash = std::hash<string> {}(data.file_path);
 
-        if (data.file != data.file_name) {
-            data.file_path = data.file.substr(0, (data.file.length() - data.file_name.length() - 1));
-            data.file_path_hash = std::hash<string> {}(data.file_path);
-        } else {
-            data.file_path = "no_path";
-            data.file_path_hash = 1000000000;
-        }
+        /*if (data.file != data.file_name) {
+          data.file_path = data.file.substr(0, (data.file.length() - data.file_name.length() - 1));
+          data.file_path_hash = std::hash<string> {}(data.file_path);
+          } else {
+          data.file_path = "no_path";
+          data.file_path_hash = 1000000000;
+          }*/
         data.version_name = std::to_string(data.file_path_hash) + "-" + std::to_string(data.file_hash) + data.file_extension;
+        data.version = target_folder + "/" + data.version_name;
         data.catch_date = temporal_date;
 
         data_container.push_back(data);
     }
 }
 
-template void Helper::data_organizer<std::unordered_map<std::string,std::string>>(vector<File>&, const unordered_map<string,string>&);
-template void Helper::data_organizer<std::vector<std::string>>(vector<File>&, const vector<string>&);
+template void Helper::data_organizer<std::unordered_map<std::string,std::string>>(vector<File>&, const unordered_map<string,string>&, const string&);
+template void Helper::data_organizer<std::vector<std::string>>(vector<File>&, const vector<string>&, const string&); // Hasta ahora solo usado en return
 
 // REVISAR LOGICA DE ESTAS DOS FUNCIONES A DETALLE PARA VER SI PUEDEN UNIFICARSE
 void Helper::availability_organizer(unordered_map<string,string>& available_files, const vector<string>& rows, const string& current_path) {
@@ -271,21 +317,30 @@ void Helper::availability_organizer(unordered_map<string,string>& available_file
         if (!fs::is_directory(file_or_folder)) {
             unsigned int temp_counter = 0;
             string formatted_file = file_or_folder.path().string();
+            //std::cout << "formatted file -> " << formatted_file << std::endl;
             // Porque erase --> Verificar
-            string trimmed_file = formatted_file.erase(0, (current_path.size() + 1));
-
+            // se oculta porq acá esta trimeado el current path, queremos completo ->_string trimmed_file = formatted_file.erase(0, (current_path.size() + 1));
+            //string trimmed_file = formatted_file;
             for (auto& ignored_file_or_folder : rows) {
-                string comparison_file_or_folder = trimmed_file.substr(0, ignored_file_or_folder.size());
-                if (ignored_file_or_folder != comparison_file_or_folder) { temp_counter++; }
+                //std::cout << "ignore_file_or_folder -> " << ignored_file_or_folder << std::endl; 
+                string comparison_file = formatted_file.substr(0, ignored_file_or_folder.size());
+                //std::cout << "comparison_file -> " << comparison_file << std::endl; 
+                if (ignored_file_or_folder != comparison_file) { 
+                    temp_counter++; 
+                    //std::cout << "Fueron diferentes" << std::endl;
+                } else {
+                    //std::cout << "Fueron iguales" << std::endl;
+                }
             }
 
-            unsigned int file_hash = 0;
+            unsigned int temporal_hash = 0;
             if (temp_counter == rows.size()) {
-                file_hash = hash_generator(formatted_file);
+                temporal_hash = hash_generator(formatted_file, action_mode::recursive);
                 // Identificar donde se está usando esta función debido a que se ha generado un valor hash de un archivo con ruta incompleta (se uso erase sobre formatted_file)
-                available_files.insert(make_pair(std::to_string(file_hash), trimmed_file));
+                available_files.insert(make_pair(std::to_string(temporal_hash), formatted_file));
             }
         }
+        //std::cout << ".............................................." << std::endl;
     }
 }
 
@@ -320,14 +375,15 @@ void Helper::status_organizer(unordered_map<string,string>& untracked_files, uno
     if (trimmed_target_file == db_catch) {
         for (const auto& row : rows) {
             vector<string> items;
-            items_extractor(items, row, ',');
+            //items_extractor(items, row, ',');
+            items_extractor(items, row);
             temporal_files.insert(make_pair(items.at(db_pos::file_hash),items.at(db_pos::file)));
         }
     } else {
         unordered_map<string,string> latest_version_checker;
         for (const auto& row : rows) {
             vector<string> items;
-            items_extractor(items, row, ',');
+            items_extractor(items, row);
             for (auto latest_version_item : latest_version_checker) {
                 if (items.at(db_pos::file) == latest_version_item.second) {
                     temporal_files.erase(latest_version_item.first);
@@ -391,7 +447,7 @@ void Helper::processed_files_organizer(vector<string>& saved_modified, vector<st
     for (auto saved_file : saved_files) {
         if (modified_files.empty()) {
             string temp_saved_not_modified = row_extractor(saved_file.second, target_file);
-            saved_not_modified.push_back(temp_saved_not_modified );
+            saved_not_modified.push_back(temp_saved_not_modified);
         } else { 
             for (auto modified_file : modified_files) {
                 if (saved_file.second == modified_file.second) {

@@ -20,14 +20,15 @@ struct Base {
 
 struct File {
     std:: string file = "null";
-    size_t file_hash = 0;
+    unsigned file_hash = 0;
     std::string file_path = "null";
-    size_t file_path_hash = 0;
+    unsigned int file_path_hash = 0;
+    std::string version = "null";
     std::string version_name = "null";
     std::string file_name = "null";
     std::string file_extension = "null";
     std::string catch_date = "null";
-    size_t snap_hash = 0;
+    unsigned int snap_hash = 0;
     std::string snap_date = "null";
     std::string comment = "null";
 };

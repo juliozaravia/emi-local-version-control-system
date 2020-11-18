@@ -12,29 +12,34 @@ class Helper {
     public:
         Helper();
         // Comparators
-        bool hash_comparator(const std::vector<std::string>&, const struct File&);
+        //bool hash_comparator(const std::vector<std::string>&, const struct File&);
+        bool hash_comparator(const std::string&, const unsigned int&);
 
         // Extractors
         std::string row_extractor(const std::string&, const std::string&);
         void rows_extractor(std::vector<std::string>&, const std::string&, const std::string& = std::string());
         void items_extractor(std::vector<std::string>&, const std::string&, char = ',');
-        void items_extractor(std::vector<std::string>&, const std::string&, int);
+        template<typename T>
+        void content_extractor(T&, const std::string&, int);
+        //void content_extractor(std::vector<std::string>&, const std::string&, int);
 
         // Checkers
         bool content_checker(const std::string&);
         bool ignored_file_checker(const std::string&, const std::string&);
         template<typename T> 
-        bool existence_checker(const T&, const std::string&);
+        bool existence_checker(const T&);
 
         // Generators
-        unsigned int hash_generator(const std::string&);
+        std::string location_generator(const std::string&, const std::string&); 
+        unsigned int hash_generator(const std::string&, int);
         void timepoint_generator(std::string&);
 
         // Organizers
-        void data_organizer(struct File&, const std::string&);
-        void data_organizer(std::vector<File>&, const std::vector<std::string>&, int);
+        //void data_organizer(struct File&, const std::string&, const std::string&);
+        void data_organizer(struct File&, const std::string&, const std::string&);
+        void data_organizer(std::vector<File>&, const std::vector<std::string>&, const std::string&, int);
         template<typename T> 
-        void data_organizer(std::vector<File>&, const T&);
+        void data_organizer(std::vector<File>&, const T&, const std::string&);
         void availability_organizer(std::unordered_map<std::string,std::string>&,
                 const std::vector<std::string>&,
                 const std::string&);

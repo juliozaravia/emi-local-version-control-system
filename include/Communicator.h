@@ -17,7 +17,8 @@ public:
     void version_reporter();
     void status_reporter(const std::unordered_map<std::string,std::string>&,
                          const std::unordered_map<std::string,std::string>&,
-                         const std::unordered_map<std::string,std::string>&);
+                         const std::unordered_map<std::string,std::string>&,
+                         const std::string&);
     void log_reporter(const std::vector<Log>&, const std::unordered_multimap<std::string,std::string>&);
     void authorization_reporter(const std::string&);
 

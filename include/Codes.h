@@ -41,13 +41,11 @@ enum validation_codes {
     emi_and_path_valid = 400,
     emi_and_path_not_valid,
     emi_valid_path_not_valid
-
 };
 
 enum notification_codes {
     cancelled_action = 500,
     no_files_found
-
 };
 
 enum db_pos {
@@ -55,6 +53,7 @@ enum db_pos {
     file_hash,
     path_name,
     path_hash,
+    version,
     version_name,
     file_name,
     file_extension,

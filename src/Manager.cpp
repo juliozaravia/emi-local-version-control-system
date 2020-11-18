@@ -104,7 +104,6 @@ void Manager::start_manager() {
     printer.event_reporter(success_codes::emi_repository_created);
 }
 
-// Tested in Ubuntu
 void Manager::catch_manager() {
     if (arg_container[2] == process_all) {
         multiple_catch_manager();
@@ -113,29 +112,17 @@ void Manager::catch_manager() {
     }
 }
 
-// Tested in Ubuntu
 void Manager::simple_catch_manager() {
     Communicator printer;
     Helper helper;
-    bool file_exists = helper.existence_checker<string>(arg_container[2], current_path);
+    string file = helper.location_generator(arg_container[2], current_path);
+    bool file_exists = helper.existence_checker<string>(file);
     if (file_exists) {
-        bool file_is_ignored = helper.ignored_file_checker(arg_container[2], base.config_ignore_file);
+        bool file_is_ignored = helper.ignored_file_checker(file, base.config_ignore_file);
         if (!file_is_ignored) {
             File data;
-            helper.data_organizer(data, arg_container[2]);
-
-            std::cout << "data.file-> " << data.file << std::endl;
-            std::cout << "data.file_hash-> " << data.file_hash << std::endl;
-            std::cout << "data.file_path-> " << data.file_path << std::endl;
-            std::cout << "data.file_path_hash-> " << data.file_path_hash << std::endl;
-            std::cout << "data.version_name-> " << data.version_name << std::endl;
-            std::cout << "data.file_name-> " << data.file_name << std::endl;
-            std::cout << "data.file_extension-> " << data.file_extension << std::endl;
-            std::cout << "data.catch_date-> " << data.catch_date << std::endl;
-            std::cout << "data.snap_hash-> " << data.snap_hash << std::endl;
-            std::cout << "data.snap_date-> " << data.snap_date << std::endl;
-            std::cout << "data.comment-> " << data.comment << std::endl;
-            /*Builder builder;
+            helper.data_organizer(data, file, base.version_catch_path);
+            Builder builder;
             string catch_row = helper.row_extractor(data.file, base.db_catch_file);
             if (catch_row.empty()) {
                 string main_row = helper.row_extractor(data.file, base.db_main_file);
@@ -145,9 +132,11 @@ void Manager::simple_catch_manager() {
                     builder.data_catcher<File>(data, base.db_catch_file);
                     printer.event_reporter(success_codes::version_catched);
                 } else {
-                    vector<string> main_row_items;
-                    helper.items_extractor(main_row_items, main_row);
-                    bool is_same_hash = helper.hash_comparator(main_row_items, data);
+                    /*vector<string> main_row_items;
+                      helper.items_extractor(main_row_items, main_row);*/
+                    string temporal_file_hash;
+                    helper.content_extractor<string>(temporal_file_hash, main_row, db_pos::file_hash);
+                    bool is_same_hash = helper.hash_comparator(temporal_file_hash, data.file_hash);
                     if (is_same_hash) {
                         printer.event_reporter(warning_codes::identical_version_saved);
                     } else {
@@ -158,23 +147,30 @@ void Manager::simple_catch_manager() {
                     }
                 }
             } else {
-                vector<string> catch_row_items;
-                helper.items_extractor(catch_row_items, catch_row);
-                bool is_same_hash = helper.hash_comparator(catch_row_items, data);
+                /*vector<string> catch_row_items;
+                  helper.items_extractor(catch_row_items, catch_row);*/
+                string temporal_file_hash;
+                helper.content_extractor<string>(temporal_file_hash, catch_row, db_pos::file_hash);
+                bool is_same_hash = helper.hash_comparator(temporal_file_hash, data.file_hash);
                 if (is_same_hash) {
                     printer.event_reporter(warning_codes::identical_version_in_standby);
                 } else {
                     vector<string> protected_rows;
+                    string temporal_version;
                     helper.rows_extractor(protected_rows, base.db_catch_file, catch_row);
                     helper.timepoint_generator(data.catch_date);
-                    builder.file_remover<vector<string>>(catch_row_items, base.version_catch_path);
+                    // observado se puede usar el content_extrctor para traer la version sin necesidad de pasar items para construie la version
+                    //builder.file_remover<vector<string>>(catch_row_items, base.version_catch_path);
+                    helper.content_extractor<string>(temporal_version, catch_row, db_pos::version);
+
+                    builder.file_remover<string>(temporal_version);
                     builder.data_cleaner(base.db_catch_file);
                     builder.data_inserter<vector<string>>(protected_rows, base.db_catch_file);
                     builder.file_transporter<File>(data, base.version_catch_path);
                     builder.data_catcher<File>(data, base.db_catch_file);
                     printer.event_reporter(success_codes::version_catched);
                 }
-            }*/
+            }
         } else {
             printer.event_reporter(warning_codes::file_already_ignored, catch_command);
         }
@@ -183,7 +179,6 @@ void Manager::simple_catch_manager() {
     }
 }
 
-// Tested in Ubuntu
 void Manager::multiple_catch_manager() {
     unordered_map<string,string> untracked_files;
     unordered_map<string,string> modified_files;
@@ -195,6 +190,11 @@ void Manager::multiple_catch_manager() {
     vector<string> ignored_files_or_folders;
     helper.rows_extractor(ignored_files_or_folders, base.config_ignore_file);
     helper.availability_organizer(untracked_files, ignored_files_or_folders, current_path);
+
+    for (auto item : untracked_files) {
+        std::cout << "untracked item -> " << item.second << std::endl; 
+    }
+    std::cout << "*************************************************" << std::endl;
 
     if (untracked_files.empty()) {
         printer.event_reporter(notification_codes::no_files_found, catch_command);
@@ -218,6 +218,27 @@ void Manager::multiple_catch_manager() {
                     standby_files,
                     base.db_catch_file);
 
+            std::cout << "CATCH HAS DATA" << std::endl;
+
+            for (auto item : catched_modified) {
+                std::cout << "catched modified item -> " << item << std::endl;
+            }
+            std::cout << "*****************************************" << std::endl;
+            for (auto item : catched_not_modified) {
+                std::cout << "catched not modified item -> " << item << std::endl;
+            }
+            std::cout << "*****************************************" << std::endl;
+            for (auto item : modified_files) {
+                std::cout << "modified files item -> " << item.second << std::endl;
+            }
+            std::cout << "*****************************************" << std::endl;
+            for (auto item : standby_files) {
+                std::cout << "standby files item -> " << item.second << std::endl;
+            }
+            std::cout << "*****************************************" << std::endl;
+
+
+
             bool main_has_data = helper.content_checker(base.db_main_file);
             if (main_has_data) {
                 helper.status_organizer(untracked_files, modified_files, saved_files, base.db_main_file);
@@ -227,14 +248,34 @@ void Manager::multiple_catch_manager() {
                         saved_files,
                         base.db_main_file);
 
-                helper.data_organizer(old_data, catched_modified, action_mode::built);
-                helper.data_organizer(catched_modified_data, catched_modified, action_mode::to_build);
-                helper.data_organizer(saved_modified_data, saved_modified, action_mode::to_build);
-                helper.data_organizer<unordered_map<string,string>>(untracked_data, untracked_files);
+                helper.data_organizer(old_data, catched_modified, base.version_catch_path, action_mode::built);
+                helper.data_organizer(catched_modified_data, catched_modified, base.version_catch_path, action_mode::to_build);
+                helper.data_organizer(saved_modified_data, saved_modified, base.version_catch_path, action_mode::to_build);
+                helper.data_organizer<unordered_map<string,string>>(untracked_data, untracked_files, base.version_catch_path);
+
+                std::cout << "MAIN HAS DATA" << std::endl;
+
+                for (auto item : saved_modified) {
+                    std::cout << "saved modified item -> " << item << std::endl;
+                }
+                std::cout << "*****************************************" << std::endl;
+                for (auto item : saved_not_modified) {
+                    std::cout << "saved not modified item -> " << item << std::endl;
+                }
+                std::cout << "*****************************************" << std::endl;
+                for (auto item : modified_files) {
+                    std::cout << "modified files item -> " << item.second << std::endl;
+                }
+                std::cout << "*****************************************" << std::endl;
+                for (auto item : saved_files) {
+                    std::cout << "saved files item -> " << item.second << std::endl;
+                }
+                std::cout << "*****************************************" << std::endl;
+
             } else {
-                helper.data_organizer(old_data, catched_modified, action_mode::built);
-                helper.data_organizer(catched_modified_data, catched_modified, action_mode::to_build);
-                helper.data_organizer<unordered_map<string,string>>(untracked_data, untracked_files);
+                helper.data_organizer(old_data, catched_modified, base.version_catch_path, action_mode::built);
+                helper.data_organizer(catched_modified_data, catched_modified, base.version_catch_path, action_mode::to_build);
+                helper.data_organizer<unordered_map<string,string>>(untracked_data, untracked_files, base.version_catch_path);
             }
         } else {
             bool main_has_data = helper.content_checker(base.db_main_file);
@@ -246,23 +287,65 @@ void Manager::multiple_catch_manager() {
                         saved_files,
                         base.db_main_file);
 
-                helper.data_organizer(saved_modified_data, saved_modified, action_mode::to_build);
-                helper.data_organizer<unordered_map<string,string>>(untracked_data, untracked_files);
+                helper.data_organizer(saved_modified_data, saved_modified, base.version_catch_path, action_mode::to_build);
+                helper.data_organizer<unordered_map<string,string>>(untracked_data, untracked_files, base.version_catch_path);
+
+                std::cout << "CATH NO DATA - MAIN HAS DATA" << std::endl;
+
+                for (auto item : saved_modified) {
+                    std::cout << "saved modified item -> " << item << std::endl;
+                }
+                std::cout << "*****************************************" << std::endl;
+                for (auto item : saved_not_modified) {
+                    std::cout << "saved not modified item -> " << item << std::endl;
+                }
+                std::cout << "*****************************************" << std::endl;
+                for (auto item : modified_files) {
+                    std::cout << "modified files item -> " << item.second << std::endl;
+                }
+                std::cout << "*****************************************" << std::endl;
+                for (auto item : saved_files) {
+                    std::cout << "saved files item -> " << item.second << std::endl;
+                }
+                std::cout << "*****************************************" << std::endl;
+
             } else {
-                helper.data_organizer<unordered_map<string,string>>(untracked_data, untracked_files);
+                helper.data_organizer<unordered_map<string,string>>(untracked_data, untracked_files, base.version_catch_path);
             }
         }
 
+        std::cout << "ACA VIENEN LOS DATASSSSSSSSSSSSSS" << std::endl;
+
+        for (auto data : old_data) {
+            std::cout << "old_data data -> " << data.file << " - " << data.file_hash << std::endl;
+        }
+        std::cout << "***************************************************" << std::endl;
+
+        for (auto data : catched_modified_data) {
+            std::cout << "catched_modified data -> " << data.file << " - " << data.file_hash << std::endl;
+        }
+        std::cout << "***************************************************" << std::endl;
+
+        for (auto data : saved_modified_data) {
+            std::cout << "saved_modified data -> " << data.file << " - " << data.file_hash << std::endl;
+        }
+        std::cout << "***************************************************" << std::endl;
+
+        for (auto data : untracked_data) {
+            std::cout << "untracked data -> " << data.file << " - " << data.file_hash << std::endl;
+        }
+        std::cout << "***************************************************" << std::endl;
+
         Builder builder;
         if (!old_data.empty()) {
-            /*for (auto data : old_data) {
-                std::cout << "old_data file -> " << data.file << std::endl;
-                std::cout << "old_data file version -> " << data.version_name<< std::endl;
-            }*/
-            builder.file_remover<vector<File>>(old_data, base.version_catch_path);
+            builder.file_remover<vector<File>>(old_data, db_pos::version);
             builder.data_cleaner(base.db_catch_file);
         }         
-        if (!catched_not_modified.empty()) builder.data_inserter<vector<string>>(catched_not_modified, base.db_catch_file);
+        if (!catched_not_modified.empty())  { 
+            // Lo oculte porque me inserta nuevamente archivos que no deben tocarse ya que están catcheados son ser modificados   
+            // std::cout << "Si 2" << std::endl;
+            builder.data_inserter<vector<string>>(catched_not_modified, base.db_catch_file);
+        }
         if (!catched_modified_data.empty()) {
             builder.file_transporter<vector<File>>(catched_modified_data, base.version_catch_path);
             builder.data_catcher<vector<File>>(catched_modified_data, base.db_catch_file);
@@ -291,23 +374,31 @@ void Manager::drop_manager() {
 void Manager::simple_drop_manager() {
     Helper helper;
     Communicator printer;
-    bool file_exists = helper.existence_checker<string>(arg_container[2], current_path);
+    string file = helper.location_generator(arg_container[2], current_path);
+    bool file_exists = helper.existence_checker<string>(file);
     if (file_exists) {
         File data;
-        helper.data_organizer(data, arg_container[2]);
+        helper.data_organizer(data, file, base.version_catch_path);
         string catch_row = helper.row_extractor(data.file, base.db_catch_file);
         if (catch_row.empty()) {
             printer.event_reporter(warning_codes::file_not_catched, drop_command);
         } else {
             vector<string> protected_rows;
             helper.rows_extractor(protected_rows, base.db_catch_file, catch_row);
-            vector<string> catch_row_items;
-            helper.items_extractor(catch_row_items, catch_row);
+            /*vector<string> catch_row_items;
+              helper.items_extractor(catch_row_items, catch_row);*/
             Builder builder;
 
-            bool is_same_hash = helper.hash_comparator(catch_row_items, data);
+            string temporal_file_hash;
+            helper.content_extractor<string>(temporal_file_hash, catch_row, db_pos::file_hash);
+            bool is_same_hash = helper.hash_comparator(temporal_file_hash, data.file_hash);
+
+            //bool is_same_hash = helper.hash_comparator(catch_row_items, data);
             if (is_same_hash) {
-                builder.file_remover<vector<string>>(catch_row_items, base.version_catch_path);
+                string temporal_version;
+                helper.content_extractor(temporal_version, catch_row, db_pos::version);
+
+                builder.file_remover<string>(temporal_version);
                 builder.data_cleaner(base.db_catch_file);
                 builder.data_inserter<vector<string>>(protected_rows, base.db_catch_file);
                 printer.event_reporter(success_codes::version_dropped);
@@ -317,7 +408,10 @@ void Manager::simple_drop_manager() {
                 string authorization;
                 std::cin >> authorization;
                 if (authorization == confirmed_auth) {
-                    builder.file_remover<vector<string>>(catch_row_items, base.version_catch_path);
+                    string temporal_version;
+                    helper.content_extractor(temporal_version, catch_row, db_pos::version);
+
+                    builder.file_remover<string>(temporal_version);
                     builder.data_cleaner(base.db_catch_file);
                     builder.data_inserter<vector<string>>(protected_rows, base.db_catch_file);
                     printer.event_reporter(success_codes::version_dropped);
@@ -359,10 +453,10 @@ void Manager::multiple_drop_manager() {
         Builder builder;	
         if (catched_modified.empty()) {
             vector<File> catched_not_modified_data;
-            helper.data_organizer(catched_not_modified_data, catched_not_modified, action_mode::built);
+            helper.data_organizer(catched_not_modified_data, catched_not_modified, base.version_catch_path, action_mode::built);
             if (!catched_not_modified_data.empty()) {
                 //builder.version_cleaner(catched_not_modified_data);
-                builder.file_remover<vector<File>>(catched_not_modified_data, base.version_catch_path);
+                builder.file_remover<vector<File>>(catched_not_modified_data, db_pos::version);
                 builder.data_cleaner(base.db_catch_file);
             }
             printer.event_reporter(success_codes::version_dropped);
@@ -373,16 +467,16 @@ void Manager::multiple_drop_manager() {
             if (authorization == confirmed_auth) {
                 vector<File> catched_modified_data;
                 vector<File> catched_not_modified_data;
-                helper.data_organizer(catched_modified_data, catched_modified, action_mode::built);
-                helper.data_organizer(catched_not_modified_data, catched_not_modified, action_mode::built);
+                helper.data_organizer(catched_modified_data, catched_modified, base.version_catch_path, action_mode::built);
+                helper.data_organizer(catched_not_modified_data, catched_not_modified, base.version_catch_path, action_mode::built);
                 if (!catched_modified_data.empty()) {
                     //builder.version_cleaner(catched_modified_data);
-                    builder.file_remover<vector<File>>(catched_modified_data, base.version_catch_path);
+                    builder.file_remover<vector<File>>(catched_modified_data, db_pos::version);
                     builder.data_cleaner(base.db_catch_file);
                 }
                 if (!catched_not_modified_data.empty()) {
                     //builder.version_cleaner(catched_not_modified_data);
-                    builder.file_remover<vector<File>>(catched_not_modified_data, base.version_catch_path);
+                    builder.file_remover<vector<File>>(catched_not_modified_data, db_pos::version);
                     builder.data_cleaner(base.db_catch_file);
                 }
                 printer.event_reporter(success_codes::version_dropped);
@@ -397,39 +491,33 @@ void Manager::multiple_drop_manager() {
     }
 }
 
-// Tested in Ubuntu
 void Manager::snapshot_manager() {
     Communicator printer;
     Helper helper;
     bool catch_has_data = helper.content_checker(base.db_catch_file);
     if (catch_has_data) {
         vector<string> version_names;
-        helper.items_extractor(version_names, base.db_catch_file, db_pos::version_name);
-        bool versions_exist = helper.existence_checker<vector<string>>(version_names, base.version_catch_path);
+        helper.content_extractor<vector<string>>(version_names, base.db_catch_file, db_pos::version);
+        for (auto item : version_names) {
+            std::cout << "item -> " << item << std::endl;
+        }
+        bool versions_exist = helper.existence_checker<vector<string>>(version_names);
         if (versions_exist) {
             Builder builder;
             string timepoint;
             vector<string> catch_file_rows;
+
             helper.rows_extractor(catch_file_rows, base.db_catch_file);
             helper.timepoint_generator(timepoint);
-            // ESto no está del todo boien, se está usando una ruta para una carpeta de tipo version_ZZZZ_path dentro de otra carpeta del
-            // mismo tipo, este version_temp deberia ser asignado dentro de la funcion quizá con un control enum
-            // Esto puede ayudar a estandarizar el file_transporter
-            // Esto puede ayudar a estandarizar el file_transporter
-            // Esto puede ayudar a estandarizar el file_transporter
-            // Esto puede ayudar a estandarizar el file_transporter
-            // Esto puede ayudar a estandarizar el file_transporter
-            // Esto puede ayudar a estandarizar el file_transporter
+            unsigned int timepoint_hash = helper.hash_generator(timepoint, action_mode::simple);
 
-            //Ademas de lo de arriba, el file_transporter echo para el snapshot es especifico, verificar si puede ser utilizado  standarizado para usar el general
-            //Ademas de lo de arriba, el file_transporter echo para el snapshot es especifico, verificar si puede ser utilizado  standarizado para usar el general
-            //Ademas de lo de arriba, el file_transporter echo para el snapshot es especifico, verificar si puede ser utilizado  standarizado para usar el general
-            //Ademas de lo de arriba, el file_transporter echo para el snapshot es especifico, verificar si puede ser utilizado  standarizado para usar el general
-            //Ademas de lo de arriba, el file_transporter echo para el snapshot es especifico, verificar si puede ser utilizado  standarizado para usar el general
-            //Ademas de lo de arriba, el file_transporter echo para el snapshot es especifico, verificar si puede ser utilizado  standarizado para usar el general
-            builder.file_transporter(version_names, base.version_catch_path, base.version_main_path, version_temp);
+            //builder.file_transporter(version_names, base.version_catch_path, base.version_main_path, version_temp);
+            builder.file_transporter<vector<string>>(version_names, base.version_main_path, version_temp);
+            builder.file_remover<vector<string>>(version_names);
             builder.data_cleaner(base.db_catch_file);
-            builder.file_renamer(timepoint, base.version_main_path, version_temp);
+            builder.file_renamer(std::to_string(timepoint_hash), base.version_main_path, version_temp);
+            
+            // file_renam deberia ser absorvido por data_saver. motivo: función muy particular, unico uso
             builder.data_saver(catch_file_rows, base.db_main_file, timepoint, arg_container[2]);
             printer.event_reporter(success_codes::version_saved);
         } else {
@@ -454,7 +542,7 @@ void Manager::look_manager() {
 
     Communicator printer;
     if (untracked_files.empty()) {
-        printer.status_reporter(untracked_files, modified_files, standby_files);
+        printer.status_reporter(untracked_files, modified_files, standby_files, current_path);
     } else {
         bool catch_has_data = helper.content_checker(base.db_catch_file);
         if (catch_has_data) {
@@ -462,17 +550,17 @@ void Manager::look_manager() {
             bool main_has_data = helper.content_checker(base.db_main_file);
             if (main_has_data) {
                 helper.status_organizer(untracked_files, modified_files, saved_files, base.db_main_file);
-                printer.status_reporter(untracked_files, modified_files, standby_files);
+                printer.status_reporter(untracked_files, modified_files, standby_files, current_path);
             } else {
-                printer.status_reporter(untracked_files, modified_files, standby_files);
+                printer.status_reporter(untracked_files, modified_files, standby_files, current_path);
             }
         } else {
             bool main_has_data = helper.content_checker(base.db_main_file);
             if (main_has_data) {
                 helper.status_organizer(untracked_files, modified_files, saved_files, base.db_main_file);
-                printer.status_reporter(untracked_files, modified_files, standby_files);
+                printer.status_reporter(untracked_files, modified_files, standby_files, current_path);
             } else {
-                printer.status_reporter(untracked_files, modified_files, standby_files);
+                printer.status_reporter(untracked_files, modified_files, standby_files, current_path);
             }
         }
     }
@@ -501,17 +589,26 @@ void Manager::log_manager() {
 void Manager::ignore_manager() {
     Communicator printer;
     Helper helper;
-    bool file_exists = helper.existence_checker<string>(arg_container[2], current_path);
+    string file_or_folder = helper.location_generator(arg_container[2], current_path);
+    //probar también la existencia con folders, ... parece que da con los 2, la variable debería ser file_or_folder
+    bool file_exists = helper.existence_checker<string>(file_or_folder);
     if (file_exists) {
-        string catch_row = helper.row_extractor(arg_container[2], base.db_catch_file);
-        string main_row = helper.row_extractor(arg_container[2], base.db_main_file);
+        std::cout << "Archivo existe" << std::endl;
+        //string catch_row = helper.row_extractor(arg_container[2], base.db_catch_file);
+        string catch_row = helper.row_extractor(file_or_folder, base.db_catch_file);
+        //string main_row = helper.row_extractor(arg_container[2], base.db_main_file);
+        string main_row = helper.row_extractor(file_or_folder, base.db_main_file);
         if (catch_row.empty() && main_row.empty()) {
-            bool file_or_folder_is_ignored = helper.ignored_file_checker(arg_container[2], base.config_ignore_file);
+            std::cout << "Archivo no está en catch o main" << std::endl;
+            bool file_or_folder_is_ignored = helper.ignored_file_checker(file_or_folder, base.config_ignore_file);
             if (file_or_folder_is_ignored) {
+                std::cout << "Archivo está ignoreado previamente" << std::endl;
+                // debera ser la notificacion por un file OR foledr ya ignorado, no solo file
                 printer.event_reporter(warning_codes::file_already_ignored, ignore_command);
             } else {
+                std::cout << "Archivo no está ignoreado" << std::endl;
                 Builder builder;
-                builder.data_inserter<string>(arg_container[2], base.config_ignore_file);
+                builder.data_inserter<string>(file_or_folder, base.config_ignore_file);
                 printer.event_reporter(success_codes::file_ignored);
             }        
         } else {
@@ -527,34 +624,27 @@ void Manager::return_manager() {
     //Verificar si hay datos en main
     bool main_has_data = helper.content_checker(base.db_main_file);
     //if (main_has_data) {
-        vector<string> ignored_files_or_folders;
-        helper.rows_extractor(ignored_files_or_folders, base.config_ignore_file);
-        //Excluir archivos ignorados de los archivos que serán movidos
-        vector<string> available_files;
-        vector<string> available_folders;
-        helper.availability_organizer(available_files, available_folders, ignored_files_or_folders, current_path);
-        // Para mover fisicamente los archivos y/o insertarlos en la base de datos temporal
-        // necesito un data de tipo File para guardar su estructura
-        
-        vector<File> available_files_data;
-        helper.data_organizer<vector<string>>(available_files_data, available_files);
-        
-        /*for (auto data : available_files_data) {
-            std::cout << "data.file -> " << data.file << std::endl; 
-            std::cout << "data.file_name -> " << data.file_name << std::endl; 
-            std::cout << "data.file_path -> " << data.file_path << std::endl; 
-            std::cout << "data.file_path_hash -> " << data.file_path_hash << std::endl; 
-            std::cout << "......................................" << std::endl; 
-        }*/
+    vector<string> ignored_files_or_folders;
+    helper.rows_extractor(ignored_files_or_folders, base.config_ignore_file);
+    //Excluir archivos ignorados de los archivos que serán movidos
+    vector<string> available_files;
+    vector<string> available_folders;
+    helper.availability_organizer(available_files, available_folders, ignored_files_or_folders, current_path);
+    // Para mover fisicamente los archivos y/o insertarlos en la base de datos temporal
+    // necesito un data de tipo File para guardar su estructura
 
-        Builder builder;
-        //builder.file_transporter(available_files_data, base.version_temp_path);
-        builder.file_transporter<vector<File>>(available_files_data, base.version_temp_path);
-        builder.file_remover<vector<File>>(available_files_data);
-        builder.folder_remover(available_folders);
-        builder.data_catcher<vector<File>>(available_files_data, base.db_temp_file);
-            //} else {
-        //std::cout << "No tiene data" << std::endl;
+    vector<File> available_files_data;
+    helper.data_organizer<vector<string>>(available_files_data, available_files, base.version_catch_path);
+
+    Builder builder;
+    //builder.file_transporter(available_files_data, base.version_temp_path);
+    builder.file_transporter<vector<File>>(available_files_data, base.version_temp_path);
+    // file_remover a la manera de return hace difiil reusar la función
+    builder.file_remover<vector<File>>(available_files_data, db_pos::file);
+    builder.folder_remover(available_folders);
+    builder.data_catcher<vector<File>>(available_files_data, base.db_temp_file);
+    //} else {
+    //std::cout << "No tiene data" << std::endl;
     //}
 }
 

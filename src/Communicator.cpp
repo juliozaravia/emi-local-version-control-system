@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <string>
 
 #include "../include/Communicator.h"
@@ -72,7 +73,7 @@ void Communicator::event_reporter(int com_identifier, const std::string& command
         cout << "[Warning Code: WC" << warning_codes::no_files_to_save << "] No files were found in the standby stage." << endl;
         cout << "Tip: Use -snapshot after you have put files in the standby stage using -catch. (Usage info: Use --help)" << endl;
     } else if (com_identifier == warning_codes::file_not_found) {
-        cout << "[Warning Code: WC" << warning_codes::file_not_found << "] The file / directory entered doesn't exist, is misspelled or is not a relative path.";
+        cout << "[Warning Code: WC" << warning_codes::file_not_found << "] The file / directory entered doesn't exist, is misspelled or is not a relative path." << endl;
     } else if (com_identifier == warning_codes::file_already_ignored) {
         cout << "[Warning Code: WC" << warning_codes::file_already_ignored << "] The file / directory entered has previously been registered in the ignore list." << endl;
         if (command == catch_command) {
@@ -151,7 +152,11 @@ void Communicator::version_reporter() {
 
 void Communicator::status_reporter(const unordered_map<string,string>& untracked_files,
                                    const unordered_map<string,string>& modified_files,
-                                   const unordered_map<string,string>& standby_files) {
+                                   const unordered_map<string,string>& standby_files,
+                                   const string& current_path) {
+    const int hash_width = 13;
+    const int file_width = 30;
+
     cout << "------------------------" << endl;
     cout << "Standby files | Total: " << standby_files.size() << endl;
     cout << "------------------------" << endl;
@@ -160,7 +165,9 @@ void Communicator::status_reporter(const unordered_map<string,string>& untracked
         cout << "There are no files on standby stage." << endl;
     } else {
         for (auto item : standby_files) {
-            cout << item.first << " - " << item.second << endl;
+            cout << std::left << std::setw(hash_width) << item.first;
+            cout << std::left << std::setw(file_width) << item.second.substr((current_path.size() + 1), item.second.size());
+            cout << endl;
         }
     }
 
@@ -174,7 +181,9 @@ void Communicator::status_reporter(const unordered_map<string,string>& untracked
         cout << "There are no modified files." << endl;
     } else {
         for (auto item : modified_files) {
-            cout << item.first << " - " << item.second << endl;
+            cout << std::left << std::setw(hash_width) << item.first;
+            cout << std::left << std::setw(file_width) << item.second.substr((current_path.size() + 1), item.second.size());
+            cout << endl;
         }
     }
 
@@ -188,7 +197,9 @@ void Communicator::status_reporter(const unordered_map<string,string>& untracked
         cout << "There are no untracked files." << endl;
     } else {
         for (auto item : untracked_files) {
-            cout << item.first << " - " << item.second << endl;
+            cout << std::left << std::setw(hash_width) << item.first;
+            cout << std::left << std::setw(file_width) << item.second.substr((current_path.size() + 1), item.second.size());
+            cout << endl;
         }
     }
 }
