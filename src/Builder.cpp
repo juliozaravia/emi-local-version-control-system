@@ -81,6 +81,7 @@ void Builder::file_remover(const T& items_or_data, int data_identifier) {
             } else if (data_identifier == db_pos::version) {
                 file_to_remove = data.version;
             }
+            std::cout << "Va a remover el file -> " << file_to_remove << std::endl;
             fs::remove(file_to_remove);
         }
     }
@@ -89,39 +90,7 @@ template void Builder::file_remover<string>(const string&, int);
 template void Builder::file_remover<vector<string>>(const vector<string>&, int);
 template void Builder::file_remover<vector<File>>(const vector<File>&, int);
 
-
-
-/*template <typename T>
-  void Builder::file_remover(const T& items_or_data, const string& target_folder) {
-  if constexpr (std::is_same_v<T,vector<string>>) {
-  string file_to_remove = target_folder + "/" +
-  items_or_data.at(db_pos::path_hash) + "-" +
-  items_or_data.at(db_pos::file_hash) +
-  items_or_data.at(db_pos::file_extension);
-  fs::remove(file_to_remove);
-  } else if constexpr (std::is_same_v<T,vector<File>>) {
-  for (auto& data : items_or_data) {
-  string file_to_remove;
-// A LA ESPERA DE REGULARIZARRRRRRRRRRRRRRRRRRR
-// A LA ESPERA DE REGULARIZARRRRRRRRRRRRRRRRRRR
-// A LA ESPERA DE REGULARIZARRRRRRRRRRRRRRRRRRR
-// A LA ESPERA DE REGULARIZARRRRRRRRRRRRRRRRRRR
-if (target_folder.empty()) {
-file_to_remove = data.file;
-} else {
-file_to_remove = target_folder + "/" + data.version_name;
-}
-//string file_to_remove = target_folder + "/" + data.version_name;
-std::to_string(data.file_path_hash) + "-" +
-std::to_string(data.file_hash) +
-data.file_extension;
-std::cout << "armado data_version -> " << file_to_remove << std::endl;
-std::cout << "extraido data_version -> " << data.version_name<< std::endl;
-fs::remove(file_to_remove);
-}
-}
-}*/
-
+// EL nombre posiblemente esté mal ya que no remueve solo los folders sino que hace más operaciones
 void Builder::folder_remover(vector<string>& folders) {
     std::sort(folders.begin(), folders.end(), [](const std::string& first, const std::string& second){
             return first.size() > second.size();});
@@ -135,6 +104,7 @@ void Builder::folder_remover(vector<string>& folders) {
         }
 
         if (temp_counter == 0) {
+            std::cout << "Va a remover el folder -> " << folder << std::endl;
             fs::remove_all(folder);
             temp_counter = 0;
         }
@@ -151,7 +121,6 @@ void Builder::data_cleaner(const string& target_file) {
 
 template <typename T>
 void Builder::data_inserter(const T& row_or_rows, const string& target_file) {
-    //void Builder::data_inserter(const vector<string>& rows, const string& target_file) {
     ofstream target_file_ostrm(target_file, std::ios::out | std::ios::binary | std::ios::app);
     target_file_ostrm.exceptions(ofstream::failbit | ofstream::badbit);
 
@@ -176,15 +145,10 @@ template void Builder::data_inserter<vector<string>>(const vector<string>&, cons
 
 template <typename T>
 void Builder::data_catcher(const T& data_container, const string& target_file) {
-    // El data catcher esta compusto de:
-    // 1. Un file_transporter (para esto el file transporter no debe contener un remover, es decir el remover debe ser aparte)
-    // 2. Un catcher que si debe permanecer aquí
-    if constexpr (std::is_same_v<T,File>) {
-        //string version_file = target_folder + "/" + data_container.version_name;
-        //fs::copy_file(data_container.file, version_file);
+    ofstream target_file_ostrm(target_file, std::ios::out | std::ios::binary | std::ios::app);
+    target_file_ostrm.exceptions(ofstream::failbit | ofstream::badbit);
 
-        ofstream target_file_ostrm(target_file, std::ios::out | std::ios::binary | std::ios::app);
-        target_file_ostrm.exceptions(ofstream::failbit | ofstream::badbit);
+    if constexpr (std::is_same_v<T,File>) {
         target_file_ostrm << data_container.file << ","
             << data_container.file_hash << ","
             << data_container.file_path << ","
@@ -198,17 +162,8 @@ void Builder::data_catcher(const T& data_container, const string& target_file) {
             << data_container.snap_date << ","
             << data_container.comment
             << endl;
-
-        target_file_ostrm.close();
-        target_file_ostrm.clear();
-        // HACER PRUEBAS DE SACAT EL OPEN/CLOSE DEL OFSTREAM FUERA DEL IF
     } else if constexpr (std::is_same_v<T,vector<File>>) {
         for (auto data : data_container) {
-            //string version_file = target_folder + "/" + data.version_name;
-            //fs::copy_file(data.file, version_file);
-
-            ofstream target_file_ostrm(target_file, std::ios::out | std::ios::binary | std::ios::app);
-            target_file_ostrm.exceptions(ofstream::failbit | ofstream::badbit);
             target_file_ostrm << data.file << ","
                 << data.file_hash << ","
                 << data.file_path << ","
@@ -222,13 +177,12 @@ void Builder::data_catcher(const T& data_container, const string& target_file) {
                 << data.snap_date << ","
                 << data.comment
                 << endl;
-
-            target_file_ostrm.close();
-            target_file_ostrm.clear();
         }
     }
-}
 
+    target_file_ostrm.close();
+    target_file_ostrm.clear();
+}
 template void Builder::data_catcher<File>(const File&, const string&);
 template void Builder::data_catcher<vector<File>>(const vector<File>&, const string&);
 
@@ -237,8 +191,6 @@ template void Builder::data_catcher<vector<File>>(const vector<File>&, const str
  */
 
 void Builder::file_renamer(const string& selected_name, const string& target_folder, const string& target_sub_folder) {
-    //size_t timepoint_hash = std::hash<string> {}(timepoint);
-    //string temp_version_directory = base.version_main_path + "/" + version_temp;
     string temporal_path_name = target_folder + "/" + target_sub_folder;
     string final_path_name = target_folder + "/" + selected_name;
     fs::rename(temporal_path_name, final_path_name);
@@ -273,21 +225,7 @@ void Builder::repository_remover(const string& target_folder, int mode) {
     }
 }
 
-// Quiza este deba ser el specific_file_transporter, y el que sigue seria el normal_file_transp o file_transp
-/*void Builder::file_transporter(const vector<string>& files, const string& original_location, const string& target_folder, const string& target_sub_folder) {
-  string temporal_location = target_folder + "/" + target_sub_folder;
-  fs::create_directory(temporal_location);
-
-  for (const auto& file : files) {
-  string original_file = original_location + "/" + file;
-  string temporal_file = temporal_location + "/" + file;
-
-  fs::copy_file(original_file, temporal_file);
-  fs::remove(original_file);
-  }
-  }*/
-
-template <typename T>
+template<typename T>
 void Builder::file_transporter(const T& data_container, const string& target_folder, const string& target_sub_folder) {
     string original_file;
     string temporal_file;
@@ -300,6 +238,7 @@ void Builder::file_transporter(const T& data_container, const string& target_fol
         for (const auto& data : data_container) {
             original_file = data.file;
             temporal_file = target_folder + "/" + data.version_name;
+            std::cout << "Va a mover de aca -> " << original_file << " hacia acá -> " << temporal_file << std::endl;
             fs::copy_file(original_file, temporal_file);
         }
     } else if constexpr (std::is_same_v<T,vector<string>>) {
@@ -309,8 +248,6 @@ void Builder::file_transporter(const T& data_container, const string& target_fol
         for (const auto& original_file : data_container) {
             string version_name = fs::path(original_file).filename().string();
             temporal_file = temporal_path + "/" + version_name;
-            std::cout << "Original -> " << original_file << std::endl;
-            std::cout << "Temporal -> " << temporal_file << std::endl;
             fs::copy_file(original_file, temporal_file);
         }  
     }
@@ -319,27 +256,5 @@ void Builder::file_transporter(const T& data_container, const string& target_fol
 template void Builder::file_transporter<File>(const File&, const string&, const string&);
 template void Builder::file_transporter<vector<File>>(const vector<File>&, const string&, const string&);
 template void Builder::file_transporter<vector<string>>(const vector<string>&, const string&, const string&);
-
-/*template <typename T>
-  void Builder::file_transporter(const T& data_container, const string& target_folder) {
-  string original_file;
-  string temporal_file;
-
-  if constexpr (std::is_same_v<T,File>) {
-  original_file = data_container.file;
-  temporal_file = target_folder + "/" + data_container.version_name;
-  fs::copy_file(original_file, temporal_file);
-  } else if constexpr (std::is_same_v<T,vector<File>>) {
-  for (const auto& data : data_container) {
-  original_file = data.file;
-  temporal_file = target_folder + "/" + data.version_name;
-  fs::copy_file(original_file, temporal_file);
-  }
-  }
-  }
-
-  template void Builder::file_transporter<File>(const File&, const string&);
-  template void Builder::file_transporter<vector<File>>(const vector<File>&, const string&);
- */
 
 Builder::~Builder() {}

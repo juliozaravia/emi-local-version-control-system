@@ -204,7 +204,7 @@ void Communicator::status_reporter(const unordered_map<string,string>& untracked
     }
 }
 
-void Communicator::log_reporter(const vector<Log>& log_info, const unordered_multimap<string,string>& saved_files) {
+void Communicator::log_reporter(const vector<Log>& log_info, const unordered_multimap<string,string>& saved_files, const string& current_path) {
     if (log_info.empty()) {
         cout << "There are no saved versions." << endl;
         cout << "Tip: Use -snapshot to save the versions in the standby stage. (Usage info: Use --help)" << endl;
@@ -221,7 +221,7 @@ void Communicator::log_reporter(const vector<Log>& log_info, const unordered_mul
             cout << "Saved versions:" << endl;
             for (auto file : saved_files) {
                 if (log_item.snapshot_code == file.first) {
-                    cout << "> " << file.second << endl;
+                    cout << "> " << file.second.substr((current_path.size() + 1), file.second.size()) << endl;
                 }
             }
 
@@ -251,6 +251,10 @@ void Communicator::authorization_reporter(const string& command) {
         action = "remove this file from the standby stage";
         first_comment = "The file in the standby stage is different from its original version.";
         second_comment = "This action can not be undone";
+    } else if (command == return_command) {
+        action = "return to a previous state of your project";
+        first_comment = "All current files (excluding the ignored files) will be changed to their previous versions.";
+        second_comment = "Files in the standby stage will be removed. Use -snapshot to save them or -drop to remove them.";
     }
     cout << "Do you want to " << action << "?" << endl;
     cout << first_comment << endl;

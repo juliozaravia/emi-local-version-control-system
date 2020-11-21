@@ -25,12 +25,9 @@ public:
     // Removers
     void repository_remover(const std::string&, int);
     void folder_remover(std::vector<std::string>&); 
-
     template <typename T>
-    //void file_remover(const T&, const std::string& = std::string());
     void file_remover(const T&, int = 0);
     // Others
-    //void file_transporter(const std::vector<std::string>&, const std::string&, const std::string&, const std::string&);
     template <typename T>
     void file_transporter(const T&, const std::string&, const std::string& = std::string());
 

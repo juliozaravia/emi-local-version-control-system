@@ -12,16 +12,15 @@ class Helper {
     public:
         Helper();
         // Comparators
-        //bool hash_comparator(const std::vector<std::string>&, const struct File&);
         bool hash_comparator(const std::string&, const unsigned int&);
 
         // Extractors
         std::string row_extractor(const std::string&, const std::string&);
-        void rows_extractor(std::vector<std::string>&, const std::string&, const std::string& = std::string());
+        void rows_extractor(std::vector<std::string>&, const std::string&, const std::string& = std::string(), int = 0, int = 0);
+        //void rows_extractor(std::vector<std::string>&, const std::string&, const std::string& = std::string());
         void items_extractor(std::vector<std::string>&, const std::string&, char = ',');
-        template<typename T>
-        void content_extractor(T&, const std::string&, int);
-        //void content_extractor(std::vector<std::string>&, const std::string&, int);
+        template<typename T,typename U>
+        void content_extractor(T&, const U&, int);
 
         // Checkers
         bool content_checker(const std::string&);
@@ -35,7 +34,6 @@ class Helper {
         void timepoint_generator(std::string&);
 
         // Organizers
-        //void data_organizer(struct File&, const std::string&, const std::string&);
         void data_organizer(struct File&, const std::string&, const std::string&);
         void data_organizer(std::vector<File>&, const std::vector<std::string>&, const std::string&, int);
         template<typename T> 
@@ -56,8 +54,6 @@ class Helper {
                 std::unordered_map<std::string,std::string>&,
                 std::unordered_map<std::string,std::string>&,
                 const std::string&);
-        // decepti0n
-        void deception(std::vector<File>&, const std::string&, const std::string&, const std::vector<std::string>&);
 
         virtual ~Helper();
 };

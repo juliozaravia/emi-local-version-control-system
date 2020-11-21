@@ -68,7 +68,11 @@ enum action_mode {
     to_build,
     simple,
     recursive,
-    multiple
+    multiple,
+    similar_to_row,
+    different_to_row,
+    similar_to_item,
+    different_to_item
 };
 
 #endif // CODES_H
