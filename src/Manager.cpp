@@ -87,6 +87,15 @@ Manager::Manager(string current_path, vector<string> arg_container)
 // LA CLASE BUILDER TIENE UN CONSTRUCTOR QUE USA LA DATA BASE; VER EN QUE CASOS SE DEBE LLAMAR
 // LA CLASE BUILDER TIENE UN CONSTRUCTOR QUE USA LA DATA BASE; VER EN QUE CASOS SE DEBE LLAMAR
 
+// REVISAR QUE SE HAYA USADO BUILDER(BASE) COMO CONSTRUCTOR PARA CASOS ESPECÍFICOS EN DONDE SE NECESITE BASE COMO EN EL SNAPSHOT
+// REVISAR QUE SE HAYA USADO BUILDER(BASE) COMO CONSTRUCTOR PARA CASOS ESPECÍFICOS EN DONDE SE NECESITE BASE COMO EN EL SNAPSHOT
+// REVISAR QUE SE HAYA USADO BUILDER(BASE) COMO CONSTRUCTOR PARA CASOS ESPECÍFICOS EN DONDE SE NECESITE BASE COMO EN EL SNAPSHOT
+// REVISAR QUE SE HAYA USADO BUILDER(BASE) COMO CONSTRUCTOR PARA CASOS ESPECÍFICOS EN DONDE SE NECESITE BASE COMO EN EL SNAPSHOT
+// REVISAR QUE SE HAYA USADO BUILDER(BASE) COMO CONSTRUCTOR PARA CASOS ESPECÍFICOS EN DONDE SE NECESITE BASE COMO EN EL SNAPSHOT
+// REVISAR QUE SE HAYA USADO BUILDER(BASE) COMO CONSTRUCTOR PARA CASOS ESPECÍFICOS EN DONDE SE NECESITE BASE COMO EN EL SNAPSHOT
+// REVISAR QUE SE HAYA USADO BUILDER(BASE) COMO CONSTRUCTOR PARA CASOS ESPECÍFICOS EN DONDE SE NECESITE BASE COMO EN EL SNAPSHOT
+
+
 void Manager::start_manager() {
     Builder builder(base);
     builder.repository_builder(current_path);
@@ -106,7 +115,8 @@ void Manager::simple_catch_manager() {
     Communicator printer;
     Helper helper;
     string file = helper.location_generator(arg_container[2], current_path);
-    bool file_exists = helper.existence_checker<string>(file);
+    unordered_map<string,bool> status;
+    bool file_exists = helper.existence_checker<string>(file, status);
     if (file_exists) {
         bool file_is_ignored = helper.ignored_file_checker(file, base.config_ignore_file);
         if (!file_is_ignored) {
@@ -270,7 +280,8 @@ void Manager::simple_drop_manager() {
     Helper helper;
     Communicator printer;
     string file = helper.location_generator(arg_container[2], current_path);
-    bool file_exists = helper.existence_checker<string>(file);
+    unordered_map<string,bool> status;
+    bool file_exists = helper.existence_checker<string>(file, status);
     if (file_exists) {
         File data;
         helper.data_organizer(data, file, base.version_catch_path);
@@ -387,7 +398,8 @@ void Manager::snapshot_manager() {
     if (catch_has_data) {
         vector<string> version_names;
         helper.content_extractor<vector<string>,string>(version_names, base.db_catch_file, db_pos::version);
-        bool versions_exist = helper.existence_checker<vector<string>>(version_names);
+        unordered_map<string,bool> status;
+        bool versions_exist = helper.existence_checker<vector<string>>(version_names, status);
         if (versions_exist) {
             Builder builder;
             string timepoint;
@@ -470,7 +482,8 @@ void Manager::ignore_manager() {
     Communicator printer;
     Helper helper;
     string file_or_folder = helper.location_generator(arg_container[2], current_path);
-    bool file_exists = helper.existence_checker<string>(file_or_folder);
+    unordered_map<string,bool> status;
+    bool file_exists = helper.existence_checker<string>(file_or_folder, status);
     if (file_exists) {
         string catch_row = helper.row_extractor(file_or_folder, base.db_catch_file);
         string main_row = helper.row_extractor(file_or_folder, base.db_main_file);
@@ -491,65 +504,125 @@ void Manager::ignore_manager() {
     }
 }
 
-void Manager::return_manager() {
+void Manager::get_manager() {
     Helper helper;
     bool main_has_data = helper.content_checker(base.db_main_file);
 
+    string snapshot_code = arg_container[2];
+    vector<string> rows_of_main;
+    helper.rows_extractor(rows_of_main, base.db_main_file, snapshot_code, action_mode::similar_to_item, db_pos::snap_hash);
+    
     Communicator printer;
-    printer.authorization_reporter(return_command);
+    if (rows_of_main.empty()) {
+        std::cout << "tu codigo hash no existe en main, revisa bien con log" << std::endl;
+    } else {
+        vector<string> archivos;
+        helper.content_extractor(archivos, rows_of_main, db_pos::file);
+        // Este bool deberia borrarse luego
+        unordered_map<string,bool> archivos_status;
+        bool files_exist = helper.existence_checker(archivos, archivos_status);
+        printer.get_reporter(archivos, files_exist);      
+        printer.authorization_reporter(get_command);
 
-    string authorization;
+        string authorization;
+        std::cin >> authorization;
+        
+        if (authorization == keep_auth) {
+            vector<string> archivos_nombre_compuesto;
+            vector<string> rutas_archivos;
+            //vector<string> rutas_archivos;
+            helper.content_extractor(archivos_nombre_compuesto, rows_of_main, db_pos::file_name);
+            helper.compound_name_generator(snapshot_code, archivos_nombre_compuesto);
+            helper.content_extractor(rutas_archivos, rows_of_main, db_pos::path_name); 
+            for (auto ruta : rutas_archivos) {
+                std::cout << "Ruta -> " << ruta << std::endl;
+            }
+            helper.procesador(rutas_archivos);
+            unordered_map<string,bool> rutas_archivos_status;
+            helper.existence_checker<vector<string>>(rutas_archivos, rutas_archivos_status);
+            for (auto item : rutas_archivos_status) {
+                std::cout << "Ruta um -> " << item.first << "-" << item.second << std::endl;
+            }
+            Builder builder;
+            builder.directory_builder(rutas_archivos_status); 
+            //builder.file_transporter();
+            // ACA ME QUEDE
+            // PARA CONTINUAR NECESITO PODER EXTRAER LA RUTA DONDE ESTA LA VERSION EN MAIN, ESTE DATO DEBERÍA GUARDARSE EN LA BD_MAIN, POR LO QUE DEBEMOS ACTUALIZAR PARA GUARDAR LA RUTA DE MAIN EN LA BD MAIN.
+        } else if (authorization == replace_auth) {
+
+        } else if (authorization == denied_auth) {
+            printer.event_reporter(notification_codes::cancelled_action, get_command);
+        } else {
+            printer.event_reporter(warning_codes::unknown_authorization);
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+    /*string authorization;
     std::cin >> authorization;
-    if (authorization == confirmed_auth) {
+    if (authorization == keep_auth) {*/
 
-        vector<string> ignored_files_or_folders;
-        helper.rows_extractor(ignored_files_or_folders, base.config_ignore_file);
+        /*vector<string> ignored_files_or_folders;
+          helper.rows_extractor(ignored_files_or_folders, base.config_ignore_file);
 
-        vector<string> available_files;
-        vector<string> available_folders;
-        helper.availability_organizer(available_files, available_folders, ignored_files_or_folders, current_path);
+          vector<string> available_files;
+          vector<string> available_folders;
+          helper.availability_organizer(available_files, available_folders, ignored_files_or_folders, current_path);
 
-        vector<File> available_files_data;
-        helper.data_organizer<vector<string>>(available_files_data, available_files, base.version_catch_path);
+          vector<File> available_files_data;
+          helper.data_organizer<vector<string>>(available_files_data, available_files, base.version_catch_path);
 
-        vector<string> version_names; 
-        helper.content_extractor<vector<string>,string>(version_names, base.db_catch_file, db_pos::version);
+          vector<string> version_names; 
+          helper.content_extractor<vector<string>,string>(version_names, base.db_catch_file, db_pos::version);
 
-        Builder builder;
-        builder.file_transporter<vector<File>>(available_files_data, base.version_temp_path);
-        builder.file_remover<vector<File>>(available_files_data, db_pos::file);
-        builder.folder_remover(available_folders);
-        builder.data_catcher<vector<File>>(available_files_data, base.db_temp_file);
+          Builder builder;
+          builder.file_transporter<vector<File>>(available_files_data, base.version_temp_path);
+          builder.file_remover<vector<File>>(available_files_data, db_pos::file);
+          builder.folder_remover(available_folders);
+          builder.data_catcher<vector<File>>(available_files_data, base.db_temp_file);
 
-        builder.file_remover<vector<string>>(version_names);
-        builder.data_cleaner(base.db_catch_file);
+          builder.file_remover<vector<string>>(version_names);
+          builder.data_cleaner(base.db_catch_file);*/
 
-        /*<><>><>><>><>><>><>><>><>><>><>><>><>><>*/
-        /*<><>><>><>><>><>><>><>><>><>><>><>><>><>*/
-        /*<><>><>><>><>><>><>><>><>><>><>><>><>><>*/
-        /*<><>><>><>><>><>><>><>><>><>><>><>><>><>*/
-        /*<><>><>><>><>><>><>><>><>><>><>><>><>><>*/
+        /* ACA ES LO BUENO
+           string snapshot_code = arg_container[2];
+           vector<string> rows_of_main;
+           helper.rows_extractor(rows_of_main, base.db_main_file, snapshot_code, action_mode::similar_to_item, db_pos::snap_hash);
 
-        string snapshot_code = arg_container[2];
-        vector<string> rows_of_main;
-        helper.rows_extractor(rows_of_main, base.db_main_file, snapshot_code, action_mode::similar_to_item, db_pos::snap_hash);
-        
-        for (auto item : rows_of_main) {
-            std::cout << "item -> " << item << std::endl;
-        }
-        
-        vector<string> rutas;
-        helper.content_extractor(rutas, rows_of_main, db_pos::path_name);
-        
-        for (auto item : rutas) {
-            std::cout << "item ruta -> " << item << std::endl;
-        }
+           for (auto item : rows_of_main) {
+           std::cout << "item -> " << item << std::endl;
+           }
 
-    } else if (authorization == denied_auth) {
-        printer.event_reporter(notification_codes::cancelled_action, return_command);
+           vector<string> rutas;
+           helper.content_extractor(rutas, rows_of_main, db_pos::path_name);
+
+           for (auto item : rutas) {
+           std::cout << "item ruta -> " << item << std::endl;
+           }
+
+           vector<string> archivos;
+           helper.content_extractor(archivos, rows_of_main, db_pos::file);
+
+           for (auto item : archivos) {
+           std::cout << "item archivo -> " << item << std::endl;
+           }*/
+
+
+
+    /*} else if (authorization == denied_auth) {
+        printer.event_reporter(notification_codes::cancelled_action, get_command);
     } else {
         printer.event_reporter(warning_codes::unknown_authorization);
-    }
+    }*/
 
     //} else {
     //std::cout << "No tiene data" << std::endl;

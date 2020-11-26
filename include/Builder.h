@@ -12,6 +12,7 @@ public:
     Builder(struct Base);
     // Builders
     void repository_builder(const std::string& current_path);
+    void directory_builder(const std::unordered_map<std::string,bool>&);
     // Cleaners
     void data_cleaner(const std::string&);
     // Catchers & Savers

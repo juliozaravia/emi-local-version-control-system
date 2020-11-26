@@ -31,10 +31,12 @@ extern const std::string ignore_command;
 extern const std::string restart_command;
 extern const std::string bye_command;
 extern const std::string drop_command;
-extern const std::string return_command;
+extern const std::string get_command;
 // authorizathion
 extern const std::string confirmed_auth;
 extern const std::string denied_auth;
+extern const std::string keep_auth;
+extern const std::string replace_auth;
 // group mode
 extern const std::string process_all;
 

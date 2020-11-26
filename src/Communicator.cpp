@@ -236,30 +236,63 @@ void Communicator::log_reporter(const vector<Log>& log_info, const unordered_mul
 }
 
 void Communicator::authorization_reporter(const string& command) {
-    string action;
-    string first_comment;
-    string second_comment;
+    vector<string> message;
+    vector<string> options;
+
     if (command == restart_command) {
-        action = "restart the emi repository";
-        first_comment = "All saved versions will be deleted.";
-        second_comment = "The repository will return to its initial state.";
+        message.push_back("Do you want to restart the emi repository?");
+        message.push_back("All saved versions will be deleted.");
+        message.push_back("The repository will return to its initial state.");
+        
+        options.push_back(confirmed_auth + " to autorize");
+        options.push_back(" or " + denied_auth + " to cancel:");
     } else if (command == bye_command) {
-        action = "delete the emi repository";
-        first_comment = "All saved versions will be deleted.";
-        second_comment = "This action can not be undone.";
+        message.push_back("Do you want to delete the emi repository?");
+        message.push_back("All saved versions will be deleted.");
+        message.push_back("This action can not be undone.");
+        
+        options.push_back(confirmed_auth + " to autorize");
+        options.push_back(" or " + denied_auth + " to cancel:");
     } else if (command == drop_command) {
-        action = "remove this file from the standby stage";
-        first_comment = "The file in the standby stage is different from its original version.";
-        second_comment = "This action can not be undone";
-    } else if (command == return_command) {
-        action = "return to a previous state of your project";
-        first_comment = "All current files (excluding the ignored files) will be changed to their previous versions.";
-        second_comment = "Files in the standby stage will be removed. Use -snapshot to save them or -drop to remove them.";
+        message.push_back("Do you want to remove this file from the standby stage?");
+        message.push_back("The file in the standby stage is different from its original version.");
+        message.push_back("This action can not be undone");
+
+        options.push_back(confirmed_auth + " to autorize");
+        options.push_back(" or " + denied_auth + " to cancel:");
+    } else if (command == get_command) {
+        message.push_back("Do you want to bring the previously saved versions of the files mentioned above?");
+        message.push_back("You can keep the original files and bring the saved files with a compound name.");
+        message.push_back("Therefore there would be no conflicts between both versions, Example of compound name: snapshotcode_name.");
+        message.push_back("Or, you can replace the current files with the saved files, this option deletes the current files.");
+
+        options.push_back(keep_auth + " to keep the current files");
+        options.push_back(", " + replace_auth + " to replace the current files");
+        options.push_back(" or " + denied_auth + " to cancel:");
     }
-    cout << "Do you want to " << action << "?" << endl;
-    cout << first_comment << endl;
-    cout << second_comment << endl;
-    cout << "Type " << confirmed_auth << " to authorize or " << denied_auth << " to cancel:" << endl;
+    
+    for (const auto& row : message) {
+        cout << row << endl;
+    }
+    
+    cout << "Type ";
+    for (const auto& row : options) {
+        cout << row;
+    }
+    cout << endl;
+}
+
+void Communicator::get_reporter(const vector<string>& archivos, bool files_exist) {
+    cout << "Los archivos que planeas traer son: " << endl;
+    for (const auto& archivo : archivos) {
+        cout << "Tu archivo es -> " << archivo << endl;
+    }
+    if (files_exist) {
+        cout << "Todos los archivos a regresar existen" << endl;
+    } else {
+        cout << "Puede que algunos o todos los archivos a traer no existan" << endl;
+    }
+
 }
 
 Communicator::~Communicator() {}

@@ -29,6 +29,7 @@ struct File {
     std::string file_extension = "null";
     std::string catch_date = "null";
     unsigned int snap_hash = 0;
+    std::string snap_version = "null";
     std::string snap_date = "null";
     std::string comment = "null";
 };

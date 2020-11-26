@@ -105,15 +105,15 @@ int main(int argc, char* argv[]) {
 				} catch (const std::exception& err) {
 					printer.event_reporter(error_codes::emi_unknown_error, drop_command, err.what());
 				}
-			} else if (arg_container[1] == return_command) {
+			} else if (arg_container[1] == get_command) {
 				try {
-					manager.return_manager();
+					manager.get_manager();
 				} catch (const fs::filesystem_error& err) {
-					printer.event_reporter(error_codes::unsuccessful_file_manipulation, return_command, err.what());
+					printer.event_reporter(error_codes::unsuccessful_file_manipulation, get_command, err.what());
 				} catch (const std::ios_base::failure& err) {
-					printer.event_reporter(warning_codes::file_not_open, return_command, err.what());
+					printer.event_reporter(warning_codes::file_not_open, get_command, err.what());
 				} catch (const std::exception& err) {
-					printer.event_reporter(error_codes::emi_unknown_error, return_command, err.what());
+					printer.event_reporter(error_codes::emi_unknown_error, get_command, err.what());
 				}
 			} else {
 				printer.event_reporter(warning_codes::unknown_command);

@@ -23,7 +23,7 @@ public:
     void look_manager();
     void log_manager();
     void ignore_manager();
-    void return_manager();
+    void get_manager();
     void restart_manager();
     void bye_manager();
 

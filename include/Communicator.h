@@ -21,6 +21,7 @@ public:
                          const std::string&);
     void log_reporter(const std::vector<Log>&, const std::unordered_multimap<std::string,std::string>&, const std::string&);
     void authorization_reporter(const std::string&);
+    void get_reporter(const std::vector<std::string>&, bool);
 
     virtual ~Communicator();
 };

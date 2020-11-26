@@ -30,10 +30,12 @@ const std::string ignore_command = "-ignore";
 const std::string restart_command = "-restart";
 const std::string bye_command = "-bye";
 const std::string drop_command = "-drop";
-const std::string return_command = "-return";
+const std::string get_command = "-get";
 // authorizathion
 const std::string confirmed_auth = "YES";
 const std::string denied_auth = "NO";
+const std::string keep_auth = "KEEP";
+const std::string replace_auth = "REPLACE";
 // group mode
 const std::string process_all = "all";
 

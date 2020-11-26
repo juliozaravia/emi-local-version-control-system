@@ -59,6 +59,7 @@ enum db_pos {
     file_extension,
     catch_date,
     snap_hash,
+    snap_version,
     snap_date,
     comment
 };

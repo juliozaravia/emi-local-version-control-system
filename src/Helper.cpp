@@ -161,7 +161,7 @@ bool Helper::content_checker(const string& target_file) {
 }
 
 template <typename T>
-bool Helper::existence_checker(const T& file_or_files) { 
+bool Helper::existence_checker(const T& file_or_files, unordered_map<string,bool>& status) { 
     bool exists = false;
     if constexpr (std::is_same_v<T,string>) {
         if (fs::exists(file_or_files)) {
@@ -172,6 +172,9 @@ bool Helper::existence_checker(const T& file_or_files) {
         for (const auto& file : file_or_files) {
             if (fs::exists(file)) {
                 temp_counter++;
+                status.insert(make_pair(file,true));
+            } else {
+                status.insert(make_pair(file,false));
             }
         }
 
@@ -181,8 +184,8 @@ bool Helper::existence_checker(const T& file_or_files) {
     }
     return exists;
 }
-template bool Helper::existence_checker<std::string>(const string&);
-template bool Helper::existence_checker<std::vector<std::string>>(const vector<string>&);
+template bool Helper::existence_checker<std::string>(const string&, unordered_map<string,bool>&);
+template bool Helper::existence_checker<std::vector<std::string>>(const vector<string>&, unordered_map<string,bool>&);
 
 bool Helper::ignored_file_checker(const string& file, const string& target_file) {
     bool is_ignored = false;
@@ -235,6 +238,12 @@ void Helper::timepoint_generator(string& timepoint) {
     char formated_timepoint_buffer[20];
     strftime(formated_timepoint_buffer, sizeof(formated_timepoint_buffer), "%H:%M:%S %d-%m-%Y", localtime(&formated_timepoint));
     timepoint = formated_timepoint_buffer;
+}
+
+void Helper::compound_name_generator(const string& prefix, vector<string>& items) {
+    for (auto& item : items) {
+        item = prefix + "_" + item;
+    } 
 }
 
 /*
@@ -460,6 +469,13 @@ void Helper::processed_files_organizer(vector<string>& saved_modified, vector<st
     for (auto item : saved_modified) {
         saved_not_modified.erase(std::remove(saved_not_modified.begin(), saved_not_modified.end(), item), saved_not_modified.end());
     }
+}
+
+// decepti0n
+
+void Helper::procesador(vector<string>& items) {
+    std::sort(items.begin(), items.end());
+    items.erase(std::unique(items.begin(), items.end()), items.end());
 }
 
 Helper::~Helper() {}

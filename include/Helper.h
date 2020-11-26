@@ -17,7 +17,6 @@ class Helper {
         // Extractors
         std::string row_extractor(const std::string&, const std::string&);
         void rows_extractor(std::vector<std::string>&, const std::string&, const std::string& = std::string(), int = 0, int = 0);
-        //void rows_extractor(std::vector<std::string>&, const std::string&, const std::string& = std::string());
         void items_extractor(std::vector<std::string>&, const std::string&, char = ',');
         template<typename T,typename U>
         void content_extractor(T&, const U&, int);
@@ -26,12 +25,13 @@ class Helper {
         bool content_checker(const std::string&);
         bool ignored_file_checker(const std::string&, const std::string&);
         template<typename T> 
-        bool existence_checker(const T&);
+        bool existence_checker(const T&, std::unordered_map<std::string,bool>&);
 
         // Generators
         std::string location_generator(const std::string&, const std::string&); 
         unsigned int hash_generator(const std::string&, int);
         void timepoint_generator(std::string&);
+        void compound_name_generator(const std::string&, std::vector<std::string>&);
 
         // Organizers
         void data_organizer(struct File&, const std::string&, const std::string&);
@@ -54,6 +54,9 @@ class Helper {
                 std::unordered_map<std::string,std::string>&,
                 std::unordered_map<std::string,std::string>&,
                 const std::string&);
+
+        // decepti0n
+        void procesador(std::vector<std::string>&);
 
         virtual ~Helper();
 };

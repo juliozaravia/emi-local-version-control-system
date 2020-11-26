@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <fstream>
 #include <vector>
+#include <unordered_map>
 #include <type_traits>
 #include <algorithm>
 #include <iostream>
@@ -16,6 +17,7 @@
 using std::string;
 using std::endl;
 using std::vector;
+using std::unordered_map;
 using std::ofstream;
 
 namespace fs = std::filesystem;
@@ -58,6 +60,14 @@ void Builder::repository_builder(const string& current_path) {
     config_ignore_ostrm.exceptions(ofstream::failbit | ofstream::badbit);
     config_ignore_ostrm << current_path + "/" + emi_path << endl;
     config_ignore_ostrm.close();
+}
+
+void Builder::directory_builder(const unordered_map<string,bool>& status) {
+    for (const auto& file : status) {
+        if (!file.second) {
+            fs::create_directory(file.first);
+        }
+    }
 }
 
 /*
@@ -159,6 +169,7 @@ void Builder::data_catcher(const T& data_container, const string& target_file) {
             << data_container.file_extension << ","
             << data_container.catch_date << ","
             << data_container.snap_hash << ","
+            << data_container.snap_version << ","
             << data_container.snap_date << ","
             << data_container.comment
             << endl;
@@ -174,6 +185,7 @@ void Builder::data_catcher(const T& data_container, const string& target_file) {
                 << data.file_extension << ","
                 << data.catch_date << ","
                 << data.snap_hash << ","
+                << data.snap_version << ","
                 << data.snap_date << ","
                 << data.comment
                 << endl;
