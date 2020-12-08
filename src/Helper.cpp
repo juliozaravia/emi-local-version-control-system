@@ -5,7 +5,6 @@
 #include <unordered_map>
 #include <algorithm>
 #include <type_traits>
-#include <iostream>
 
 #include "../include/Helper.h"
 #include "../include/Structures.h"
@@ -160,6 +159,8 @@ bool Helper::content_checker(const string& target_file) {
     return file_has_data;
 }
 
+// Función miembro: existence_checker(). 
+// Permite validar la existencia de uno o muchos archivos.
 template <typename T>
 bool Helper::existence_checker(const T& file_or_files, unordered_map<string,bool>& status) { 
     bool exists = false;
@@ -169,6 +170,9 @@ bool Helper::existence_checker(const T& file_or_files, unordered_map<string,bool
         }
     } else if constexpr (std::is_same_v<T,vector<string>>) {
         unsigned int temp_counter = 0;
+        // Recorremos la lista de archivos y se valida uno por uno su existencia
+        // Si el archivo existe se incrementa un contador.
+        // Adicionalmente se inserta el archivo en un unordered_map, junto con su estado respectivo (El estado que indica si el archivo existe o no)
         for (const auto& file : file_or_files) {
             if (fs::exists(file)) {
                 temp_counter++;
@@ -177,7 +181,8 @@ bool Helper::existence_checker(const T& file_or_files, unordered_map<string,bool
                 status.insert(make_pair(file,false));
             }
         }
-
+        
+        // En caso el contador coincida con la cantidad de items del vector se puede asegurar que todos los archivos existen
         if (temp_counter == file_or_files.size()) {
             exists = true;
         }
@@ -187,13 +192,18 @@ bool Helper::existence_checker(const T& file_or_files, unordered_map<string,bool
 template bool Helper::existence_checker<std::string>(const string&, unordered_map<string,bool>&);
 template bool Helper::existence_checker<std::vector<std::string>>(const vector<string>&, unordered_map<string,bool>&);
 
+// Función miembro: ignored_file_checker(). 
+// Permite validar la existencia del archivo en la lista de archivos ignorados.
 bool Helper::ignored_file_checker(const string& file, const string& target_file) {
     bool is_ignored = false;
+    // Se extraen los nombres de todos los archivos registrados en la lista de archivos ignorados en un vector
     vector<string> ignored_rows;
     rows_extractor(ignored_rows, target_file);
-
+    // Recorremos los archivos ignorados para hacer las comparaciones respectivas
     for (const auto& ignored_item : ignored_rows) {
+        // creamos un sub-string recortando el nombre del archivo por procesar de acuerdo al tamano del nombre del archivo ignorado
         string ignored_folder = file.substr(0, ignored_item.size());
+        // Validamos que tanto los archivos como los directorios no se encuentren en la lista de archivos ignorados
         if (file == ignored_item || ignored_folder == ignored_item) {
             is_ignored = true;
         }
@@ -205,6 +215,8 @@ bool Helper::ignored_file_checker(const string& file, const string& target_file)
  * Generators
  */
 
+// Función miembro: location_generator(). 
+// Contruye la ruta completa de un archivo en base a la ruta absoluta (ruta actual) y la ruta relativa del archivo (incluyendo el nombre del archivo) 
 string Helper::location_generator(const string& file, const string& absolute_path) {
     string file_location = absolute_path + "/" + file;
     return file_location;
@@ -240,56 +252,91 @@ void Helper::timepoint_generator(string& timepoint) {
     timepoint = formated_timepoint_buffer;
 }
 
-void Helper::compound_name_generator(const string& prefix, vector<string>& items) {
-    for (auto& item : items) {
-        item = prefix + "_" + item;
-    } 
-}
+/*void Helper::compound_name_generator(const string& prefix, vector<string>& items) {
+  for (auto& item : items) {
+  item = prefix + "_" + item;
+  } 
+  }*/
 
 /*
  * Organizers
  */
 
-void Helper::data_organizer(File& data, const string& file, const string& target_folder) {
+/*void Helper::data_organizer(File& data, const string& file, const string& target_folder) {
     data.file = file;
     data.file_hash = hash_generator(data.file, action_mode::recursive);
     data.file_name = fs::path(data.file).filename().string();
     data.file_extension = fs::path(data.file).extension().string();
     data.file_path = fs::path(data.file).parent_path().string();
     data.file_path_hash = std::hash<string> {}(data.file_path);
-    data.version_name = std::to_string(data.file_path_hash) + "-" + std::to_string(data.file_hash) + data.file_extension;
+    data.version_name = std::to_string(data.file_path_hash) + "-" + std::to_string(data.file_hash) + "-" + data.file_name + data.file_extension;
     data.version = target_folder + "/" + data.version_name;
-}
+}*/
 
-void Helper::data_organizer(vector<File>& data_container, const vector<string>& rows, const string& target_folder, int mode) {
+// Función miembro: data_organizer(). 
+// Permite inicializar y llenar una estructura con los datos que necesita la versión de un archivo para ser capturada o guardada 
+template<typename T, typename U>
+void Helper::data_organizer(T& data_container, const U& rows, const string& target_folder, int mode) {
+    // Capturamos la fecha y hora en la que se hizo la llamada al comando necesario para la captura o registro de la(s) versión(es)
     string temporal_date;
     timepoint_generator(temporal_date);
 
-    for (const auto& row : rows) {
-        vector<string> items;
-        items_extractor(items, row);
+    // Llenamos la estructura de acuerdo al contenedor recibido
+    if constexpr (std::is_same_v<T,File>) {
+        // Para este tipo de contenedor y tomando en cuenta que (... ACA ME QUEDE)
+        // (ACA) Lo que falta es mejorar los nombres de los parametros de esta función para que sea más claro
+        // (ACA) Lo que falta es mejorar los nombres de los parametros de esta función para que sea más claro
+        // (ACA) Lo que falta es mejorar los nombres de los parametros de esta función para que sea más claro
+        // (ACA) Lo que falta es mejorar los nombres de los parametros de esta función para que sea más claro
+        // (ACA) Lo que falta es mejorar los nombres de los parametros de esta función para que sea más claro
+        // (ACA) Lo que falta es mejorar los nombres de los parametros de esta función para que sea más claro
+        // (ACA) Lo que falta es mejorar los nombres de los parametros de esta función para que sea más claro
+        data_container.file = rows;
+        // Generamos el valor hash del archivo
+        // El modo "recursive" indica al método que el valor hash debe ser generado en base al contenido del archivo
+        data_container.file_hash = hash_generator(data_container.file, action_mode::recursive);
+        data_container.file_name = fs::path(data_container.file).filename().string();
+        data_container.file_extension = fs::path(data_container.file).extension().string();
+        data_container.file_path = fs::path(data_container.file).parent_path().string();
+        // Generamos el valor hash de la ruta del archivo
+        // El modo "simple" indica al método que el valor hash debe ser generado en base al nombre literal de la ruta 
+        //data_container.file_path_hash = std::hash<string> {}(data_container.file_path);
+        data_container.file_path_hash = hash_generator(data_container.file_path, action_mode::simple);
+        data_container.version_name = std::to_string(data_container.file_path_hash) + "-" + std::to_string(data_container.file_hash) + "-" + data_container.file_name;
+        data_container.version = target_folder + "/" + data_container.version_name;
+        data_container.catch_date = temporal_date;
+    } else if constexpr (std::is_same_v<T,vector<File>>) {
+        for (const auto& row : rows) {
+            vector<string> items;
+            items_extractor(items, row);
 
-        File data;
-        data.file = items.at(db_pos::file);
-        data.file_name = items.at(db_pos::file_name);
-        data.file_extension = items.at(db_pos::file_extension);
-        data.file_path = items.at(db_pos::path_name);
-        data.file_path_hash = std::stoul(items.at(db_pos::path_hash));
+            File data;
+            data.file = items.at(db_pos::file);
+            data.file_name = items.at(db_pos::file_name);
+            data.file_extension = items.at(db_pos::file_extension);
+            data.file_path = items.at(db_pos::path_name);
+            data.file_path_hash = std::stoul(items.at(db_pos::path_hash));
 
-        if (mode == action_mode::built) {
-            data.file_hash = std::stoul(items.at(db_pos::file_hash));
-            data.version_name = items.at(db_pos::version_name);
-            data.version = items.at(db_pos::version);
-            data.catch_date = items.at(db_pos::catch_date);
-        } else if (mode == action_mode::to_build) {
-            data.file_hash = hash_generator(data.file, action_mode::recursive);
-            data.version_name = std::to_string(data.file_path_hash) + "-" + std::to_string(data.file_hash) + data.file_extension;
-            data.version = target_folder + "/" + data.version_name;
-            data.catch_date = temporal_date;
+            if (mode == action_mode::built) {
+                data.file_hash = std::stoul(items.at(db_pos::file_hash));
+                data.version_name = items.at(db_pos::version_name);
+                data.version = items.at(db_pos::version);
+                data.catch_date = items.at(db_pos::catch_date);
+            } else if (mode == action_mode::to_build) {
+                data.file_hash = hash_generator(data.file, action_mode::recursive);
+                data.version_name = std::to_string(data.file_path_hash) + "-" + std::to_string(data.file_hash) + "-" + data.file_name;
+                data.version = target_folder + "/" + data.version_name;
+                data.catch_date = temporal_date;
+            }
+            data_container.push_back(data);
         }
-        data_container.push_back(data);
+
     }
+
 }
+template void Helper::data_organizer<File,string>(File&, const string&, const string&, int);
+template void Helper::data_organizer<vector<File>,vector<string>>(vector<File>&, const vector<string>&, const string&, int);
+
 
 template<typename T> 
 void Helper::data_organizer(vector<File>& data_container, const T& files, const string& target_folder) {
@@ -307,8 +354,9 @@ void Helper::data_organizer(vector<File>& data_container, const T& files, const 
         data.file_name = fs::path(data.file).filename().string();
         data.file_extension = fs::path(data.file).extension().string();
         data.file_path = fs::path(data.file).parent_path().string();
-        data.file_path_hash = std::hash<string> {}(data.file_path);
-        data.version_name = std::to_string(data.file_path_hash) + "-" + std::to_string(data.file_hash) + data.file_extension;
+        //data.file_path_hash = std::hash<string> {}(data.file_path);
+        data.file_path_hash = hash_generator(data.file_path, action_mode::simple);
+        data.version_name = std::to_string(data.file_path_hash) + "-" + std::to_string(data.file_hash) + "-" + data.file_name;
         data.version = target_folder + "/" + data.version_name;
         data.catch_date = temporal_date;
 
@@ -318,36 +366,64 @@ void Helper::data_organizer(vector<File>& data_container, const T& files, const 
 template void Helper::data_organizer<std::unordered_map<std::string,std::string>>(vector<File>&, const unordered_map<string,string>&, const string&);
 template void Helper::data_organizer<std::vector<std::string>>(vector<File>&, const vector<string>&, const string&); // Hasta ahora solo usado en return
 
+
+/* guardando
+   void Helper::data_organizer(vector<File>& data_container, const vector<string>& rows, const string& target_folder, int mode) {
+   string temporal_date;
+   timepoint_generator(temporal_date);
+
+   for (const auto& row : rows) {
+   vector<string> items;
+   items_extractor(items, row);
+
+   File data;
+   data.file = items.at(db_pos::file);
+   data.file_name = items.at(db_pos::file_name);
+   data.file_extension = items.at(db_pos::file_extension);
+   data.file_path = items.at(db_pos::path_name);
+   data.file_path_hash = std::stoul(items.at(db_pos::path_hash));
+
+   if (mode == action_mode::built) {
+   data.file_hash = std::stoul(items.at(db_pos::file_hash));
+   data.version_name = items.at(db_pos::version_name);
+   data.version = items.at(db_pos::version);
+   data.catch_date = items.at(db_pos::catch_date);
+   } else if (mode == action_mode::to_build) {
+   data.file_hash = hash_generator(data.file, action_mode::recursive);
+   data.version_name = std::to_string(data.file_path_hash) + "-" + std::to_string(data.file_hash) + "-" + data.file_name + data.file_extension;
+   data.version = target_folder + "/" + data.version_name;
+   data.catch_date = temporal_date;
+   }
+   data_container.push_back(data);
+   }
+   }*/
+
+
+/*template<typename T>
+  void Helper::data_organizer(T& data_container, ) {
+
+  }*/
+
 // REVISAR LOGICA DE ESTAS DOS FUNCIONES A DETALLE PARA VER SI PUEDEN UNIFICARSE
 void Helper::availability_organizer(unordered_map<string,string>& available_files, const vector<string>& rows, const string& current_path) {
     for (const auto& file_or_folder : fs::recursive_directory_iterator(current_path)) {
         if (!fs::is_directory(file_or_folder)) {
             unsigned int temp_counter = 0;
             string formatted_file = file_or_folder.path().string();
-            //std::cout << "formatted file -> " << formatted_file << std::endl;
-            // Porque erase --> Verificar
-            // se oculta porq acá esta trimeado el current path, queremos completo ->_string trimmed_file = formatted_file.erase(0, (current_path.size() + 1));
-            //string trimmed_file = formatted_file;
             for (auto& ignored_file_or_folder : rows) {
-                //std::cout << "ignore_file_or_folder -> " << ignored_file_or_folder << std::endl; 
                 string comparison_file = formatted_file.substr(0, ignored_file_or_folder.size());
-                //std::cout << "comparison_file -> " << comparison_file << std::endl; 
                 if (ignored_file_or_folder != comparison_file) { 
                     temp_counter++; 
-                    //std::cout << "Fueron diferentes" << std::endl;
                 } else {
-                    //std::cout << "Fueron iguales" << std::endl;
                 }
             }
 
             unsigned int temporal_hash = 0;
             if (temp_counter == rows.size()) {
                 temporal_hash = hash_generator(formatted_file, action_mode::recursive);
-                // Identificar donde se está usando esta función debido a que se ha generado un valor hash de un archivo con ruta incompleta (se uso erase sobre formatted_file)
                 available_files.insert(make_pair(std::to_string(temporal_hash), formatted_file));
             }
         }
-        //std::cout << ".............................................." << std::endl;
     }
 }
 
@@ -373,8 +449,8 @@ void Helper::status_organizer(unordered_map<string,string>& untracked_files, uno
     string trimmed_target_file = target_file.substr(target_file.size() - db_catch.size(), db_catch.size());
     vector<string> rows;
     rows_extractor(rows, target_file);
-    unordered_map<string,string> temporal_files;
 
+    unordered_map<string,string> temporal_files;
     if (trimmed_target_file == db_catch) {
         for (const auto& row : rows) {
             vector<string> items;
@@ -471,9 +547,8 @@ void Helper::processed_files_organizer(vector<string>& saved_modified, vector<st
     }
 }
 
-// decepti0n
 
-void Helper::procesador(vector<string>& items) {
+void Helper::duplicate_organizer(vector<string>& items) {
     std::sort(items.begin(), items.end());
     items.erase(std::unique(items.begin(), items.end()), items.end());
 }

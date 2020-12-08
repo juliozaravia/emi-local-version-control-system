@@ -35,7 +35,8 @@ class Helper {
 
         // Organizers
         void data_organizer(struct File&, const std::string&, const std::string&);
-        void data_organizer(std::vector<File>&, const std::vector<std::string>&, const std::string&, int);
+        template<typename T, typename U>
+        void data_organizer(T&, const U&, const std::string&, int = 0);
         template<typename T> 
         void data_organizer(std::vector<File>&, const T&, const std::string&);
         void availability_organizer(std::unordered_map<std::string,std::string>&,
@@ -54,9 +55,7 @@ class Helper {
                 std::unordered_map<std::string,std::string>&,
                 std::unordered_map<std::string,std::string>&,
                 const std::string&);
-
-        // decepti0n
-        void procesador(std::vector<std::string>&);
+        void duplicate_organizer(std::vector<std::string>&);
 
         virtual ~Helper();
 };

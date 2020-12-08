@@ -19,6 +19,7 @@ using std::endl;
 using std::vector;
 using std::unordered_map;
 using std::ofstream;
+using std::stringstream;
 
 namespace fs = std::filesystem;
 
@@ -62,30 +63,38 @@ void Builder::repository_builder(const string& current_path) {
     config_ignore_ostrm.close();
 }
 
-void Builder::directory_builder(const unordered_map<string,bool>& status) {
-    for (const auto& file : status) {
-        if (!file.second) {
-            fs::create_directory(file.first);
+template <typename T>
+void Builder::directory_builder(const T& directory_container) {
+    if constexpr (std::is_same_v<T,string>) {
+        fs::create_directory(directory_container);
+    } else if constexpr (std::is_same_v<T,unordered_map<string,bool>>) {
+        for (const auto& directory : directory_container) {
+            if (!directory.second) {
+                fs::create_directories(directory.first);
+            }
         }
     }
 }
+template void Builder::directory_builder<string>(const string&);
+template void Builder::directory_builder<unordered_map<string,bool>>(const unordered_map<string,bool>&);
+
 
 /*
  * Cleaners
  */
 
 template <typename T>
-void Builder::file_remover(const T& items_or_data, int data_identifier) {
+void Builder::file_remover(const T& file_container, int data_identifier) {
     if constexpr (std::is_same_v<T,string>) {
-        fs::remove(items_or_data);
+        fs::remove(file_container);
     } else if constexpr (std::is_same_v<T,vector<string>>) {
-        for (auto& item : items_or_data) {
+        for (auto& item : file_container) {
             std::cout << "item para borrar -> " << item << std::endl;
             fs::remove(item);
         }
     } else if constexpr (std::is_same_v<T,vector<File>>) {
         string file_to_remove;
-        for (auto& data : items_or_data) {
+        for (auto& data : file_container) {
             if (data_identifier == db_pos::file) {
                 file_to_remove = data.file;    
             } else if (data_identifier == db_pos::version) {
@@ -94,11 +103,18 @@ void Builder::file_remover(const T& items_or_data, int data_identifier) {
             std::cout << "Va a remover el file -> " << file_to_remove << std::endl;
             fs::remove(file_to_remove);
         }
+    } else if constexpr (std::is_same_v<T,unordered_map<string,bool>>) {
+        for (auto& file : file_container) {
+            if (file.second) {
+                fs::remove(file.first);
+            } 
+        }
     }
 }
 template void Builder::file_remover<string>(const string&, int);
 template void Builder::file_remover<vector<string>>(const vector<string>&, int);
 template void Builder::file_remover<vector<File>>(const vector<File>&, int);
+template void Builder::file_remover<unordered_map<string,bool>>(const unordered_map<string,bool>&, int);
 
 // EL nombre posiblemente esté mal ya que no remueve solo los folders sino que hace más operaciones
 void Builder::folder_remover(vector<string>& folders) {
@@ -208,15 +224,25 @@ void Builder::file_renamer(const string& selected_name, const string& target_fol
     fs::rename(temporal_path_name, final_path_name);
 }
 
-void Builder::data_saver(const vector<string>& rows, const string& target_file, const string& timepoint, const string& comment) {
+void Builder::data_saver(const vector<string>& rows, const string& target_file, const string& timepoint, const string& timepoint_hash, const string& comment) {
     ofstream db_main_file_ostrm(target_file, std::ios::out | std::ios::binary | std::ios::app);
     db_main_file_ostrm.exceptions(ofstream::failbit | ofstream::badbit);
 
-    unsigned int timepoint_hash = std::hash<string> {}(timepoint);
     for (const auto& row : rows) {
-        string trimmed_row = row.substr(0, row.size() - 12);
+        string version_name;
+        stringstream row_strm(row);
+
+        unsigned int temp_counter = 0;
+        while (std::getline(row_strm, version_name, ',')) {
+            if (temp_counter == db_pos::version_name) { break; }
+            temp_counter++;
+        }
+
+        string trimmed_row = row.substr(0, row.size() - 17);
+        string main_version_name = base.version_main_path + "/" + timepoint_hash + "/" + version_name; 
         db_main_file_ostrm << trimmed_row << ","
             << timepoint_hash << ","
+            << main_version_name << ","
             << timepoint << ","
             << comment << endl;
     }
@@ -224,6 +250,24 @@ void Builder::data_saver(const vector<string>& rows, const string& target_file, 
     db_main_file_ostrm.close();
     db_main_file_ostrm.clear();
 }
+
+/*void Builder::data_saver(const vector<string>& rows, const string& target_file, const string& timepoint, const string& comment) {
+  ofstream db_main_file_ostrm(target_file, std::ios::out | std::ios::binary | std::ios::app);
+  db_main_file_ostrm.exceptions(ofstream::failbit | ofstream::badbit);
+
+  unsigned int timepoint_hash = std::hash<string> {}(timepoint);
+  for (const auto& row : rows) {
+  string trimmed_row = row.substr(0, row.size() - 12);
+  db_main_file_ostrm << trimmed_row << ","
+  << timepoint_hash << ","
+  << timepoint << ","
+  << comment << endl;
+  }
+
+  db_main_file_ostrm.close();
+  db_main_file_ostrm.clear();
+  }*/
+
 
 /*
  * Removers
@@ -250,10 +294,11 @@ void Builder::file_transporter(const T& data_container, const string& target_fol
         for (const auto& data : data_container) {
             original_file = data.file;
             temporal_file = target_folder + "/" + data.version_name;
-            std::cout << "Va a mover de aca -> " << original_file << " hacia acá -> " << temporal_file << std::endl;
             fs::copy_file(original_file, temporal_file);
         }
     } else if constexpr (std::is_same_v<T,vector<string>>) {
+        // REVISAR PARA VER SI SE PUEDE RETIRAR ESTA OPCION Y PROCESARLA CON EL SNAPSHOT YA QUE ES UN CASO MUY ESPECÍFICO
+        // QUIZA EN SNAPSHOT SE PUEDA USAR SOLO LOS NOMBRES DE VERSIONES PARA ELIMINAR LÍNEAS
         string temporal_path = target_folder + "/" + target_sub_folder; 
         fs::create_directory(temporal_path);
 
@@ -268,5 +313,23 @@ void Builder::file_transporter(const T& data_container, const string& target_fol
 template void Builder::file_transporter<File>(const File&, const string&, const string&);
 template void Builder::file_transporter<vector<File>>(const vector<File>&, const string&, const string&);
 template void Builder::file_transporter<vector<string>>(const vector<string>&, const string&, const string&);
+
+void Builder::special_transporter(const vector<string>& archivos_rutas_originales, const vector<string>& rutas_no_alteradas) {
+    std::cout << "--------------------------------------" << std::endl;
+    /*for (unsigned int i = 0; i < archivos_rutas_originales.size(); i++) {
+        string nombre_archivo_version = fs::path(archivos_rutas_originales.at(i)).filename().string();
+        string paradero_final = rutas_no_alteradas.at(i) + "/" + nombre_archivo_version;
+
+        std::cout << "archivo rutas originales -> " << archivos_rutas_originales.at(i) << std::endl;
+        std::cout << "nombre archivo version -> " << nombre_archivo_version << std::endl;
+        std::cout << "paradero final -> " << paradero_final << std::endl;
+        std::cout << "--------------------------------------" << std::endl;
+    }*/
+
+    for (unsigned int i = 0; i < archivos_rutas_originales.size(); i++) {
+        std::cout << "Copia este: " << archivos_rutas_originales.at(i) << ", aquí -> " << rutas_no_alteradas.at(i) << std::endl;
+        fs::copy_file(archivos_rutas_originales.at(i), rutas_no_alteradas.at(i));
+    }
+}
 
 Builder::~Builder() {}

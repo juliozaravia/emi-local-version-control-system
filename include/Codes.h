@@ -9,7 +9,8 @@ enum success_codes {
     file_ignored,
     emi_repository_restarted,
     emi_repository_deleted,
-    version_dropped
+    version_dropped,
+    version_restored
 };
 
 enum warning_codes {

@@ -36,6 +36,8 @@ void Communicator::event_reporter(int com_identifier, const std::string& command
         cout << "[Success Code: SC" << success_codes::emi_repository_deleted << "] The emi repository has been successfully deleted." << endl;
     } else if (com_identifier == success_codes::version_dropped) {
         cout << "[Success Code: SC" << success_codes::version_dropped << "] The file(s) has(have) been successfully dropped from the standby stage." << endl;
+    } else if (com_identifier == success_codes::version_restored) {
+        cout << "[Success Code: SC" << success_codes::version_restored << "] The file(s) has(have) been successfully restored." << endl;
     } else if (com_identifier == warning_codes::emi_repository_exists) {
         cout << "[Warning Code: WC" << warning_codes::emi_repository_exists << "] The emi repository already exists." << endl;
         cout << "Tip: Use the -look command to view files without tracking." << endl;

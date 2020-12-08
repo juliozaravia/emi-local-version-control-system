@@ -12,14 +12,15 @@ public:
     Builder(struct Base);
     // Builders
     void repository_builder(const std::string& current_path);
-    void directory_builder(const std::unordered_map<std::string,bool>&);
+    template <typename T>
+    void directory_builder(const T&);
     // Cleaners
     void data_cleaner(const std::string&);
     // Catchers & Savers
     template <typename T>
     void data_catcher(const T&, const std::string&);
     void file_renamer(const std::string&, const std::string&, const std::string&);
-    void data_saver(const std::vector<std::string>&, const std::string&, const std::string&, const std::string&);
+    void data_saver(const std::vector<std::string>&, const std::string&, const std::string&, const std::string&, const std::string&);
     // Inserters
     template <typename T>
     void data_inserter(const T&, const std::string&);
@@ -31,7 +32,7 @@ public:
     // Others
     template <typename T>
     void file_transporter(const T&, const std::string&, const std::string& = std::string());
-
+    void special_transporter(const std::vector<std::string>&, const std::vector<std::string>&); 
     virtual ~Builder();
 };
 
