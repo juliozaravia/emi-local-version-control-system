@@ -1,3 +1,12 @@
+/*
+ * Project: EMI Personal Control Version System 
+ * File: Communicator Class - Definition file 
+ * Description: Clase de comunicación. Nos permite imprimir en pantalla
+ * los mensajes de éxito, de alerta y de error
+ * @author
+ * Julio Zaravia <hello@juliozaravia.com>
+ */
+
 #ifndef COMMUNICATOR_H
 #define COMMUNICATOR_H
 
@@ -12,7 +21,9 @@ private:
 public:
     Communicator();
 
-    void event_reporter(int com_identifier, const std::string& = std::string(), const char* = "");
+    void event_reporter(int, const std::string& = std::string());
+    void warning_reporter(int, const std::string& = std::string());
+    void error_reporter(int, const std::string& = std::string(), const char* = "");
     void command_reporter();
     void version_reporter();
     void status_reporter(const std::unordered_map<std::string,std::string>&,
@@ -21,7 +32,6 @@ public:
                          const std::string&);
     void log_reporter(const std::vector<Log>&, const std::unordered_multimap<std::string,std::string>&, const std::string&);
     void authorization_reporter(const std::string&);
-    void get_reporter(const std::vector<std::string>&, bool);
 
     virtual ~Communicator();
 };

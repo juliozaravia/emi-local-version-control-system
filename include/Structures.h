@@ -1,8 +1,17 @@
+/*
+ * Project: EMI Personal Control Version System 
+ * File: Structures file 
+ *
+ * @author
+ * Julio Zaravia <hello@juliozaravia.com>
+ */
+
 #ifndef STRUCTURES_H
 #define STRUCTURES_H
 
 #include <string>
 
+// Estructura que contiene todas las rutas necesarias para trabajar con el repositorio emi y sus archivos internos
 struct Base {
     std::string emi_default_path;
     std::string config_default_path;
@@ -18,6 +27,7 @@ struct Base {
     std::string version_temp_path;
 };
 
+// Estructura que contiene todos los campos necesarios para capturar o guardar la versión del archivo respectivo
 struct File {
     std:: string file = "null";
     unsigned file_hash = 0;
@@ -34,6 +44,7 @@ struct File {
     std::string comment = "null";
 };
 
+// Estructura complementaria a la interior
 struct Log {
     std::string snapshot_code;
     std::string snapshot_date;

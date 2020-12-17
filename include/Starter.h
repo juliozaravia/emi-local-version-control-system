@@ -1,3 +1,12 @@
+/*
+ * Project: EMI Personal Control Version System 
+ * File: Starter Class - Definition file 
+ * Description: Clase de arranque. Nos permite formatear y validar la data
+ * ingresada por el usuario antes de transportarla a la clase de distribución
+ * @author
+ * Julio Zaravia <hello@juliozaravia.com>
+ */
+
 #ifndef STARTER_H
 #define STARTER_H
 

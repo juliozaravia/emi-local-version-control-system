@@ -1,3 +1,12 @@
+/*
+ * Project: EMI Personal Control Version System 
+ * File: Manager Class - Definition file 
+ * Description: Clase de distribución de operaciones. Permite distribuir y asignar las responsabilidades  
+ * entre los métodos de apoyo y de ejecución para llevar a cabo la solicitud realizada por el usuario 
+ * @author
+ * Julio Zaravia <hello@juliozaravia.com>
+ */
+
 #ifndef MANAGER_H
 #define MANAGER_H
 

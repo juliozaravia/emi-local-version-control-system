@@ -1,7 +1,8 @@
 /*
- * Project: EMI Control Version System 
- * File: Manager Class
- *
+ * Project: EMI Personal Control Version System 
+ * File: Manager Class - Implementation file
+ * Description: Clase de distribución de operaciones. Permite distribuir y asignar las responsabilidades  
+ * entre los métodos de apoyo y de ejecución para llevar a cabo la solicitud realizada por el usuario 
  * @author
  * Julio Zaravia <hello@juliozaravia.com>
  */
@@ -44,76 +45,6 @@ Manager::Manager(string current_path, vector<string> arg_container)
         this->base.version_main_path = current_path + "/" + emi_path + "/" + version_path + "/" + version_main;
         this->base.version_temp_path = current_path + "/" + emi_path + "/" + version_path + "/" + version_temp;
     }
-
-// SE DEBE HCAER QUE EN CADA COPIA O MOVIMIENTO DE ARCHIVOS POR TEMAS DE SEGURIDAD EN PARALELO EXISTA UNA COPIA TEMPORAL MIENTRAS TODAS LAS ACTIVIDADES TERMINAN
-// ASI PODEMOS RECURPERAR DE CUALQUIER PROBLEMA QUE SUCEDA EN CASO DE ERRORES.
-// PENDIENTE TAMBIÉN AGREGAR FUNCIONALIDAD PARA SABER QUE HACER CUANDO ALGO DFALLA Y LAS CONSTRUCCUONES SE QUEDAN A MEDIAS.
-
-
-
-
-// TAREA MENOR: VERIFICAR LOS MENSAJES DE ERROR DE LOS TRY/CATCH DE MAIN PARA CADA COMANDO, Y VER QUE CUADREN!!
-// TAREA MENOR: VERIFICAR LOS MENSAJES DE ERROR DE LOS TRY/CATCH DE MAIN PARA CADA COMANDO, Y VER QUE CUADREN!!
-// TAREA MENOR: VERIFICAR LOS MENSAJES DE ERROR DE LOS TRY/CATCH DE MAIN PARA CADA COMANDO, Y VER QUE CUADREN!!
-// TAREA MENOR: VERIFICAR LOS MENSAJES DE ERROR DE LOS TRY/CATCH DE MAIN PARA CADA COMANDO, Y VER QUE CUADREN!!
-// TAREA MENOR: VERIFICAR LOS MENSAJES DE ERROR DE LOS TRY/CATCH DE MAIN PARA CADA COMANDO, Y VER QUE CUADREN!!
-
-
-// CONSTRUIR UN LOG DE ERRORES
-// CONSTRUIR UN LOG DE ERRORES
-// CONSTRUIR UN LOG DE ERRORES
-
-
-// REVISAR REGLA DE 3 o de 5 PARA ONSTRUCTORES
-// REVISAR REGLA DE 3 o de 5 PARA ONSTRUCTORES
-// REVISAR REGLA DE 3 o de 5 PARA ONSTRUCTORES
-
-// QUE PASA SI FALLA LA CREACION O ESCRITURA DE ARCIHVOS. PROGRAMAR UN RESTAURADOR
-// QUE PASA SI FALLA LA CREACION O ESCRITURA DE ARCIHVOS. PROGRAMAR UN RESTAURADOR
-// QUE PASA SI FALLA LA CREACION O ESCRITURA DE ARCIHVOS. PROGRAMAR UN RESTAURADOR
-// QUE PASA SI FALLA LA CREACION O ESCRITURA DE ARCIHVOS. PROGRAMAR UN RESTAURADOR
-// QUE PASA SI FALLA LA CREACION O ESCRITURA DE ARCIHVOS. PROGRAMAR UN RESTAURADOR
-
-// QUE PASA SI EL COMMENT DEL SNAPSHOT ES DEMASIADO GRANDE
-// QUE PASA SI EL COMMENT DEL SNAPSHOT ES DEMASIADO GRANDE
-// QUE PASA SI EL COMMENT DEL SNAPSHOT ES DEMASIADO GRANDE
-// QUE PASA SI EL COMMENT DEL SNAPSHOT ES DEMASIADO GRANDE
-// QUE PASA SI EL COMMENT DEL SNAPSHOT ES DEMASIADO GRANDE
-// QUE PASA SI EL COMMENT DEL SNAPSHOT ES DEMASIADO GRANDE
-
-// QUE MASA SI EN EL COMMENT DEL SNAPSHOT PONGO ALGO SIN COMILLAS O UNA RUTA O ALGO ASI
-// QUE MASA SI EN EL COMMENT DEL SNAPSHOT PONGO ALGO SIN COMILLAS O UNA RUTA O ALGO ASI
-// QUE MASA SI EN EL COMMENT DEL SNAPSHOT PONGO ALGO SIN COMILLAS O UNA RUTA O ALGO ASI
-// QUE MASA SI EN EL COMMENT DEL SNAPSHOT PONGO ALGO SIN COMILLAS O UNA RUTA O ALGO ASI
-// QUE MASA SI EN EL COMMENT DEL SNAPSHOT PONGO ALGO SIN COMILLAS O UNA RUTA O ALGO ASI
-// QUE MASA SI EN EL COMMENT DEL SNAPSHOT PONGO ALGO SIN COMILLAS O UNA RUTA O ALGO ASI
-
-
-// LA CLASE BUILDER TIENE UN CONSTRUCTOR QUE USA LA DATA BASE; VER EN QUE CASOS SE DEBE LLAMAR
-// LA CLASE BUILDER TIENE UN CONSTRUCTOR QUE USA LA DATA BASE; VER EN QUE CASOS SE DEBE LLAMAR
-// LA CLASE BUILDER TIENE UN CONSTRUCTOR QUE USA LA DATA BASE; VER EN QUE CASOS SE DEBE LLAMAR
-// LA CLASE BUILDER TIENE UN CONSTRUCTOR QUE USA LA DATA BASE; VER EN QUE CASOS SE DEBE LLAMAR
-// LA CLASE BUILDER TIENE UN CONSTRUCTOR QUE USA LA DATA BASE; VER EN QUE CASOS SE DEBE LLAMAR
-// LA CLASE BUILDER TIENE UN CONSTRUCTOR QUE USA LA DATA BASE; VER EN QUE CASOS SE DEBE LLAMAR
-// LA CLASE BUILDER TIENE UN CONSTRUCTOR QUE USA LA DATA BASE; VER EN QUE CASOS SE DEBE LLAMAR
-// LA CLASE BUILDER TIENE UN CONSTRUCTOR QUE USA LA DATA BASE; VER EN QUE CASOS SE DEBE LLAMAR
-
-// REVISAR QUE SE HAYA USADO BUILDER(BASE) COMO CONSTRUCTOR PARA CASOS ESPECÍFICOS EN DONDE SE NECESITE BASE COMO EN EL SNAPSHOT
-// REVISAR QUE SE HAYA USADO BUILDER(BASE) COMO CONSTRUCTOR PARA CASOS ESPECÍFICOS EN DONDE SE NECESITE BASE COMO EN EL SNAPSHOT
-// REVISAR QUE SE HAYA USADO BUILDER(BASE) COMO CONSTRUCTOR PARA CASOS ESPECÍFICOS EN DONDE SE NECESITE BASE COMO EN EL SNAPSHOT
-// REVISAR QUE SE HAYA USADO BUILDER(BASE) COMO CONSTRUCTOR PARA CASOS ESPECÍFICOS EN DONDE SE NECESITE BASE COMO EN EL SNAPSHOT
-// REVISAR QUE SE HAYA USADO BUILDER(BASE) COMO CONSTRUCTOR PARA CASOS ESPECÍFICOS EN DONDE SE NECESITE BASE COMO EN EL SNAPSHOT
-// REVISAR QUE SE HAYA USADO BUILDER(BASE) COMO CONSTRUCTOR PARA CASOS ESPECÍFICOS EN DONDE SE NECESITE BASE COMO EN EL SNAPSHOT
-// REVISAR QUE SE HAYA USADO BUILDER(BASE) COMO CONSTRUCTOR PARA CASOS ESPECÍFICOS EN DONDE SE NECESITE BASE COMO EN EL SNAPSHOT
-
-// VERIFICAR QUE TODAS LAS LLAMADAS A FUNCIONES QUE SEAN TEMPLATE T, CUENTEN CON SU IDENTIFICADOR EX: EXISTENCE_CHECKER<VECTOR<STRING>>(param1, param2)
-// VERIFICAR QUE TODAS LAS LLAMADAS A FUNCIONES QUE SEAN TEMPLATE T, CUENTEN CON SU IDENTIFICADOR EX: EXISTENCE_CHECKER<VECTOR<STRING>>(param1, param2)
-// VERIFICAR QUE TODAS LAS LLAMADAS A FUNCIONES QUE SEAN TEMPLATE T, CUENTEN CON SU IDENTIFICADOR EX: EXISTENCE_CHECKER<VECTOR<STRING>>(param1, param2)
-// VERIFICAR QUE TODAS LAS LLAMADAS A FUNCIONES QUE SEAN TEMPLATE T, CUENTEN CON SU IDENTIFICADOR EX: EXISTENCE_CHECKER<VECTOR<STRING>>(param1, param2)
-// VERIFICAR QUE TODAS LAS LLAMADAS A FUNCIONES QUE SEAN TEMPLATE T, CUENTEN CON SU IDENTIFICADOR EX: EXISTENCE_CHECKER<VECTOR<STRING>>(param1, param2)
-// VERIFICAR QUE TODAS LAS LLAMADAS A FUNCIONES QUE SEAN TEMPLATE T, CUENTEN CON SU IDENTIFICADOR EX: EXISTENCE_CHECKER<VECTOR<STRING>>(param1, param2)
-// VERIFICAR QUE TODAS LAS LLAMADAS A FUNCIONES QUE SEAN TEMPLATE T, CUENTEN CON SU IDENTIFICADOR EX: EXISTENCE_CHECKER<VECTOR<STRING>>(param1, param2)
-// VERIFICAR QUE TODAS LAS LLAMADAS A FUNCIONES QUE SEAN TEMPLATE T, CUENTEN CON SU IDENTIFICADOR EX: EXISTENCE_CHECKER<VECTOR<STRING>>(param1, param2)
 
 // Función miembro: start_manager(). 
 // Invocada a través del comando -start. 
@@ -178,7 +109,7 @@ void Manager::simple_catch_manager() {
                     helper.content_extractor<string,string>(temporal_file_hash, main_row, db_pos::file_hash);
                     bool is_same_hash = helper.hash_comparator(temporal_file_hash, data.file_hash);
                     if (is_same_hash) {
-                        printer.event_reporter(warning_codes::identical_version_saved);
+                        printer.warning_reporter(warning_codes::identical_version_saved);
                     } else {
                         // Transportamos la versión más reciente del archivo al folder de versiones de archivos capturados
                         // Registramos los datos de la versión más reciente del archivo en la base de datos de versiones de archivos capturados
@@ -194,7 +125,7 @@ void Manager::simple_catch_manager() {
                 helper.content_extractor<string,string>(temporal_file_hash, catch_row, db_pos::file_hash);
                 bool is_same_hash = helper.hash_comparator(temporal_file_hash, data.file_hash);
                 if (is_same_hash) {
-                    printer.event_reporter(warning_codes::identical_version_in_standby);
+                    printer.warning_reporter(warning_codes::identical_version_in_standby);
                 } else {
                     vector<string> protected_rows;
                     string temporal_version;
@@ -216,10 +147,10 @@ void Manager::simple_catch_manager() {
                 }
             }
         } else {
-            printer.event_reporter(warning_codes::file_already_ignored, catch_command);
+            printer.warning_reporter(warning_codes::file_already_ignored, catch_command);
         }
     } else {
-        printer.event_reporter(warning_codes::file_not_found);
+        printer.warning_reporter(warning_codes::file_not_found);
     }
 }
 
@@ -397,7 +328,7 @@ void Manager::simple_drop_manager() {
         // Esto se hace con la finalidad de determinar si el archivo aún no ha sido capturado
         string catch_row = helper.row_extractor(data.file, base.db_catch_file);
         if (catch_row.empty()) {
-            printer.event_reporter(warning_codes::file_not_catched, drop_command);
+            printer.warning_reporter(warning_codes::file_not_catched, drop_command);
         } else {
             Builder builder;
             // Extraemos todos los registros de la base de datos de archivos capturados... 
@@ -442,12 +373,12 @@ void Manager::simple_drop_manager() {
                 } else if (authorization == denied_auth) {
                     printer.event_reporter(notification_codes::cancelled_action, drop_command);
                 } else {
-                    printer.event_reporter(warning_codes::unknown_authorization);
+                    printer.warning_reporter(warning_codes::unknown_authorization);
                 }
             }
         }
     } else {
-        printer.event_reporter(warning_codes::file_not_found);
+        printer.warning_reporter(warning_codes::file_not_found);
     }
 }
 
@@ -533,11 +464,11 @@ void Manager::multiple_drop_manager() {
             } else if (authorization == denied_auth) {
                 printer.event_reporter(notification_codes::cancelled_action, drop_command);
             } else {
-                printer.event_reporter(warning_codes::unknown_authorization);
+                printer.warning_reporter(warning_codes::unknown_authorization);
             }
         }
     } else {
-        printer.event_reporter(warning_codes::no_files_to_save, drop_command);
+        printer.warning_reporter(warning_codes::no_files_to_process, drop_command);
     }
 }
 
@@ -584,10 +515,10 @@ void Manager::snapshot_manager() {
             builder.data_saver(catch_file_rows, base.db_main_file, timepoint, std::to_string(timepoint_hash), arg_container[2]);
             printer.event_reporter(success_codes::version_saved);
         } else {
-            printer.event_reporter(error_codes::inconsistency_detected, snapshot_command);
+            printer.error_reporter(error_codes::inconsistency_detected, snapshot_command);
         }
     } else {
-        printer.event_reporter(warning_codes::no_files_to_save);
+        printer.warning_reporter(warning_codes::no_files_to_process, snapshot_command);
     }
 }
 
@@ -701,7 +632,7 @@ void Manager::ignore_manager() {
             // Validamos que el archivo no se encuentre registrado en la lista de archivos ignorados
             bool file_or_folder_is_ignored = helper.ignored_file_checker(file_or_folder, base.config_ignore_file);
             if (file_or_folder_is_ignored) {
-                printer.event_reporter(warning_codes::file_already_ignored, ignore_command);
+                printer.warning_reporter(warning_codes::file_already_ignored, ignore_command);
             } else {
                 Builder builder;
                 // Insertamos la ruta completa del archivo en el archivo de ignorados. 
@@ -709,30 +640,30 @@ void Manager::ignore_manager() {
                 printer.event_reporter(success_codes::file_ignored);
             }        
         } else {
-            printer.event_reporter(warning_codes::file_in_use, ignore_command);        
+            printer.warning_reporter(warning_codes::file_in_use, ignore_command);        
         }
     } else {
-        printer.event_reporter(warning_codes::file_not_found);
+        printer.warning_reporter(warning_codes::file_not_found);
     }
 }
 
+// Función miembro: get_manager(). 
+// Invocada a través del comando -get y asignando como parámetro adicional el código del snapshot relacionado a las versiones que se desea restaurar. 
+// Ex: emi -get 123456789
 void Manager::get_manager() {
     Communicator printer;
     Helper helper;
-
-    bool main_has_data = helper.content_checker(base.db_main_file);
 
     string snapshot_code = arg_container[2];
     string target_directory = helper.location_generator(arg_container[2], current_path);
     vector<string> main_file_rows;
     helper.rows_extractor(main_file_rows, base.db_main_file, snapshot_code, action_mode::similar_to_item, db_pos::snap_hash);
-
     if (main_file_rows.empty()) {
-        std::cout << "tu codigo hash no existe en main, revisa bien con log" << std::endl;
+        printer.warning_reporter(warning_codes::snapcode_not_found);
     } else {
         Builder builder;
         vector<string> main_version_names;
-        helper.content_extractor(main_version_names, main_file_rows, db_pos::snap_version);
+        helper.content_extractor<vector<string>,vector<string>>(main_version_names, main_file_rows, db_pos::snap_version);
 
         printer.authorization_reporter(get_command);
         string authorization;
@@ -743,9 +674,9 @@ void Manager::get_manager() {
             printer.event_reporter(success_codes::version_restored);
         } else if (authorization == replace_auth) {
             vector<string> path_names;
-            helper.content_extractor(path_names, main_file_rows, db_pos::path_name);
+            helper.content_extractor<vector<string>,vector<string>>(path_names, main_file_rows, db_pos::path_name);
             vector<string> file_names;
-            helper.content_extractor(file_names, main_file_rows, db_pos::file);
+            helper.content_extractor<vector<string>,vector<string>>(file_names, main_file_rows, db_pos::file);
 
             helper.duplicate_organizer(path_names);
             unordered_map<string,bool> directories_and_status;
@@ -760,71 +691,9 @@ void Manager::get_manager() {
         } else if (authorization == denied_auth) {
             printer.event_reporter(notification_codes::cancelled_action, get_command);
         } else {
-            printer.event_reporter(warning_codes::unknown_authorization);
+            printer.warning_reporter(warning_codes::unknown_authorization);
         }
     }
-
-
-    /*string authorization;
-      std::cin >> authorization;
-      if (authorization == keep_auth) {*/
-
-    /*vector<string> ignored_files_or_folders;
-      helper.rows_extractor(ignored_files_or_folders, base.config_ignore_file);
-
-      vector<string> available_files;
-      vector<string> available_folders;
-      helper.availability_organizer(available_files, available_folders, ignored_files_or_folders, current_path);
-
-      vector<File> available_files_data;
-      helper.data_organizer<vector<string>>(available_files_data, available_files, base.version_catch_path);
-
-      vector<string> version_names; 
-      helper.content_extractor<vector<string>,string>(version_names, base.db_catch_file, db_pos::version);
-
-      Builder builder;
-      builder.file_transporter<vector<File>>(available_files_data, base.version_temp_path);
-      builder.file_remover<vector<File>>(available_files_data, db_pos::file);
-      builder.folder_remover(available_folders);
-      builder.data_catcher<vector<File>>(available_files_data, base.db_temp_file);
-
-      builder.file_remover<vector<string>>(version_names);
-      builder.data_cleaner(base.db_catch_file);*/
-
-    /* ACA ES LO BUENO
-       string snapshot_code = arg_container[2];
-       vector<string> rows_of_main;
-       helper.rows_extractor(rows_of_main, base.db_main_file, snapshot_code, action_mode::similar_to_item, db_pos::snap_hash);
-
-       for (auto item : rows_of_main) {
-       std::cout << "item -> " << item << std::endl;
-       }
-
-       vector<string> rutas;
-       helper.content_extractor(rutas, rows_of_main, db_pos::path_name);
-
-       for (auto item : rutas) {
-       std::cout << "item ruta -> " << item << std::endl;
-       }
-
-       vector<string> archivos;
-       helper.content_extractor(archivos, rows_of_main, db_pos::file);
-
-       for (auto item : archivos) {
-       std::cout << "item archivo -> " << item << std::endl;
-       }*/
-
-
-
-    /*} else if (authorization == denied_auth) {
-      printer.event_reporter(notification_codes::cancelled_action, get_command);
-      } else {
-      printer.event_reporter(warning_codes::unknown_authorization);
-      }*/
-
-    //} else {
-    //std::cout << "No tiene data" << std::endl;
-    //}
 }
 
 // Función miembro: restart_manager(). 
@@ -847,7 +716,7 @@ void Manager::restart_manager() {
     } else if (authorization == denied_auth) {
         printer.event_reporter(notification_codes::cancelled_action, restart_command);
     } else {
-        printer.event_reporter(warning_codes::unknown_authorization);
+        printer.warning_reporter(warning_codes::unknown_authorization);
     }
 }
 
@@ -869,7 +738,7 @@ void Manager::bye_manager() {
     } else if (authorization == denied_auth) {
         printer.event_reporter(notification_codes::cancelled_action, bye_command);
     } else {
-        printer.event_reporter(warning_codes::unknown_authorization);
+        printer.warning_reporter(warning_codes::unknown_authorization);
     }
 }
 

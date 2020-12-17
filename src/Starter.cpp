@@ -1,3 +1,12 @@
+/*
+ * Project: EMI Personal Control Version System 
+ * File: Starter Class - Implementation file
+ * Description: Clase de arranque. Nos permite formatear y validar la data
+ * ingresada por el usuario antes de transportarla a la clase de distribución
+ * @author
+ * Julio Zaravia <hello@juliozaravia.com>
+ */
+
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -13,20 +22,20 @@ using std::vector;
 
 namespace fs = std::filesystem;
 
-// Constructor simple de tres argumentos
+// Descripción: Constructor básico de tres argumentos
 Starter::Starter(string current_path, int argument_count, char* argument_values[])
     : current_path{current_path},
     argument_count{argument_count},
     argument_values{argument_values} {
     }
 
-// Contruimos un método que permita mover el contenido a un contenedor más "amigable" como vector<string>.
+// Descripción: Nos permite mover el contenido recibido a un contenedor más "amigable" como vector<string>.
 void Starter::input_formatter(vector<string>& arg_container) {
     std::copy(argument_values, argument_values + argument_count, std::back_inserter(arg_container));
 }
 
-// Construimos un método que nos informa si el repositorio emi es válido y si la ruta actual 
-// desde donde se están solicitando las acciones es una ruta válida
+// Descripción: Nos permite identificar si el repositorio emi es válido y si la ruta actual... 
+// ... desde donde se están solicitando / ejecutando las acciones es una ruta válida
 void Starter::startup_validator(int& validation_result) {
     // Construimos manualmente las rutas necesarias
     // Nota: Una vez que el control haya pasado a la clase Manager las rutas serán construidas de manera automática
@@ -35,7 +44,7 @@ void Starter::startup_validator(int& validation_result) {
 
     // Verificamos que la carpeta contenedora de los archivos de emi exista dentro de la ruta actual
     // Adicionalmente se valida también que el archivo de configuración exista
-    // Ambas condicionales debe ser válidas para que el programa no se detenga e informe de la inconsistencia
+    // Ambas condicionales debe ser válidas para que las operaciones continuen con normalidad
     if (fs::exists(emi_default_path) && fs::exists(config_main_file)) {
         validation_result = validation_codes::emi_and_path_valid;
     } else {
@@ -62,12 +71,12 @@ void Starter::startup_validator(int& validation_result) {
 
         bool contains_emi_path = false;
         for (const string& evaluation_path : incremental_paths) {
-            // Iteramos sobre cada ruta almacenada en *incremental_paths*. 
+            // Iteramos sobre cada ruta almacenada en 'incremental_paths'. 
             for (const auto& file_or_folder : fs::directory_iterator(evaluation_path)) {
                 // Debemos recordar que algunas rutas construidas contendrán un archivo
                 if(fs::is_directory(file_or_folder)) {
                     string folder = file_or_folder.path().string();
-                    // Validamos que la ruta evaluada contenga la ruta del *emi_path*
+                    // Validamos que la ruta evaluada contenga la ruta del 'emi_path'
                     // De esta manera nos aseguramos que la solicitud (el comando) se ha ejecutado desde una sub-carpeta dentro de un proyecto rastreado
                     // Es decir, el repositorio emi existe en un nivel superior y la llamada se está haciendo desde un nivel inferior
                     if (folder.find(emi_path) != string::npos) {

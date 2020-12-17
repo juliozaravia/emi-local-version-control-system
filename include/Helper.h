@@ -1,7 +1,14 @@
+/*
+ * Project: EMI Personal Control Version System 
+ * File: Helper Class - Definition file 
+ * Description: Clase de apoyo de operaciones. Nos permite realizar las acciones complementarias y de soporte
+ * a las acciones principales como creación, registro, eliminado y transporte de directorios y/o archivos entre otras acciones
+ * @author
+ * Julio Zaravia <hello@juliozaravia.com>
+ */
+
 #ifndef HELPER_H
 #define HELPER_H
-
-#include <unordered_map>
 
 #include "Structures.h"
 
@@ -31,10 +38,8 @@ class Helper {
         std::string location_generator(const std::string&, const std::string&); 
         unsigned int hash_generator(const std::string&, int);
         void timepoint_generator(std::string&);
-        void compound_name_generator(const std::string&, std::vector<std::string>&);
 
         // Organizers
-        void data_organizer(struct File&, const std::string&, const std::string&);
         template<typename T, typename U>
         void data_organizer(T&, const U&, const std::string&, int = 0);
         template<typename T> 
@@ -42,7 +47,6 @@ class Helper {
         void availability_organizer(std::unordered_map<std::string,std::string>&,
                 const std::vector<std::string>&,
                 const std::string&);
-        void availability_organizer(std::vector<std::string>&, std::vector<std::string>&, const std::vector<std::string>&, const std::string&); 
         void processed_files_organizer(std::vector<std::string>&,
                 std::vector<std::string>&,
                 const std::unordered_map<std::string,std::string>&,

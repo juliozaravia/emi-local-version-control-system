@@ -1,3 +1,12 @@
+/*
+ * Project: EMI Personal Control Version System 
+ * File: Global file - Definition
+ * Description: Clase de apoyo de recursos. Nos permite tener disponibles de manera global
+ * todas las variables necesarias para ejecutar las operaciones solicitadas por el usuario 
+ * @author
+ * Julio Zaravia <hello@juliozaravia.com>
+ */
+
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
