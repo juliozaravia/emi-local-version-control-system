@@ -259,6 +259,38 @@ void Manager::multiple_catch_manager() {
             }
         }
 
+        std::cout << "old_data" << std::endl;
+        for (auto data : old_data) {
+            std::cout << "data.file -> " << data.file << std::endl;
+            std::cout << "data.hash-> " << data.file_hash << std::endl;
+        }
+        std::cout << "*************" << std::endl;
+        std::cout << "catched_not_modified" << std::endl;
+        for (auto data : catched_not_modified) {
+            std::cout << "data.file -> " << data << std::endl;
+        }
+        std::cout << "*************" << std::endl;
+        std::cout << "catched_modified_data" << std::endl;
+        for (auto data : catched_modified_data) {
+            std::cout << "data.file -> " << data.file << std::endl;
+            std::cout << "data.hash -> " << data.file_hash << std::endl;
+        }
+        std::cout << "*************" << std::endl;
+        std::cout << "saved_modified_data" << std::endl;
+        for (auto data : saved_modified_data) {
+            std::cout << "data.file -> " << data.file << std::endl;
+            std::cout << "data.hash -> " << data.file_hash << std::endl;
+        }
+        std::cout << "*************" << std::endl;
+        std::cout << "untracked_data" << std::endl;
+        for (auto data : untracked_data) {
+            std::cout << "data.file -> " << data.file << std::endl;
+            std::cout << "data.hash -> " << data.file_hash << std::endl;
+        }
+        std::cout << "*************" << std::endl;
+
+
+        
         Builder builder;
         // We check the status of the containers. A container with data must always be processed.
         if (!old_data.empty()) {
@@ -266,11 +298,16 @@ void Manager::multiple_catch_manager() {
             // We remove the records from the captured versions database.
             builder.file_remover<vector<File>>(old_data, db_pos::version);
             builder.data_cleaner(base.db_catch_file);
+
+            if (!catched_not_modified.empty()) { 
+                // We insert the versions of the files whose most recent version is equal to the last version registered in the database of captured versions.
+                builder.data_inserter<vector<string>>(catched_not_modified, base.db_catch_file);
+            }
         }         
-        if (!catched_not_modified.empty())  { 
+        /*if (!catched_not_modified.empty()) { 
             // We insert the versions of the files whose most recent version is equal to the last version registered in the database of captured versions.
             builder.data_inserter<vector<string>>(catched_not_modified, base.db_catch_file);
-        }
+        }*/
         if (!catched_modified_data.empty()) {
             // We transport (copy and rename) the most recent versions of the files to the directory of captured versions.
             // We register the data of the versions in the database of captured versions.
@@ -289,6 +326,7 @@ void Manager::multiple_catch_manager() {
             builder.file_transporter<vector<File>>(untracked_data, base.version_catch_path);
             builder.data_catcher<vector<File>>(untracked_data, base.db_catch_file);
         }
+        
         printer.event_reporter(success_codes::version_catched);
     }
 }
