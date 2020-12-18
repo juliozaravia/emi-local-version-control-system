@@ -1,8 +1,8 @@
 /*
  * Project: EMI Personal Control Version System 
  * File: Builder Class - Definition file 
- * Description: Clase de ejecución. Nos permite realizar las acciones principales como
- * creación, registro, eliminado y transporte de directorios y/o archivos entre otras acciones
+ * Description: Execution class. It allows us to perform the main actions such as 
+ * creation, registration and deletion of directories and / or files among other actions.
  * @author
  * Julio Zaravia <hello@juliozaravia.com>
  */

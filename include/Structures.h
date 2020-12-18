@@ -1,7 +1,7 @@
 /*
  * Project: EMI Personal Control Version System 
  * File: Structures file 
- *
+ * Description: File containing all the structures used for data extraction and version processing.
  * @author
  * Julio Zaravia <hello@juliozaravia.com>
  */
@@ -11,7 +11,7 @@
 
 #include <string>
 
-// Estructura que contiene todas las rutas necesarias para trabajar con el repositorio emi y sus archivos internos
+// Structure that contains all the necessary paths to work with the emi repository and its internal files.
 struct Base {
     std::string emi_default_path;
     std::string config_default_path;
@@ -27,7 +27,7 @@ struct Base {
     std::string version_temp_path;
 };
 
-// Estructura que contiene todos los campos necesarios para capturar o guardar la versión del archivo respectivo
+// Structure that contains all the necessary fields to capture or save the version of a certain file.
 struct File {
     std:: string file = "null";
     unsigned file_hash = 0;
@@ -44,7 +44,7 @@ struct File {
     std::string comment = "null";
 };
 
-// Estructura complementaria a la interior
+// Complementary structure to the 'File structure', used by the function 'Manager: log_manager ()'
 struct Log {
     std::string snapshot_code;
     std::string snapshot_date;

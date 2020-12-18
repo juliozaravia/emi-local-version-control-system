@@ -1,8 +1,8 @@
 /*
  * Project: EMI Personal Control Version System 
  * File: Global file - Implementation 
- * Description: Clase de apoyo de recursos. Nos permite tener disponibles de manera global
- * todas las variables necesarias para ejecutar las operaciones solicitadas por el usuario 
+ * Description: Resource support class. It allows us to have globally available 
+ * all the variables necessary to execute the operations requested by the user.
  * @author
  * Julio Zaravia <hello@juliozaravia.com>
  */

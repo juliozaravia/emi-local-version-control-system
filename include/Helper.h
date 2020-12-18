@@ -1,8 +1,8 @@
 /*
  * Project: EMI Personal Control Version System 
  * File: Helper Class - Definition file 
- * Description: Clase de apoyo de operaciones. Nos permite realizar las acciones complementarias y de soporte
- * a las acciones principales como creación, registro, eliminado y transporte de directorios y/o archivos entre otras acciones
+ * Description: Operations support class. It allows us to carry out complementary and support actions 
+ * for the main actions such as creating, registering and deleting directories and / or files, among other actions.
  * @author
  * Julio Zaravia <hello@juliozaravia.com>
  */

@@ -1,8 +1,8 @@
 /*
  * Project: EMI Personal Control Version System 
  * File: Manager Class - Implementation file
- * Description: Clase de distribución de operaciones. Permite distribuir y asignar las responsabilidades  
- * entre los métodos de apoyo y de ejecución para llevar a cabo la solicitud realizada por el usuario 
+ * Description: Operations distribution class. It allows us to distribute and assign responsibilities between 
+ * the support and execution methods to carry out the request made by the user.
  * @author
  * Julio Zaravia <hello@juliozaravia.com>
  */
@@ -26,9 +26,9 @@ using std::vector;
 using std::unordered_map;
 using std::unordered_multimap;
 
-// Definimos el constructor y lo inicializamos.
-// Construimos todas las rutas necesarias que serán usadas por la clase Manager y las clases adicionales
-// Utilizamos la estructura "base" para almancenar las rutas
+// We define and initialize the constructor.
+// We build all the necessary paths that will be used by the Manager class and the execution and support classes.
+// We use the "base" structure to store the paths.
 Manager::Manager(string current_path, vector<string> arg_container)
     : current_path{current_path},
     arg_container{arg_container} {
@@ -46,22 +46,22 @@ Manager::Manager(string current_path, vector<string> arg_container)
         this->base.version_temp_path = current_path + "/" + emi_path + "/" + version_path + "/" + version_temp;
     }
 
-// Función miembro: start_manager(). 
-// Invocada a través del comando -start. 
+// Member function: start_manager ().
+// Invoked through the -start command.
 // Ex: emi -start
 void Manager::start_manager() {
-    // Creamos (inicializamos) el objeto "builder" para poder crear el repositorio emi
-    // Dentro del repositorio emi se encuentran las configuraciones, bases de datos y archivos que permitirán el rastreo y almacenamiento de versiones 
+    // We create (initialize) the "builder" object in order to create the emi repository.
+    // Within the emi repository are the configurations, databases and files that will allow version tracking and storage.
     Builder builder(base);
     builder.repository_builder(current_path);
     Communicator printer;
     printer.event_reporter(success_codes::emi_repository_created);
 }
 
-// Función miembro: catch_manager(). Invocada a través del comando -catch
-// Según los parámetros enviados se debe determinar cuál de las sub-funciones será ejecutada
-// Capturar versión de archivo individual: simple_catch_manager()
-// Capturar versiones de archivos grupales: multiple_catch_manager()
+// Member function: catch_manager (). Invoked through the -catch command.
+// According to the parameters sent, it must be determined which of the sub-functions will be executed.
+// Capture single file version: simple_catch_manager ().
+// Capture the versions of multiple files: multiple_catch_manager ()
 void Manager::catch_manager() {
     if (arg_container[2] == process_all) {
         multiple_catch_manager();
@@ -70,49 +70,50 @@ void Manager::catch_manager() {
     }
 }
 
-// Función miembro: simple_catch_manager(). 
-// Invocada a través del comando -catch y asignando como parámetro adicional el archivo cuya versión será capturada. 
+// Member function: simple_catch_manager ().
+// Invoked through the -catch command and assigning as an additional parameter the file whose version will be captured.
 // Ex: emi -catch relative_folder/file.txt
 void Manager::simple_catch_manager() {
     Communicator printer;
     Helper helper;
-    // Construímos la ruta completa del archivo cuya versión será capturada
+    // We build the full path of the file whose version will be captured.
     string file = helper.location_generator(arg_container[2], current_path);
     unordered_map<string,bool> status;
-    // Validamos la existencia del archivo
+    // We validate the existence of the file.
     bool file_exists = helper.existence_checker<string>(file, status);
     if (file_exists) {
-        // Validamos que el archivo no se encuentre registrado en la lista de archivos ignorados
+        // We validate that the file is not registered in the list of ignored files.
         bool file_is_ignored = helper.ignored_file_checker(file, base.config_ignore_file);
         if (!file_is_ignored) {
             Builder builder;
             File data;
-            // Construimos la estructura y la llenamos con la información necesaria para capturar la versión más reciente del archivo
+            // We build the structure and fill it with the necessary information generated (based on the file) to capture the most recent version of the file.
             helper.data_organizer<File,string>(data, file, base.version_catch_path);
-            // Buscamos el archivo que será procesado en la base de datos de versiones de archivos capturados
-            // Esto se hace con la finalidad de determinar si una versión del archivo ya ha sido capturado
+            // We look for the file that will be processed in the database of captured versions.
+            // This is done in order to determine if a version of the file has already been captured previously.
             string catch_row = helper.row_extractor(data.file, base.db_catch_file);
             if (catch_row.empty()) {
-                // Buscamos el archivo que será procesado en la base de datos de versiones de archivos guardados
-                // Esto se hace con la finalidad de determinar si una versión del archivo ya ha sido guardado
+                // We look for the file that will be processed in the database of saved versions.
+                // This is done in order to determine if a version of the file has already been saved previously.
                 string main_row = helper.row_extractor(data.file, base.db_main_file);
                 if (main_row.empty()) {
-                    // Transportamos la versión más reciente del archivo al folder de versiones de archivos capturados
-                    // Registramos los datos de la versión más reciente del archivo en la base de datos de versiones de archivos capturados
+                    // We transport (copy and rename) the most recent version of the file to the directory of captured versions.
+                    // We register the data of the most recent version of the file in the database of captured versions.
                     builder.file_transporter<File>(data, base.version_catch_path);
                     builder.data_catcher<File>(data, base.db_catch_file);
                     printer.event_reporter(success_codes::version_catched);
                 } else {
                     string temporal_file_hash;
-                    // Extraemos el valor hash de la versión del archivo que está registrado en la base de datos de archivos guardados
-                    // Comparamos el valor hash de la versión almacenada en la base de datos y el valor hash de la versión del archivo actual
+                    // We extract the record corresponding to the hash value of the version registered in the database of saved versions.
+                    // We compare the hash value of the version stored in the database and the hash value of the current file version.
+                    // We do this in order to determine if the file was modified after it was captured.
                     helper.content_extractor<string,string>(temporal_file_hash, main_row, db_pos::file_hash);
                     bool is_same_hash = helper.hash_comparator(temporal_file_hash, data.file_hash);
                     if (is_same_hash) {
                         printer.warning_reporter(warning_codes::identical_version_saved);
                     } else {
-                        // Transportamos la versión más reciente del archivo al folder de versiones de archivos capturados
-                        // Registramos los datos de la versión más reciente del archivo en la base de datos de versiones de archivos capturados
+                        // We transport (copy and rename) the most recent version of the file to the directory of captured versions.
+                        // We register the data of the most recent version of the file in the database of captured versions.
                         builder.file_transporter<File>(data, base.version_catch_path);
                         builder.data_catcher<File>(data, base.db_catch_file);
                         printer.event_reporter(success_codes::version_catched);
@@ -120,8 +121,9 @@ void Manager::simple_catch_manager() {
                 }
             } else {
                 string temporal_file_hash;
-                // Extraemos el valor hash de la versión del archivo que está registrado en la base de datos de archivos capturados
-                // Comparamos el valor hash de la versión almacenada en la base de datos y el valor hash de la versión del archivo actual
+                // We extract the record corresponding to the hash value of the version registered in the database of captured versions.
+                // We compare the hash value of the version stored in the database and the hash value of the current file version.
+                // We do this in order to determine if the file was modified after it was captured.
                 helper.content_extractor<string,string>(temporal_file_hash, catch_row, db_pos::file_hash);
                 bool is_same_hash = helper.hash_comparator(temporal_file_hash, data.file_hash);
                 if (is_same_hash) {
@@ -129,15 +131,15 @@ void Manager::simple_catch_manager() {
                 } else {
                     vector<string> protected_rows;
                     string temporal_version;
-                    // Extraemos los registros de las versiones que no sean la versión del archivo que está siendo procesado
-                    // Extraemos la ruta completa de la versión del archivo que está siendo procesado
+                    // We extract all the records (rows) from the captured versions database excluding the record (row) that corresponds to the file we're working with.
+                    // We extract the record corresponding to the full name of the version registered in the database of captured versions.
                     helper.rows_extractor(protected_rows, base.db_catch_file, catch_row, action_mode::different_to_row);
                     helper.content_extractor<string,string>(temporal_version, catch_row, db_pos::version);
-                    // Debido a que el valor hash es diferente: Eliminamos la versión que se encuentra en el folder de archivos capturados
-                    // Eliminamos el registro de la versión del archivo de la base de datos de versiones de archivos capturados
-                    // Insertamos los registros extraídos anteriormente en la base de datos de archivos capturados
-                    // Transportamos la versión más reciente del archivo al folder de versiones de archivos capturados
-                    // Registramos los datos de la versión más reciente del archivo en la base de datos de versiones de archivos capturados
+                    // We remove the version found in the captured versions directory.
+                    // We remove the records from the captured versions database.
+                    // We insert the records previously extracted into the database of captured versions.
+                    // We transport (copy and rename) the most recent version of the file to the directory of captured versions.
+                    // We register the data of the most recent version of the file in the database of captured versions.
                     builder.file_remover<string>(temporal_version);
                     builder.data_cleaner(base.db_catch_file);
                     builder.data_inserter<vector<string>>(protected_rows, base.db_catch_file);
@@ -154,15 +156,15 @@ void Manager::simple_catch_manager() {
     }
 }
 
-// Función miembro: multiple_catch_manager(). 
-// Invocada a través del comando -catch y asignando como parámetro adicional el subcomando "all"
+// Member function: multiple_catch_manager ().
+// Invoked through the -catch command and assigning the "all" subcommand as an additional parameter
 // Ex. emi -catch all
 void Manager::multiple_catch_manager() {
-    // Creamos los contenedores necesarios para almacenar la información de:
-    // (1) untracked_files: Archivos que no tienen aún una versión capturada mediante el comando -catch
-    // (2) modified_files: Archivos modificados de su versión más reciente (versión más reciente capturada o guardada)
-    // (3) standby_files: Archivos que cuentan con una versión capturada y puesta en la etapa de standby mediante el comando -catch
-    // (4) saved_files: Archivos que tienen una versión guardada mediante el comando -snapshot
+    // We create the necessary containers to store the information of:
+    // (1) untracked_files: Files that do not yet have a version captured by the -catch command.
+    // (2) modified_files: Files that differ from their most recent captured or saved version.
+    // (3) standby_files: Files that have a captured version and at the same time placed in the standby stage using the -catch command.
+    // (4) saved_files: Files that have a version saved using the -snapshot command.
     unordered_map<string,string> untracked_files;
     unordered_map<string,string> modified_files;
     unordered_map<string,string> standby_files;
@@ -170,124 +172,120 @@ void Manager::multiple_catch_manager() {
 
     Communicator printer;
     Helper helper;
-    // Llenamos el contenedor "untracked_files únicamente con los archivos que no se encuentren registrados en la lista de archivos ignorados
-    // Se guardará el valor hash de la versión más reciente del archivo, y, la ruta del archivo completo
+    // We fill the container "untracked_files" only with the files that are not registered in the list of ignored files.
+    // The hash value of the latest version of the file and the full path of the file will be saved.
     vector<string> ignored_files_or_folders;
     helper.rows_extractor(ignored_files_or_folders, base.config_ignore_file);
     helper.availability_organizer(untracked_files, ignored_files_or_folders, current_path);
-    // Validamos que existan archivos disponibles (Es decir, archivos que no hayan sido ignorados, capturados o guardados anteriormente)
+    // We validate that there are available files (that is, files that have not been ignored, captured or saved before).
     if (untracked_files.empty()) {
         printer.event_reporter(notification_codes::no_files_found, catch_command);
     } else {
-        // Creamos los contenedores necesarios para procesar la información:
-        // (1) catched_modified: Archivos que tengan una versión capturada pero que cuenten con una versión modificada más reciente
-        // (2) catched_not_modified: Archivos cuya versión capturada sea la más reciente
-        // (3) saved_modified: Archivos que tengan una versión guardada pero que cuenten con una versión modificada más reciente
-        // (4) saved_not_modified: Archivos cuya versión guardada sea la más reciente
+        // We create the necessary containers to process the information:
+        // (1) catched_modified: Files whose most recent version is different from the last captured version.
+        // (2) catched_not_modified: Files whose most recent version is equal to their last captured version.
+        // (3) saved_modified: Files whose most recent version is different from their last saved version.
+        // (4) saved_not_modified: Files whose most recent version is equal to their last saved version.
         vector<string> catched_modified;
         vector<string> catched_not_modified;
         vector<string> saved_modified;
         vector<string> saved_not_modified;
-        // Creamos los contenedores que serán llenados con la data procesada de los contenedores catched_modified, catched_not_modified, saved_modified y saved_not_modified  
+        // We create the containers that will be filled with the processed data of catched_modified, catched_not_modified, saved_modified and saved_not_modified.
         vector<File> old_data;
         vector<File> catched_modified_data;
         vector<File> saved_modified_data;
         vector<File> untracked_data;
-        // Validamos si la base de datos de archivos capturados cuenta o no con información registrada previamente
+        // We validate if the database of captured versions is empty or has records.
         bool catch_has_data = helper.content_checker(base.db_catch_file);
         if (catch_has_data) {
-            // LLenamos los contenedores de tipo "unordered_map" con la información respectiva
-            // En este punto solo procesamos la data de la base de datos de versiones de archivos capturados
-            // La base de datos de versiones de archivos guardados será analizada más adelante
+            // We fill the containers of type "unordered_map" with the respective information.
+            // At this point we only process the data from the captured versions database.
+            // The database of saved versions will be analyzed later.
             helper.status_organizer(untracked_files, modified_files, standby_files, base.db_catch_file);
-            // Llenamos los contenedores de tipo "vector" con la data procesada y almacenada en modified_files y standby_files 
+            // We fill the containers of type "vector" with the data processed and stored in modified_files and standby_files.
             helper.processed_files_organizer(catched_modified, catched_not_modified, modified_files, standby_files, base.db_catch_file);
-            // Validamos si la base de datos de archivos guardados cuenta o no con información registrada previamente
+            // We validate if the database of saved versions is empty or has records.
             bool main_has_data = helper.content_checker(base.db_main_file);
             if (main_has_data) {
-                // LLenamos los contenedores de tipo "unordered_map" con la información respectiva
-                // En este punto solo procesamos la data de la base de datos de versiones de archivos guardados
-                // La base de datos de versiones de archivos capturados ya fue analizada previamente... 
-                // ... por lo que esta actividad termina de construir completamente los contenedores
+                // We fill the containers of type "unordered_map" with the respective information.
+                // At this point we only process the data from the saved versions database.
+                // The database of captured versions was previously analyzed so this activity completes the filling of the containers.
                 helper.status_organizer(untracked_files, modified_files, saved_files, base.db_main_file);
-                // Llenamos los contenedores de tipo "vector" con la data procesada y almacenada en modified_files y saved_files
+                // We fill the containers of type "vector" with the data processed and stored in modified_files and saved_files.
                 helper.processed_files_organizer(saved_modified, saved_not_modified, modified_files, saved_files, base.db_main_file);
-                // LLenamos las estructuras declaradas anteriormente de la siguiente manera:
-                // (1) old_data: Data de los archivos que cuenta con una versión ya capturada pero que no es la más reciente. 
-                // Esta data es extraida de los registros de la base de datos de versiones de archivos capturados (action_mode::built) 
-                // (2) catched_modified_data: Data de los archivos que cuentan con una versión ya capturada pero que no es la más reciente
-                // Esta data es contruida en base a la nueva información del archivo (action_mode::to_build)
-                // (3) saved_modified_data: Data de los archivos que cuentan con una versión ya guardada pero que no es la más reciente  
-                // Esta data es contruida en base a la nueva información del archivo (action_mode::to_build)
-                // (4) untracked_data: Data de los archivos que aún no han sido capturados o guardados
+                // We fill the previously declared structures as follows:
+                // (1) old_data: Data of the files whose most recent version is different from the last captured version.
+                // This data is extracted from the records of the captured version database (action_mode::built).
+                // (2) catched_modified_data: Data of the files whose most recent version is different from the last captured version.
+                // This data is built based on the new information in the file (action_mode::to_build).
+                // (3) saved_modified_data: Data of the files whose latest version is different from the last saved version.
+                // This data is built based on the new information in the file (action_mode::to_build).
+                // (4) untracked_data: Data of the files that have not yet been captured or saved.
                 helper.data_organizer<vector<File>,vector<string>>(old_data, catched_modified, base.version_catch_path, action_mode::built);
                 helper.data_organizer<vector<File>,vector<string>>(catched_modified_data, catched_modified, base.version_catch_path, action_mode::to_build);
                 helper.data_organizer<vector<File>,vector<string>>(saved_modified_data, saved_modified, base.version_catch_path, action_mode::to_build);
                 helper.data_organizer<unordered_map<string,string>>(untracked_data, untracked_files, base.version_catch_path);
             } else {
-                // LLenamos las estructuras declaradas anteriormente de la siguiente manera:
-                // (1) old_data: Data de los archivos que cuenta con una versión ya capturada pero que no es la más reciente. 
-                // Esta data es extraida de los registros de la base de datos de versiones de archivos capturados (action_mode::built) 
-                // (2) catched_modified_data: Data de los archivos que cuentan con una versión ya capturada pero que no es la más reciente
-                // Esta data es contruida en base a la nueva información del archivo (action_mode::to_build)
-                // (3) untracked_data: Data de los archivos que aún no han sido capturados o guardados
+                // We fill the previously declared structures as follows:
+                // (1) old_data: Data of the files whose most recent version is different from the last captured version.
+                // This data is extracted from the records of the captured version database (action_mode::built).
+                // (2) catched_modified_data: Data of the files whose most recent version is different from the last captured version.
+                // This data is built based on the new information in the file (action_mode::to_build).
+                // (3) untracked_data: Data of the files that have not yet been captured or saved.
                 helper.data_organizer<vector<File>,vector<string>>(old_data, catched_modified, base.version_catch_path, action_mode::built);
                 helper.data_organizer<vector<File>,vector<string>>(catched_modified_data, catched_modified, base.version_catch_path, action_mode::to_build);
                 helper.data_organizer<unordered_map<string,string>>(untracked_data, untracked_files, base.version_catch_path);
             }
         } else {
-            // Validamos si la base de datos de archivos guardados cuenta o no con información registrada previamente
+            // We validate if the database of saved versions is empty or has records.
             bool main_has_data = helper.content_checker(base.db_main_file);
             if (main_has_data) {
-                // LLenamos los contenedores de tipo "unordered_map" con la información respectiva
-                // En este punto solo procesamos la data de la base de datos de versiones de archivos guardados
-                // La base de datos de versiones de archivos capturados no fue analizada debido a que está vacía  
+                // We fill the containers of type "unordered_map" with the respective information.
+                // At this point we only process the data from the saved versions database.
+                // The database of captured versions was not analyzed because it is empty.
                 helper.status_organizer(untracked_files, modified_files, saved_files, base.db_main_file);
-                // Llenamos los contenedores de tipo "vector" con la data procesada y almacenada en modified_files y saved_files
+                // We fill the containers of type "vector" with the data processed and stored in modified_files and saved_files.
                 helper.processed_files_organizer(saved_modified, saved_not_modified, modified_files, saved_files, base.db_main_file);
-                // LLenamos las estructuras declaradas anteriormente de la siguiente manera:
-                // (1) saved_modified_data: Data de los archivos que cuentan con una versión ya guardada pero que no es la más reciente  
-                // Esta data es contruida en base a la nueva información del archivo (action_mode::to_build)
-                // (2) untracked_data: Data de los archivos que aún no han sido capturados o guardados
+                // We fill the previously declared structures as follows:
+                // (1) saved_modified_data: Data of the files whose latest version is different from the last saved version.
+                // This data is built based on the new information in the file (action_mode::to_build).
+                // (2) untracked_data: Data of the files that have not yet been captured or saved.
                 helper.data_organizer<vector<File>,vector<string>>(saved_modified_data, saved_modified, base.version_catch_path, action_mode::to_build);
                 helper.data_organizer<unordered_map<string,string>>(untracked_data, untracked_files, base.version_catch_path);
             } else {
-                // LLenamos las estructuras declaradas anteriormente de la siguiente manera:
-                // (1) untracked_data: Data de los archivos que aún no han sido capturados o guardados
+                // We fill the previously declared structures as follows:
+                // (1) untracked_data: Data of the files that have not yet been captured or saved.
                 helper.data_organizer<unordered_map<string,string>>(untracked_data, untracked_files, base.version_catch_path);
             }
         }
 
         Builder builder;
-        // Verificamos el estado de los contenedores. Un contenedor con data siempre debe ser procesado.
+        // We check the status of the containers. A container with data must always be processed.
         if (!old_data.empty()) {
-            // Eliminamos las versiones procesadas como capturadas, pero modificadas posteriormente
-            // Eliminamos los registros de la base de datos de versiones de archivos capturados
+            // We remove the versions stored in the container 'old_data' from the captured versions directory.
+            // We remove the records from the captured versions database.
             builder.file_remover<vector<File>>(old_data, db_pos::version);
             builder.data_cleaner(base.db_catch_file);
         }         
         if (!catched_not_modified.empty())  { 
-            // Insertamos las versiones de los archivos ya capturados que no han sido modificados posteriormente en la DB de versiones de archivos capturados
+            // We insert the versions of the files whose most recent version is equal to the last version registered in the database of captured versions.
             builder.data_inserter<vector<string>>(catched_not_modified, base.db_catch_file);
         }
         if (!catched_modified_data.empty()) {
-            // Creamos una copia de las versiones más recientes de los archivos que han sido capturados y modificados posteriormente
-            // Transportamos las copias de las versiones al folder contenedor de versiones capturadas
-            // Registramos la data de las versiones en la base de datos de versiones de archivos capturados
+            // We transport (copy and rename) the most recent versions of the files to the directory of captured versions.
+            // We register the data of the versions in the database of captured versions.
             builder.file_transporter<vector<File>>(catched_modified_data, base.version_catch_path);
             builder.data_catcher<vector<File>>(catched_modified_data, base.db_catch_file);
         }
         if (!saved_modified_data.empty()) { 
-            // Creamos una copia de las versiones más recientes de los archivos que han sido guardados y modificados posteriormente
-            // Transportamos las copias de las versiones al folder contenedor de versiones capturadas
-            // Registramos la data de las versiones en la base de datos de versiones de archivos capturados
+            // We transport (copy and rename) the most recent versions of the files to the directory of captured versions.
+            // We register the data of the versions in the database of captured versions.
             builder.file_transporter<vector<File>>(saved_modified_data, base.version_catch_path);
             builder.data_catcher<vector<File>>(saved_modified_data, base.db_catch_file);
         }
         if (!untracked_data.empty()) {
-            // Creamos una copia de las versiones de los archivos que aún no han sido capturados o guardados
-            // Transportamos las copias de las versiones al folder contenedor de versiones capturadas
-            // Registramos la data de las versiones en la base de datos de versiones de archivos capturados
+            // We transport (copy and rename) the most recent versions of the files to the directory of captured versions.
+            // We register the data of the versions in the database of captured versions.
             builder.file_transporter<vector<File>>(untracked_data, base.version_catch_path);
             builder.data_catcher<vector<File>>(untracked_data, base.db_catch_file);
         }
@@ -295,10 +293,10 @@ void Manager::multiple_catch_manager() {
     }
 }
 
-// Función miembro: drop_manager(). Invocada a través del comando -drop
-// Según los parámetros enviados se debe determinar cuál de las sub-funciones será ejecutada
-// Remover versión de archivo individual en la fase de standby: simple_drop_manager()
-// Remover todas las versiones de archivos en la fase de standby: multiple_drop_manager()
+// Member function: drop_manager (). Invoked through the -drop command.
+// According to the parameters sent, it must be determined which of the sub-functions will be executed.
+// Remove single file version from standby phase: simple_drop_manager ().
+// Remove all versions of all files in standby phase: multiple_drop_manager ().
 void Manager::drop_manager() {
     if (arg_container[2] == process_all) {
         multiple_drop_manager();
@@ -307,64 +305,61 @@ void Manager::drop_manager() {
     }
 }
 
-// Función miembro: simple_drop_manager(). 
-// Invocada a través del comando -drop y asignando como parámetro adicional el archivo cuya versión será removida. 
+// Member function: simple_drop_manager ().
+// Invoked through the -drop command and assigning as an additional parameter the file whose version will be removed.
 // Ex: emi -drop relative_folder/file.txt
 void Manager::simple_drop_manager() {
     Helper helper;
     Communicator printer;
-    // Construímos la ruta completa del archivo cuya versión será capturada
+    // We build the full path of the file whose version will be captured.
     string file = helper.location_generator(arg_container[2], current_path);
     unordered_map<string,bool> status;
-    // Validamos la existencia del archivo
+    // We validate the existence of the file.
     bool file_exists = helper.existence_checker<string>(file, status);
     if (file_exists) {
         File data;
-        // Construimos la estructura y la llenamos con la información necesaria 
-        // ***************** Pareciera que acá no es necesario crear un data en base a data_organizer, debido a que solo se usan
-        // **************** el data.file y data.hash, esto facilmente se puede trabajar sin el data_organizar
+        // We build the structure and fill it with the necessary information generated (based on the file) to capture the most recent version of the file.
         helper.data_organizer<File,string>(data, file, base.version_catch_path);
-        // Buscamos el archivo que será procesado en la base de datos de versiones de archivos capturados
-        // Esto se hace con la finalidad de determinar si el archivo aún no ha sido capturado
+        // We look for the file that will be processed in the database of captured versions.
+        // This is done in order to determine if a version of the file has already been captured previously.
         string catch_row = helper.row_extractor(data.file, base.db_catch_file);
         if (catch_row.empty()) {
             printer.warning_reporter(warning_codes::file_not_catched, drop_command);
         } else {
             Builder builder;
-            // Extraemos todos los registros de la base de datos de archivos capturados... 
-            // ...menos el registro correspondiente a la versión del archivo que deseamos remover
+            // We extract all the records (rows) from the captured versions database excluding the record (row) that corresponds to the file we're working with.
             vector<string> protected_rows;
             helper.rows_extractor(protected_rows, base.db_catch_file, catch_row, action_mode::different_to_row);
-            // Extraemos el valor hash de la versión registrada en la base de datos de versiones de archivos capturados
+            // We extract the record corresponding to the hash value of the version registered in the database of captured versions.
+            // We compare the hash value of the version stored in the database and the hash value of the current file version.
+            // We do this in order to determine if the file was modified after it was captured.
             string temporal_file_hash;
             helper.content_extractor<string,string>(temporal_file_hash, catch_row, db_pos::file_hash);
-            // Comparamos el valor hash de la versión construida (versión más reciente) con el valor hash extraido de la base de datos
-            // Hacemos esto con la finalidad de determinar si el archivo fue modificado luego de haber sido capturado
             bool is_same_hash = helper.hash_comparator(temporal_file_hash, data.file_hash);
             if (is_same_hash) {
-                // Extraemos la ruta completa de la versión que ha sido registrada en la base de datos de versiones de archivos capturados
+                // We extract the record corresponding to the full name of the version registered in the database of captured versions.
                 string temporal_version;
                 helper.content_extractor<string,string>(temporal_version, catch_row, db_pos::version);
-                // Eliminamos la versión que se encuentra en el folder de versiones de archivos capturados
-                // Eliminamos los registros de las versiones de los archivos de la base de datos de versiones de archivos capturados
-                // Insertamos los registros extraídos anteriormente en la base de datos de archivos capturados
+                // We remove the version found in the captured versions directory.
+                // We remove the records from the captured versions database.
+                // We insert the records previously extracted into the database of captured versions.
                 builder.file_remover<string>(temporal_version);
                 builder.data_cleaner(base.db_catch_file);
                 builder.data_inserter<vector<string>>(protected_rows, base.db_catch_file);
 
                 printer.event_reporter(success_codes::version_dropped);
             } else {
-                // Solicitamos la autorización del usuario para continuar con las actividades 
+                // We request the authorization of the user to continue with the operations.
                 printer.authorization_reporter(drop_command);
                 string authorization;
                 std::cin >> authorization;
                 if (authorization == confirmed_auth) {
-                    // Extraemos la ruta completa de la versión que ha sido registrada en la base de datos de versiones de archivos capturados
+                    // We extract the record corresponding to the full name of the version registered in the database of captured versions.
                     string temporal_version;
                     helper.content_extractor<string,string>(temporal_version, catch_row, db_pos::version);
-                    // Eliminamos la versión que se encuentra en el folder de versiones de archivos capturados
-                    // Eliminamos los registros de las versiones de los archivos de la base de datos de versiones de archivos capturados
-                    // Insertamos los registros extraídos anteriormente en la base de datos de archivos capturados
+                    // We remove the version found in the captured versions directory.
+                    // We remove the records from the captured versions database.
+                    // We insert the records previously extracted into the database of captured versions.
                     builder.file_remover<string>(temporal_version);
                     builder.data_cleaner(base.db_catch_file);
                     builder.data_inserter<vector<string>>(protected_rows, base.db_catch_file);
@@ -382,81 +377,79 @@ void Manager::simple_drop_manager() {
     }
 }
 
-// Función miembro: multiple_drop_manager(). 
-// Invocada a través del comando -drop y asignando como parámetro adicional el subcomando "all"
+// Member function: multiple_drop_manager ().
+// Invoked through the -drop command and assigning the "all" subcommand as an additional parameter.
 // Ex. emi -drop all
 void Manager::multiple_drop_manager() {
-    // Creamos los contenedores necesarios para almacenar la información de:
-    // (1) untracked_files: Archivos que no tienen aún una versión capturada mediante el comando -catch
-    // (2) modified_files: Archivos modificados de su versión más reciente (versión más reciente capturada o guardada)
-    // (3) catched_files: Archivos que cuentan con una versión capturada y puesta en la etapa de standby mediante el comando -catch
+    // We create the necessary containers to store the information of:
+    // (1) untracked_files: Files that do not yet have a version captured by the -catch command.
+    // (2) modified_files: Files that differ from their most recent captured or saved version.
+    // (3) standby_files: Files that have a captured version and at the same time placed in the standby stage using the -catch command.
     unordered_map<string,string> untracked_files;
     unordered_map<string,string> modified_files;
     unordered_map<string,string> catched_files;
     Helper helper;
     Communicator printer;
-    // Llenamos el contenedor "untracked_files únicamente con los archivos que no se encuentren registrados en la lista de archivos ignorados
-    // Se guardará el valor hash de la versión más reciente del archivo, y, la ruta del archivo completo
-    // ********************REVISAR multuple catch... porq aqui no hay condicional en caso se haga drop sin tener ningun archivo o solo ignores
-    // ******************** REVISAR estructura de multiple cathc para organizar similar
+    // We fill the container "untracked_files" only with the files that are not registered in the list of ignored files.
+    // The hash value of the latest version of the file and the full path of the file will be saved.
     vector<string> ignored_files_or_folders;
     helper.rows_extractor(ignored_files_or_folders, base.config_ignore_file);
     helper.availability_organizer(untracked_files, ignored_files_or_folders, current_path);
-    // Validamos si la base de datos de archivos capturados cuenta o no con información registrada previamente
+    // We validate if the database of captured versions is empty or has records.
     bool catch_has_data = helper.content_checker(base.db_catch_file);
     if (catch_has_data) {
         Builder builder;	
-        // Creamos los contenedores necesarios para procesar la información:
-        // (1) catched_modified: Archivos que tengan una versión capturada pero que cuenten con una versión modificada más reciente
-        // (2) catched_not_modified: Archivos cuya versión capturada sea la más reciente
+        // We create the necessary containers to process the information:
+        // (1) catched_modified: Files whose most recent version is different from the last captured version.
+        // (2) catched_not_modified: Files whose most recent version is equal to their last captured version.
         vector<string> catched_modified;
         vector<string> catched_not_modified;
-        // LLenamos los contenedores de tipo "unordered_map" con la información respectiva
-        // En este punto solo procesamos la data de la base de datos de versiones de archivos capturados
-        // La base de datos de versiones de archivos guardados será analizada más adelante
+        // We fill the containers of type "unordered_map" with the respective information.
+        // At this point we only process the data from the captured versions database.
+        // The database of saved versions will be analyzed later.
         helper.status_organizer(untracked_files, modified_files, catched_files, base.db_catch_file);
-        // Llenamos los contenedores de tipo "vector" con la data procesada y almacenada en modified_files y standby_files 
+        // We fill the containers of type "vector" with the data processed and stored in modified_files and standby_files.
         helper.processed_files_organizer(catched_modified, catched_not_modified, modified_files, catched_files, base.db_catch_file);
-        // Validamos que existan versiones de archivos capturados que hayan sido modificados posteriormente
+        // We validate that there are files whose most recent versions are different from the last captured version.
         if (catched_modified.empty()) {
-            // LLenamos las estructuras declaradas de la siguiente manera:
-            // (1) catched_not_modified_data: Data de los archivos que cuentan con una versión ya capturada que no ha sido modificada posteriormente
-            // Esta data es extraida de los registros de la base de datos de versiones de archivos capturados (action_mode::built) 
             vector<File> catched_not_modified_data;
+            // We fill the previously declared structures as follows:
+            // (1) catched_not_modified: Files whose most recent version is equal to their last captured version.
+            // This data is extracted from the records of the captured version database (action_mode::built).
             helper.data_organizer<vector<File>,vector<string>>(catched_not_modified_data, catched_not_modified, base.version_catch_path, action_mode::built);
-            // Verificamos el estado de los contenedores. Un contenedor con data siempre debe ser procesado.
+            // We check the status of the containers. A container with data must always be processed.
             if (!catched_not_modified_data.empty()) {
-                // Eliminamos las versiones procesadas como capturadas, pero no modificadas posteriormente
-                // Eliminamos los registros de la base de datos de versiones de archivos capturados
+                // We remove the versions stored in the container 'catched_not_modified_data' from the captured versions directory.
+                // We remove the records from the captured versions database.
                 builder.file_remover<vector<File>>(catched_not_modified_data, db_pos::version);
                 builder.data_cleaner(base.db_catch_file);
             }
             printer.event_reporter(success_codes::version_dropped);
         } else {
-            // Solicitamos la autorización del usuario para continuar con las actividades
+            // We request the authorization of the user to continue with the operations.
             printer.authorization_reporter(drop_command);
             string authorization;
             std::cin >> authorization;
             if (authorization == confirmed_auth) {
-                // LLenamos las estructuras declaradas de la siguiente manera:
-                // (1) catched_modified_data: Data de los archivos que cuentan con una versión ya capturada que ha sido modificada posteriormente
-                // Esta data es extraida de los registros de la base de datos de versiones de archivos capturados (action_mode::built) 
-                // (2) catched_not_modified_data: Data de los archivos que cuentan con una versión ya capturada que no ha sido modificada posteriormente
-                // Esta data es extraida de los registros de la base de datos de versiones de archivos capturados (action_mode::built) 
                 vector<File> catched_modified_data;
                 vector<File> catched_not_modified_data;
+                // We fill the previously declared structures as follows:
+                // (1) catched_modified_data: Data of the files whose most recent version is different from the last captured version.
+                // This data is extracted from the records of the captured version database (action_mode::built).
+                // (2) catched_not_modified_data: Data of the files whose most recent version is equal to their last captured version.
+                // This data is extracted from the records of the captured version database (action_mode::built).
                 helper.data_organizer<vector<File>,vector<string>>(catched_modified_data, catched_modified, base.version_catch_path, action_mode::built);
                 helper.data_organizer<vector<File>,vector<string>>(catched_not_modified_data, catched_not_modified, base.version_catch_path, action_mode::built);
-                // Verificamos el estado de los contenedores. Un contenedor con data siempre debe ser procesado.
+                // We check the status of the containers. A container with data must always be processed.
                 if (!catched_modified_data.empty()) {
-                    // Eliminamos la versión del archivo capturado y modificado posteriormente que se encuentra en el folder de versiones de archivos capturados
-                    // Eliminamos los registros de las versiones de los archivos de la base de datos de versiones de archivos capturados
+                    // We remove the versions stored in the container 'catched_modified_data' from the captured versions directory.
+                    // We remove the records from the captured versions database.
                     builder.file_remover<vector<File>>(catched_modified_data, db_pos::version);
                     builder.data_cleaner(base.db_catch_file);
                 }
                 if (!catched_not_modified_data.empty()) {
-                    // Eliminamos la versión del archivo capturado que se encuentra en el folder de versiones de archivos capturados
-                    // Eliminamos los registros de las versiones de los archivos de la base de datos de versiones de archivos capturados
+                    // We remove the versions stored in the container 'catched_not_modified_data' from the captured versions directory.
+                    // We remove the records from the captured versions database.
                     builder.file_remover<vector<File>>(catched_not_modified_data, db_pos::version);
                     builder.data_cleaner(base.db_catch_file);
                 }
@@ -472,46 +465,43 @@ void Manager::multiple_drop_manager() {
     }
 }
 
-// Función miembro: snapshot_manager(). 
-// Invocada a través del comando -snapshot y asignando como parámetro adicional un mensaje descriptivo de la(s) versión(es) guardada(s)
-// Ex. emi -snapshot "Este es un comentario descriptivo"
+// Member function: snapshot_manager ().
+// Invoked through the -snapshot command and assigning as an additional parameter a descriptive message of the saved version (s).
+// Ex. emi -snapshot "This is a descriptive comment"
 void Manager::snapshot_manager() {
     Communicator printer;
     Helper helper;
-    // Validamos si la base de datos de archivos capturados cuenta o no con información registrada previamente
+    // We validate if the database of captured versions is empty or has records.
     bool catch_has_data = helper.content_checker(base.db_catch_file);
     if (catch_has_data) {
-        // Extraemos las rutas completas de las versiones de los archivos capturados
+        // We extract the records corresponding to the full name of the versions registered in the database of captured versions.
         vector<string> version_names;
         helper.content_extractor<vector<string>,string>(version_names, base.db_catch_file, db_pos::version);
-        // Verificamos que las rutas de las versiones de los archivos capturados sean correctas y los archivos existan
+        // We verify that the paths of the captured versions are correct and the files exist.
         unordered_map<string,bool> status;
         bool versions_exist = helper.existence_checker<vector<string>>(version_names, status);
         if (versions_exist) {
             Builder builder(base);
             string timepoint;
             vector<string> catch_file_rows;
-            // Extraemos todos los registros de la base de datos de versiones de archivos capturados
+            // We extract all the records from the captured versions database.
             helper.rows_extractor(catch_file_rows, base.db_catch_file);
-            // Capturamos la hora exacta en la que el proceso se está ejecutando
-            // Generamos un valor hash único utilizando el time point anterior
+            // We capture the exact time point in which the process is running.
+            // We generate a unique hash value using the previously generated time point.
             helper.timepoint_generator(timepoint);
             unsigned int timepoint_hash = helper.hash_generator(timepoint, action_mode::simple);
-            // Transportamos una copia de las versiones almacenadas en el folder de versiones de archivos capturados...
-            // ...hacia una sub-carpeta temporal dentro del folder de versiones de archivos guardados
-            // Eliminamos las versiones de los archivos capturados
+            // We transport a copy of the versions stored in the captured versions directory to a temporary sub-folder within the saved versions directory.
             builder.file_transporter<vector<string>>(version_names, base.version_main_path, version_temp);
-            // Eliminamos las versiones de los archivos capturados
+            // We remove the versions stored in the container 'version_names' from the captured versions directory.
             builder.file_remover<vector<string>>(version_names);
-            // Eliminamos los registros de la base de datos de versiones de archivos capturados
+            // We remove the records from the captured versions database.
             builder.data_cleaner(base.db_catch_file);
-            // Renombramos la sub-carpeta temporal creada dentro del folder de versiones de archivos guardados
-            // El nuevo nombre del folder será el valor hash creado anteriormente
+            // Rename the temporary sub-folder created within the saved file versions directory.
+            // The new directory name will be the previously created hash value.
             builder.file_renamer(std::to_string(timepoint_hash), base.version_main_path, version_temp);
-            // Guardamos los registros extraídos de la base de datos de versiones de archivos capturados... 
-            // ...en la base de datos de versiones de archivos guardados
-            // Adicionalmente se registran valores adicionales necesarios para que la data sea guardada correctamente
-            // Estos valores adicionales son: valor hash identificador, hora de ejecución y comentario
+            // We save the records extracted from the database of captured versions in the database of saved versions.
+            // Additionally, the pending values necessary to complete the structure are registered.
+            // These additional values are: identifier hash value, execution time, and comment.
             builder.data_saver(catch_file_rows, base.db_main_file, timepoint, std::to_string(timepoint_hash), arg_container[2]);
             printer.event_reporter(success_codes::version_saved);
         } else {
@@ -522,56 +512,55 @@ void Manager::snapshot_manager() {
     }
 }
 
-// Función miembro: look_manager(). 
-// Invocada a través del comando -look. 
+// Member function: look_manager ().
+// Invoked through the -look command.
 // Ex. emi -look 
 void Manager::look_manager() {
-    // Creamos los contenedores necesarios para almacenar la información de:
-    // (1) untracked_files: Archivos que no tienen aún una versión capturada mediante el comando -catch
-    // (2) modified_files: Archivos modificados de su versión más reciente (versión más reciente capturada o guardada)
-    // (3) standby_files: Archivos que cuentan con una versión capturada y puesta en la etapa de standby mediante el comando -catch
-    // (4) saved_files: Archivos que tienen una versión guardada mediante el comando -snapshot
+    // We create the necessary containers to store the information of:
+    // (1) untracked_files: Files that do not yet have a version captured by the -catch command.
+    // (2) modified_files: Files that differ from their most recent captured or saved version.
+    // (3) standby_files: Files that have a captured version and at the same time placed in the standby stage using the -catch command.
+    // (4) saved_files: Files that have a version saved using the -snapshot command.
     unordered_map<string,string> untracked_files;
     unordered_map<string,string> modified_files;
     unordered_map<string,string> standby_files;
     unordered_map<string,string> saved_files;
-    // Llenamos el contenedor "untracked_files únicamente con los archivos que no se encuentren registrados en la lista de archivos ignorados
-    // Se guardará el valor hash de la versión más reciente del archivo, y, la ruta del archivo completo
+    // We fill the container "untracked_files" only with the files that are not registered in the list of ignored files.
+    // The hash value of the latest version of the file and the full path of the file will be saved.
     vector<string> ignored_files_or_folders;
     Helper helper;
     helper.rows_extractor(ignored_files_or_folders, base.config_ignore_file);
     helper.availability_organizer(untracked_files, ignored_files_or_folders, current_path);
-    // Validamos que existan archivos disponibles (Es decir, archivos que no hayan sido ignorados, capturados o guardados anteriormente)
+    // We validate that there are available files (that is, files that have not been ignored, captured or saved before).
     Communicator printer;
     if (untracked_files.empty()) {
         printer.status_reporter(untracked_files, modified_files, standby_files, current_path);
     } else {
-        // Validamos si la base de datos de archivos capturados cuenta o no con información registrada previamente
+        // We validate if the database of captured versions is empty or has records.
         bool catch_has_data = helper.content_checker(base.db_catch_file);
         if (catch_has_data) {
-            // LLenamos los contenedores de tipo "unordered_map" con la información respectiva
-            // En este punto solo procesamos la data de la base de datos de versiones de archivos capturados
-            // La base de datos de versiones de archivos guardados será analizada más adelante
+            // We fill the containers of type "unordered_map" with the respective information.
+            // At this point we only process the data from the captured versions database.
+            // The database of saved versions will be analyzed later.
             helper.status_organizer(untracked_files, modified_files, standby_files, base.db_catch_file);
-            // Validamos si la base de datos de archivos guardados cuenta o no con información registrada previamente
+            // We validate if the database of saved versions is empty or has records.
             bool main_has_data = helper.content_checker(base.db_main_file);
             if (main_has_data) {
-                // LLenamos los contenedores de tipo "unordered_map" con la información respectiva
-                // En este punto solo procesamos la data de la base de datos de versiones de archivos guardados
-                // La base de datos de versiones de archivos capturados ya fue analizada previamente... 
-                // ... por lo que esta actividad termina de construir completamente los contenedores
+                // We fill the containers of type "unordered_map" with the respective information.
+                // At this point we only process the data from the saved versions database.
+                // The database of captured versions was previously analyzed so this activity completes the filling of the containers.
                 helper.status_organizer(untracked_files, modified_files, saved_files, base.db_main_file);
                 printer.status_reporter(untracked_files, modified_files, standby_files, current_path);
             } else {
                 printer.status_reporter(untracked_files, modified_files, standby_files, current_path);
             }
         } else {
-            // Validamos si la base de datos de archivos guardados cuenta o no con información registrada previamente
+            // We validate if the database of saved versions is empty or has records.
             bool main_has_data = helper.content_checker(base.db_main_file);
             if (main_has_data) {
-                // LLenamos los contenedores de tipo "unordered_map" con la información respectiva
-                // En este punto solo procesamos la data de la base de datos de versiones de archivos guardados
-                // La base de datos de versiones de archivos capturados no fue analizada debido a que está vacía  
+                // We fill the containers of type "unordered_map" with the respective information.
+                // At this point we only process the data from the saved versions database.
+                // The database of captured versions was not analyzed because it is empty.
                 helper.status_organizer(untracked_files, modified_files, saved_files, base.db_main_file);
                 printer.status_reporter(untracked_files, modified_files, standby_files, current_path);
             } else {
@@ -581,61 +570,61 @@ void Manager::look_manager() {
     }
 }
 
-// Función miembro: log_manager(). 
-// Invocada a través del comando -log. 
+// Member function: log_manager ().
+// Invoked through the -log command.
 // Ex. emi -log 
 void Manager::log_manager() {
     Log log;
-    // Creamos los contenedores necesarios para almacenar la información de:
-    // (1) log_info: Estructura que contiene la data generada al momento de aplicar el -snapshot...
-    // ...Esta data es: Snapshot code (hash value), fecha de snapshot y comentario
-    // (2) saved_files: Archivos cuyas versiones han sido guardadas. Cada archivo está asociado al valor hash único generado al momento de aplicar -snapshot 
+    // We create the necessary containers to store the information of:
+    // (1) log_info: Structure that contains the data generated when applying the -snapshot command. 
+    // This data is: Snapshot code (hash value), snapshot date and comment.
+    // (2) saved_files: Files whose versions have been saved. Each file is associated with the unique hash value generated when the -snapshot command was applied.
     vector<Log> log_info;
     unordered_multimap<string,string> saved_files;
 
     Helper helper;
     Communicator printer;
-    // Validamos si la base de datos de archivos guardados cuenta o no con información registrada previamente
+    // We validate if the database of saved versions is empty or has records.
     bool main_has_data = helper.content_checker(base.db_main_file);
     if (main_has_data) {
-        // Extraemos todos los registros de la base de datos de versiones de archivos guardados 
+        // We extract all the records from the saved versions database.
         vector<string> main_file_rows;
         helper.rows_extractor(main_file_rows, base.db_main_file);
-        // Llenamos los contenedores en base a los registros extraídos de la base de datos de versiones de archivos guardados
+        // We fill the containers based on the records extracted from the database of saved versions.
         helper.log_organizer(log, log_info, saved_files, main_file_rows);
-        // Enviamos los contenedores con la información necesaria a la función que imprimirá los resultados
+        // We send the containers with the necessary information to the function that will print the results.
         printer.log_reporter(log_info, saved_files, current_path);
     } else {
-        // Enviamos los contenedores con la información necesaria a la función que imprimirá los resultados,
-        // En este caso los contenedores irán vacíos por lo que se informará al usuario que no existen registros
+        // We send the containers with the necessary information to the function that will print the results.
+        // In this case the containers will be empty so the user will be informed that there are no records.
         printer.log_reporter(log_info, saved_files, current_path);
     }
 }
 
-// Función miembro: ignore_manager(). 
-// Invocada a través del comando -ignore y asignando como parámetro adicional el archivo que será ignorado. 
+// Member function: ignore_manager ().
+// Invoked through the -ignore command and assigning the file to be ignored as an additional parameter.
 // Ex: emi -ignore relative_folder/file.txt
 void Manager::ignore_manager() {
     Communicator printer;
     Helper helper;
-    // Construímos la ruta completa del archivo cuya versión será utilizada
+    // We build the full path of the file whose version will be captured.
     string file_or_folder = helper.location_generator(arg_container[2], current_path);
     unordered_map<string,bool> status;
-    // Validamos la existencia del archivo
+    // We validate the existence of the file.
     bool file_exists = helper.existence_checker<string>(file_or_folder, status);
     if (file_exists) {
-        // Buscamos el archivo que será procesado en la base de datos de versiones de archivos capturados y guardados
-        // Esto se hace con la finalidad de determinar si el archivo aún no ha sido previamente capturado o guardado
+        // We look for the file that will be processed in the database of captured versions and in the database of saved versions.
+        // This is done in order to determine if a version of the file has already been captured or saved previously.
         string catch_row = helper.row_extractor(file_or_folder, base.db_catch_file);
         string main_row = helper.row_extractor(file_or_folder, base.db_main_file);
         if (catch_row.empty() && main_row.empty()) {
-            // Validamos que el archivo no se encuentre registrado en la lista de archivos ignorados
+            // We validate that the file is not registered in the list of ignored files.
             bool file_or_folder_is_ignored = helper.ignored_file_checker(file_or_folder, base.config_ignore_file);
             if (file_or_folder_is_ignored) {
                 printer.warning_reporter(warning_codes::file_already_ignored, ignore_command);
             } else {
                 Builder builder;
-                // Insertamos la ruta completa del archivo en el archivo de ignorados. 
+                // We insert the full path of the file in the ignore file.
                 builder.data_inserter<string>(file_or_folder, base.config_ignore_file);
                 printer.event_reporter(success_codes::file_ignored);
             }        
@@ -647,45 +636,57 @@ void Manager::ignore_manager() {
     }
 }
 
-// Función miembro: get_manager(). 
-// Invocada a través del comando -get y asignando como parámetro adicional el código del snapshot relacionado a las versiones que se desea restaurar. 
+// Member function: get_manager ().
+// Invoked through the -get command and assigning as an additional parameter the snapshot code related to the versions to be restored.
 // Ex: emi -get 123456789
 void Manager::get_manager() {
     Communicator printer;
     Helper helper;
 
     string snapshot_code = arg_container[2];
+    // We build the full path of the file whose version will be captured.
     string target_directory = helper.location_generator(arg_container[2], current_path);
     vector<string> main_file_rows;
+    // We extract the records from the saved versions database whose value of the snapshot code is equal to the code entered by the user.
     helper.rows_extractor(main_file_rows, base.db_main_file, snapshot_code, action_mode::similar_to_item, db_pos::snap_hash);
     if (main_file_rows.empty()) {
         printer.warning_reporter(warning_codes::snapcode_not_found);
     } else {
         Builder builder;
         vector<string> main_version_names;
+        // We extract the names of the versions of the group of records filtered previously.
         helper.content_extractor<vector<string>,vector<string>>(main_version_names, main_file_rows, db_pos::snap_version);
-
+        // We request the authorization of the user to continue with the operations.
         printer.authorization_reporter(get_command);
         string authorization;
         std::cin >> authorization;
+        // User authorized to keep current files and bring saved versions to temporary directory.
         if (authorization == keep_auth) {
+            // We create the directory that will contain the saved versions.
             builder.directory_builder<string>(target_directory);
+            // We transport a copy of the versions to the directory created previously.
             builder.file_transporter<vector<string>>(main_version_names, target_directory);
             printer.event_reporter(success_codes::version_restored);
+        // The user authorized to replace the current files with the saved versions.
         } else if (authorization == replace_auth) {
+            // We extract the paths of the saved versions that we bring back.
             vector<string> path_names;
             helper.content_extractor<vector<string>,vector<string>>(path_names, main_file_rows, db_pos::path_name);
+            // We extract the file names of the saved versions that we bring back.
             vector<string> file_names;
             helper.content_extractor<vector<string>,vector<string>>(file_names, main_file_rows, db_pos::file);
-
+            // We remove duplicate paths temporarily.
             helper.duplicate_organizer(path_names);
+            // We verify the existence of the paths and files that will be brought back.
             unordered_map<string,bool> directories_and_status;
             helper.existence_checker<vector<string>>(path_names, directories_and_status);
             unordered_map<string,bool> files_and_status;
             helper.existence_checker<vector<string>>(file_names, files_and_status);
-
+            // We remove the current files to make it possible for the saved versions to be restored without errors.
             builder.file_remover<unordered_map<string,bool>>(files_and_status);
+            // We create the necessary directories to place the saved versions that will be restored.
             builder.directory_builder<unordered_map<string,bool>>(directories_and_status);
+            // We restore the saved versions to their corresponding locations.
             builder.special_transporter(main_version_names, file_names);
             printer.event_reporter(success_codes::version_restored);
         } else if (authorization == denied_auth) {
@@ -696,21 +697,20 @@ void Manager::get_manager() {
     }
 }
 
-// Función miembro: restart_manager(). 
-// Invocada a través del comando -restart. 
+// Member function: restart_manager ().
+// Invoked through the -restart command.
 // Ex. emi -restart 
 void Manager::restart_manager() {
     Communicator printer;
-    // Solicitamos la autorización del usuario para ejecutar el comando -restart
     printer.authorization_reporter(restart_command);
-    // Capturamos la autorización
+    // We request the authorization of the user to continue with the operations.
     string authorization;
     std::cin >> authorization;
     if (authorization == confirmed_auth) {
         Builder builder(base);
-        // Removemos el repositorio emi incluyendo todos sus archivos internos (action_mode::recursive)
+        // We remove the emi repository including all its internal files (action_mode::recursive)
         builder.repository_remover(base.emi_default_path, action_mode::recursive);
-        // Construimos el repositorio emi con su configuración básica
+        // We build the emi repository with its basic configuration.
         builder.repository_builder(current_path);
         printer.event_reporter(success_codes::emi_repository_restarted);
     } else if (authorization == denied_auth) {
@@ -720,19 +720,18 @@ void Manager::restart_manager() {
     }
 }
 
-// Función miembro: bye_manager(). 
-// Invocada a través del comando -bye. 
+// Member function: bye_manager ().
+// Invoked through the -bye command.
 // Ex. emi -bye 
 void Manager::bye_manager() {
     Communicator printer;
-    // Solicitamos la autorización del usuario para ejecutar el comando -bye
+    // We request the authorization of the user to continue with the operations.
     printer.authorization_reporter(bye_command);
-    // Capturamos la autorización
     string authorization;
     std::cin >> authorization;
     if (authorization == confirmed_auth) {
         Builder builder;
-        // Removemos el repositorio emi incluyendo todos sus archivos internos (action_mode::recursive)
+        // We remove the emi repository including all its internal files (action_mode::recursive)
         builder.repository_remover(base.emi_default_path, action_mode::recursive);
         printer.event_reporter(success_codes::emi_repository_deleted);
     } else if (authorization == denied_auth) {

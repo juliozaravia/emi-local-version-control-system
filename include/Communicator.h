@@ -1,8 +1,7 @@
 /*
  * Project: EMI Personal Control Version System 
  * File: Communicator Class - Definition file 
- * Description: Clase de comunicación. Nos permite imprimir en pantalla
- * los mensajes de éxito, de alerta y de error
+ * Description: Communication class. It allows us to print success, alert and error messages on the screen.
  * @author
  * Julio Zaravia <hello@juliozaravia.com>
  */

@@ -1,8 +1,8 @@
 /*
  * Project: EMI Personal Control Version System 
  * File: Helper Class - Implementation file
- * Description: Clase de apoyo de operaciones. Nos permite realizar las acciones complementarias y de soporte
- * a las acciones principales como creación, registro, eliminado y transporte de directorios y/o archivos entre otras acciones
+ * Description: Operations support class. It allows us to carry out complementary and support actions 
+ * for the main actions such as creating, registering and deleting directories and / or files, among other actions.
  * @author
  * Julio Zaravia <hello@juliozaravia.com>
  */
@@ -35,7 +35,7 @@ Helper::Helper() {}
  * Comparators
  */
 
-// Descripcion: Nos permite comparar 2 cadenas de texto retornando el valor de verdadero o falso según corresponda 
+// Description: It allows us to compare 2 text strings, returning the value of true if they are the same or false if they are different.
 bool Helper::hash_comparator(const string& temporal_file_hash, const unsigned int& data_file_hash) {
     bool is_same_hash = false;
     if (std::to_string(data_file_hash) == temporal_file_hash) {
@@ -48,30 +48,30 @@ bool Helper::hash_comparator(const string& temporal_file_hash, const unsigned in
  * Extractors
  */
 
-// Descripcion: Nos permite extraer data de un archivo y almacenarla en un contenedor según los parámetros complementarios 
+// Description: It allows us to extract data (rows of data) from a file and store it in a container according to the complementary parameters.
 void Helper::rows_extractor(vector<string>& rows, const string& target_file, const string& comparison_row, int mode, int item_position) {
-    // Abrimos el stream asociado al archivo respectivo.
+    // We open the stream associated with the target file.
     ifstream target_file_istrm(target_file, std::ios::in | std::ios::binary);
-    // Establecemos la máscara de excepción de la secuencia.
+    // We set the exception mask of the stream.
     target_file_istrm.exceptions(ifstream::failbit | ifstream::badbit);
-    // Se bifurca en base a los parámetros complementarios
+    // The operations branch according to the complementary parameters.
     try {
         string target_file_row;
         if (comparison_row.empty()) {
-            // Extraemos línea por línea toda la data del archivo y la almacenamos en un contenedor
+            // We extract line by line all the data from the file and store it in a container.
             while (std::getline(target_file_istrm, target_file_row)) {
                 rows.push_back(target_file_row);
             }
         } else {
             if (mode == action_mode::different_to_row) {
-                // Extraemos línea por línea toda la data del archivo obviando la línea correspondiente a la cadena de comparación
+                // We extract all the data from the file line by line, excluding the row corresponding to the comparison string.
                 while (std::getline(target_file_istrm, target_file_row)) {
                     if (target_file_row != comparison_row) {
                         rows.push_back(target_file_row);
                     }
                 }
             } else if (mode == action_mode::similar_to_item) {
-                // Extraemos línea por línea toda la data del archivo que coincida con la cadena de comparación
+                // We extract all rows of data from the file as long as the extracted row matches the comparison string.
                 while (std::getline(target_file_istrm, target_file_row)) {
                     vector<string> extracted_items;
                     items_extractor(extracted_items, target_file_row);
@@ -84,23 +84,23 @@ void Helper::rows_extractor(vector<string>& rows, const string& target_file, con
     } catch (const std::ios_base::failure& err) {
         if (!target_file_istrm.eof()) throw;
     }
-    // Cerramos y limpiamos el stream
+    // We close and clean the stream.
     target_file_istrm.close();
     target_file_istrm.clear();
 }
 
-// Descripción: Nos permite buscar y extraer la fila de data del archivo objetivo que coincida con el nombre del archivo enviado 
+// Description: It allows us to search and extract the row of data from the target file that matches the name of the received file.
 string Helper::row_extractor(const string& file, const string& target_file) {
     string extracted_row;
     vector<string> rows;
-    // Utilizamos el metodo rows_extractor para llenar todas las filas del archivo objetivo en un contenedor
+    // We use the 'rows_extractor' method to fill all the rows of the target file into a container.
     rows_extractor(rows, target_file);
 
     for (const auto& row : rows) {
-        // Extraemos el nombre del archivo de la fila extraída
+        // We extract the name of the file from the extracted row.
         string trimmed_file = row.substr(0, file.size());
-        // Comparamos el nombre del archivo recibido con el nombre del archivo extraído
-        // Si coinciden se finaliza el ciclo y se retorna el valor encontrado
+        // We compare the name of the received file with the name of the extracted file.
+        // If they match, the loop ends and the found value is returned.
         if (file == trimmed_file) {
             extracted_row = row;
             break;
@@ -109,50 +109,50 @@ string Helper::row_extractor(const string& file, const string& target_file) {
     return extracted_row;
 }
 
-// Descripción: Nos permite extraer los items de una cadena de texto
+// Description: It allows us to extract the items from a text string. The separator character must be specified.
 void Helper::items_extractor(vector<string>& items, const string& row, char separator) {
     string row_item;
-    // Pasamos la cadena de texto recibida al stringstream
+    // We pass the received text string to a stringstream.
     stringstream row_strm(row);
-    // Recorremos el strigstream y capturamos en una variable cada item
-    // Almacenamos el valor extraído en un contenedor
+    // We go through the stream and capture each item in a variable.
+    // We store each of the extracted values in a container.
     while (std::getline(row_strm, row_item, separator)) {
         items.push_back(row_item);
     }
 }
 
-// Descripción: Extraemos data específica de un archivo o contenedor 
+// Description: We extract specific data from a file or container.
 template<typename T, typename U>
 void Helper::content_extractor(T& item_or_items, const U& target_container, int item_position) {
-    // El contenedor que recibirá la data es una cadena de texto
-    // Esto significa que el valor a almacenar es individual
+    // The container that will receive the data is a text string.
+    // This means that the value to be stored is individual.
     if constexpr (std::is_same_v<T,string>) {
         vector<string> extracted_items;
-        // Usamos el método items_extractor para extraer todos los items del archivo objetivo
-        // Usamos el valor de posición recibido para extraer específicamente el valor del item en esa posición
-        // Almacenamos el valor extraído en el contenedor
+        // We use the 'items_extractor' method to extract all items from the target file.
+        // We use the received position value to specifically extract the value of the item at that position.
+        // We store the extracted item in the container.
         items_extractor(extracted_items, target_container);
         item_or_items = extracted_items.at(item_position);
-        // El contenedor que recibirá la data es un contendor múltiple (Vector)
-        // Esto significa que se almacenarán varios valores en él
+        // The container that will receive the data is a multiple storage container. In this case a vector.
+        // This means that it will serve to store several items.
     } else if constexpr (std::is_same_v<T,vector<string>>) {
         vector<string> rows;
-        // El contenedor del cual extraeremos la data es un cadena de texto
-        // Esto significa que esta cadena de texto hace referencia a un nombre de archivo
+        // The container from which we will extract the data is a text string.
+        // This means that this text string refers to a file name.
         if constexpr (std::is_same_v<U,string>) {
-            // Extraemos todas las filas del archivo objetivo y lo almacenamos en un contenedor
+            // We extract all the rows from the target file and store it in a container.
             rows_extractor(rows, target_container);
-            // El contenedor del cual extraeremos la data es un contenedor múltiple
-            // Esto significa que las filas necesarias ya fueron extraídas previamente
+            // The container from which we will extract the data is a multiple storage container.
+            // This means that the necessary rows have already been extracted previously.
         } else if constexpr (std::is_same_v<U,vector<string>>) {
             rows = target_container;    
         }
 
         for (const auto& row : rows) {
             vector<string> extracted_items;
-            // Extraemos todos los items de cada una de las filas del contenedor
-            // Usamos el valor de posición recibido para extraer específicamente el valor del item en esa posición
-            // Almacenamos el valor extraído en el contenedor
+            // We extract all the items from each of the rows of the container.
+            // We use the received position value to specifically extract the value of the item at that position.
+            // We store the extracted item in the container.
             items_extractor(extracted_items, row);
             item_or_items.push_back(extracted_items.at(item_position));
         }
@@ -166,41 +166,40 @@ template void Helper::content_extractor<vector<string>,vector<string>>(vector<st
  * Checkers
  */
 
-// Descripción: Nos permite verificar si un archivo tiene contenido o no
+// Description: It allows us to check if a file has content or is empty.
 bool Helper::content_checker(const string& target_file) {
-    // Abrimos el stream asociado al archivo respectivo.
+    // We open the stream associated with the target file.
     ifstream target_file_istrm(target_file, std::ios::in | std::ios::binary);
-    // Establecemos la máscara de excepción de la secuencia.
+    // We set the exception mask of the stream.
     target_file_istrm.exceptions(ifstream::failbit | ifstream::badbit);
 
     bool file_has_data = true;
-    // Leemos la data del archivo y verificamos que tenga contenido
+    // We take a 'look' at the file to determine if we are reaching EOF.
     if (target_file_istrm.peek() == ifstream::traits_type::eof()) { file_has_data = false; }
-    // Cerramos y limpiamos el stream
+    // We close and clean the stream.
     target_file_istrm.close();
     target_file_istrm.clear();
-    // Devolvemos el resultado
+
     return file_has_data;
 }
 
-// Descripción: Nos permite verificar si un archivo o grupo de archivos existen o no y devolver su estado
+// Description: It allows us to verify if a file or group of files exist or not and return its status.
 template <typename T>
 bool Helper::existence_checker(const T& file_or_files, unordered_map<string,bool>& status) { 
     bool exists = false;
-    // El contenedor del archivo es una cadena de texto
-    // Esto significa que es un archivo individual
+    // The file container is a text string.
+    // This means that we want to verify the existence of an individual file.
     if constexpr (std::is_same_v<T,string>) {
-        // Verificamos que el archivo exista
         if (fs::exists(file_or_files)) {
             exists = true;
         }
-        // El contenedor del archivo es un contenedor múltiple
-        // Esto significa que se debe verificar la existencia de varios archivos
+    // The file container is a multiple storage container.
+    // This means that we want to verify the existence of a group of files.
     } else if constexpr (std::is_same_v<T,vector<string>>) {
         unsigned int temp_counter = 0;
-        // Verificamos la existencia de cada archivo
-        // Si el archivo existe se incrementa un contador 
-        // Se inserta en el contenedor de estado el nombre del archivo y su estado asociado true si existe, false si no existe
+        // We check the existence of each file.
+        // If the file exists a counter is incremented.
+        // The name of the file and its associated state are inserted into the state container true if it exists, false if it does not exist.
         for (const auto& file : file_or_files) {
             if (fs::exists(file)) {
                 temp_counter++;
@@ -210,7 +209,7 @@ bool Helper::existence_checker(const T& file_or_files, unordered_map<string,bool
             }
         }
 
-        // Si el contador es igual a la cantidad de items del contenedor se puede asegurar que todos los archivos existen
+        // If the counter is equal to the number of items in the container, all the files exist.
         if (temp_counter == file_or_files.size()) {
             exists = true;
         }
@@ -220,19 +219,19 @@ bool Helper::existence_checker(const T& file_or_files, unordered_map<string,bool
 template bool Helper::existence_checker<std::string>(const string&, unordered_map<string,bool>&);
 template bool Helper::existence_checker<std::vector<std::string>>(const vector<string>&, unordered_map<string,bool>&);
 
-// Descripción: Nos permite validar la existencia del archivo en la lista de archivos ignorados.
+// Description: It allows us to validate the existence of the file in the ignore list.
 bool Helper::ignored_file_checker(const string& file, const string& target_file) {
     bool is_ignored = false;
-    // Se utiliza el método rows_extractor para extraer las filas del archivo de ignorados
-    // Debemos recordar que el archivo de ignorados no solo almacena archivos sino también rutas o directorios
+    // The 'rows_extractor' method is used to extract the rows from the ignore file.
+    // We must remember that the ignore file not only stores files but also paths.
     vector<string> ignored_rows;
     rows_extractor(ignored_rows, target_file);
 
     for (const auto& ignored_item : ignored_rows) {
-        // Creamos un sub-string recortando el nombre del archivo por procesar
-        // Este nuevo item debe ser un folder o directorio
+        // We create a sub-string by trimming the name of the file to be processed.
+        // This new item must be a directory.
         string ignored_folder = file.substr(0, ignored_item.size());
-        // Validamos que tanto los archivos como los directorios no se encuentren en la lista de archivos ignorados
+        // We validate that both the files and the directories are not in the ignore list.
         if (file == ignored_item || ignored_folder == ignored_item) {
             is_ignored = true;
         }
@@ -244,48 +243,47 @@ bool Helper::ignored_file_checker(const string& file, const string& target_file)
  * Generators
  */
 
-// Nos permite contruir la ruta completa de un archivo en base a la ruta absoluta (ruta actual) y la ruta relativa del archivo (incluyendo el nombre del archivo) 
+// It allows us to build the complete path of a file based on the absolute path (current path) and the relative path of the file.
 string Helper::location_generator(const string& file, const string& absolute_path) {
     string file_location = absolute_path + "/" + file;
     return file_location;
 }
 
-// Descripción: Nos permite generar un valor hash en base al contenido de un archivo o una cadena de texto simple
+// Description: It allows us to generate a hash value based on the content of a file or a simple text string.
 unsigned int Helper::hash_generator(const string& target_container, int mode) {
     unsigned int hash_value = 0;
-    // La data necesita ser extraída previamente de un archivo (action_mode::recursive)
+    // The data needs to be previously extracted from a file (action_mode::recursive).
     if (mode == action_mode::recursive) {
-        // Abrimos el stream asociado al archivo respectivo.
+        // We open the stream associated with the target file.
         ifstream target_container_istrm(target_container, std::ios::in | std::ios::binary);
-        // Establecemos la máscara de excepción de la secuencia.
+        // We set the exception mask of the stream.
         target_container_istrm.exceptions(ifstream::failbit | ifstream::badbit);
-        // Almacenamos la data extraida en un contenedor (buffer)
+        // We store the extracted data in a container (buffer).
         string argumentfile_data_container {
             std::istreambuf_iterator<char>(target_container_istrm),
                 std::istreambuf_iterator<char>()
         };
-        // Cerramos y limiamos el stream
+        // We close and clean the stream.
         target_container_istrm.close();
         target_container_istrm.clear();
-        // Generamos el valor hash en base al contenido del archivo
+        // We generate the hash value based on the content of the file.
         hash_value = std::hash<string> {}(argumentfile_data_container);
-        // La data será generada en base a una cadena de texto
+    // The data will be generated based on a text string.
     } else if (mode == action_mode::simple) {
-        // Generamos el valor hash en base a la cadena de texto 
+        // We generate the hash value based on the text string.
         hash_value = std::hash<string> {}(target_container);
     }
 
     return hash_value;
 }
 
-// Descripción: Nos permite generar (capturar) un punto de tiempo exacto
+// Description: It allows us to capture the exact moment in which an action is executed.
 void Helper::timepoint_generator(string& timepoint) {
-    // Capturamos la hora del reloj interno
+    // We capture the time of the internal clock of the computer in which the operation is being executed.
     auto current_timepoint = std::chrono::system_clock::now();
-    // Le damos el formato de tiempo necesario para poder ejecutar las demás operaciones
+    // We apply the necessary format to execute the other operations.
     std::time_t formated_timepoint = std::chrono::system_clock::to_time_t(current_timepoint);
     char formated_timepoint_buffer[20];
-    // Le damos el formato en el que el punto de tiempo será mostrado
     strftime(formated_timepoint_buffer, sizeof(formated_timepoint_buffer), "%H:%M:%S %d-%m-%Y", localtime(&formated_timepoint));
     timepoint = formated_timepoint_buffer;
 }
@@ -294,22 +292,22 @@ void Helper::timepoint_generator(string& timepoint) {
  * Organizers
  */
 
-// Descripción: Nos permite llenar la estructura de datos de la versión del archivo que usarán los métodos de captura y guardado de versiones 
+// Description: It allows us to fill in the structure of the necessary data that we must complete so that the version can be captured or saved correctly.
 template<typename T, typename U>
 void Helper::data_organizer(T& data_container, const U& rows, const string& target_folder, int mode) {
-    // Capturamos la fecha y hora en la que se hizo la llamada al comando necesario para la captura o guardado de la(s) versión(es)
+    // We capture the date and time in which the call to the necessary command was made to capture or save the version(s).
     string temporal_date;
     timepoint_generator(temporal_date);
 
-    // El contenedor 'data_container' donde registraremos la data es una estructura individual
+    // The container 'data_container' allows to store a single data structure.
     if constexpr (std::is_same_v<T,File>) {
-        // El contenedor 'rows' que trae la data que deberemos procesar para llenar la estructura, es una cadena de texto
-        // Esto significa que es simplemente la ruta del archivo a procesar
+        // The 'rows' container brings the data that we must process to fill the structure, it is a text string.
+        // This means that it is simply the path of the file to process.
         data_container.file = rows;
-        // Extraemos del nombre del archivo o generamos la data requerida por la estructura.
-        // La data requerida es: Ruta completa del archivo, valor hash del archivo, nombre del archivo, extensión del archivo...
-        // ... Ruta del archivo sin considerar su nombre, valor hash generado con la ruta previa, nombre de la versión del archivo...
-        // ... Ruta completa de la versión del archivo, fecha y hora capturadas al momento de ejecutar el método
+        // We fill in the data required by the structure: 
+        // Full path of the file, hash value of the file, name of the file, extension of the file, 
+        // path of the file without considering its name, hash value generated with the path of the file, 
+        // name of the version of the file, full path of the file version, date and time captured when executing the operation.
         data_container.file_hash = hash_generator(data_container.file, action_mode::recursive);
         data_container.file_name = fs::path(data_container.file).filename().string();
         data_container.file_extension = fs::path(data_container.file).extension().string();
@@ -318,30 +316,28 @@ void Helper::data_organizer(T& data_container, const U& rows, const string& targ
         data_container.version_name = std::to_string(data_container.file_path_hash) + "-" + std::to_string(data_container.file_hash) + "-" + data_container.file_name;
         data_container.version = target_folder + "/" + data_container.version_name;
         data_container.catch_date = temporal_date;
-        // El contenedor 'data_container' donde registraremos la data es una contenedor múltiple
+    // The container 'data_container' allows to store multiple data structures.
     } else if constexpr (std::is_same_v<T,vector<File>>) {
-        // El contenedor 'rows' que trae la data que deberemos procesar para llenar la estructura, es una contenedor múltiple
-        // Esto significa que debemos recorrer su contenido y procesarlo antes de llenar las estructuras
+        // The 'rows' container brings the data that we must process to fill the structure, it is a multiple storage container.
+        // This means that we must go through its content and process each item to fill each structure consecutively.
         for (const auto& row : rows) {
             vector<string> items;
             items_extractor(items, row);
-            // Extraemos la información de cada una de las filas extraídas
-            // Llenamos con esta data las valores correspondientes
-            // Existen valores pendientes que serán llenados según el modo impuesto por el desarrollador
             File data;
             data.file = items.at(db_pos::file);
             data.file_name = items.at(db_pos::file_name);
             data.file_extension = items.at(db_pos::file_extension);
             data.file_path = items.at(db_pos::path_name);
             data.file_path_hash = std::stoul(items.at(db_pos::path_hash));
-            // Según el modo indicado podemos extraer la data del contenedor 'rows' o generarla
-            // Extraer la data indica que el archivo no ha sido modificado y su data registrada es la más reciente
+            // According to the assigned mode we can choose between extracting the data from the 'rows' container or generating it.
+            // Extract the data registered in 'rows' indicates that the file being processed has not been modified later and its registered data is the most recent.
             if (mode == action_mode::built) {
                 data.file_hash = std::stoul(items.at(db_pos::file_hash));
                 data.version_name = items.at(db_pos::version_name);
                 data.version = items.at(db_pos::version);
                 data.catch_date = items.at(db_pos::catch_date);
-                // Generar la data indica que el archivo ha sido modificado y necesitamos generar data actualizada
+            // Generate the data indicates that the file being processed has been subsequently modified and its registered data is not the most recent.
+            // Therefore, we need to generate updated data to perform the operations.
             } else if (mode == action_mode::to_build) {
                 data.file_hash = hash_generator(data.file, action_mode::recursive);
                 data.version_name = std::to_string(data.file_path_hash) + "-" + std::to_string(data.file_hash) + "-" + data.file_name;
@@ -355,21 +351,17 @@ void Helper::data_organizer(T& data_container, const U& rows, const string& targ
 template void Helper::data_organizer<File,string>(File&, const string&, const string&, int);
 template void Helper::data_organizer<vector<File>,vector<string>>(vector<File>&, const vector<string>&, const string&, int);
 
-// Descripción: Nos permite llenar la estructura de datos de la versión del archivo que usarán los métodos de captura y guardado de versiones 
+// Description: It allows us to fill in the structure of the necessary data that we must complete so that the version can be captured or saved correctly.
 template<typename T> 
 void Helper::data_organizer(vector<File>& data_container, const T& files, const string& target_folder) {
-    // Capturamos la fecha y hora en la que se hizo la llamada al comando necesario para la captura o guardado de la(s) versión(es)
+    // We capture the date and time in which the call to the necessary command was made to capture or save the version(s).
     string temporal_date;
     timepoint_generator(temporal_date);
 
     for (const auto& file : files) {
         File data;
-        // El contenedor 'files' que trae los nombres de los archivos a procesar es del tipo unordered_map.
-        // Esto significa que deberemos tomar el segundo valor de esta estructura para asignarla como nombre del archivo
         if constexpr (std::is_same_v<T,unordered_map<string,string>>) {
             data.file = file.second;
-            // El contenedor 'files' que trae los nombres de los archivos a procesar es del tipo vector.
-            // Esto significa que podemos asignar directamente el valor de cada item como nombre del archivo
         } else if constexpr (std::is_same_v<T,vector<string>>) {
             data.file = file;
         }
@@ -388,39 +380,38 @@ void Helper::data_organizer(vector<File>& data_container, const T& files, const 
 template void Helper::data_organizer<std::unordered_map<std::string,std::string>>(vector<File>&, const unordered_map<string,string>&, const string&);
 template void Helper::data_organizer<std::vector<std::string>>(vector<File>&, const vector<string>&, const string&);
 
-// Descripción: Nos permite filtrar los archivos disponibles para ser procesados de los archivos que se encuentran registrados como ignorados  
+// Description: It allows us to separate the files available to be processed from the files that are registered in the ignored file.
 void Helper::availability_organizer(unordered_map<string,string>& available_files, const vector<string>& rows, const string& current_path) {
-    // Recorremos todos los archivos o carpetas a partir de la ruta actual
+    // We go through all the files or folders that belong to the current path.
     for (const auto& file_or_folder : fs::recursive_directory_iterator(current_path)) {
-        // Filtramos las carpetas, de tal manera, solo estaremos trabajando con archivos
+        // We only allow operations to be performed on files.
         if (!fs::is_directory(file_or_folder)) {
             unsigned int temp_counter = 0;
             string formatted_file = file_or_folder.path().string();
-            // Recorremos el contenedor 'rows' que contiene los archivos registrados como ignorados
+            // We go through the container 'rows' that contains all the files registered in the ignored file.
             for (auto& ignored_file_or_folder : rows) {
-                // Hacemos que el tamaño del 'formatted_file' coincida con el tamaño del archivo registrado como ignorado
+                // We make the size of the 'formatted_file' match the size of the ignored file, so we can compare them.
                 string comparison_file = formatted_file.substr(0, ignored_file_or_folder.size());
-                // Comparamos ambos nombres de archivo
-                // Si son diferentes aumentamos el valor de un contador temporal 
+                // We compare both file names. If they are different, we increase the value of a temporary counter.
                 if (ignored_file_or_folder != comparison_file) { 
                     temp_counter++; 
                 } 
             }
 
             unsigned int temporal_hash = 0;
-            // La cantidad almacenada en el contador es igual al número de items que tiene el contenedor 'rows'
-            // Esto significa que el archivo que está siendo procesado no ha sido registrado en la lista de ignorados
+            // The number stored in the counter is equal to the number of items in the 'rows' container.
+            // This means that the file being processed is not registered in the ignore list.
             if (temp_counter == rows.size()) {
                 temporal_hash = hash_generator(formatted_file, action_mode::recursive);
-                // Insertamos en una estructura de tipo unordered_map el valor hash del contenido del archivo como clave...
-                // y el nombre del archivo como valor asociado
+                // We insert, in a structure of type unordered_map, the hash value generated with the content of the file as key; 
+                // and, the name of the file as an associated value.
                 available_files.insert(make_pair(std::to_string(temporal_hash), formatted_file));
             }
         }
     }
 }
 
-// Descripción: Nos permite agrupar archivos según su estado: No rastreados, modificados, capturados o guardados 
+// Description: It allows us to group files according to their status: Not tracked, modified, captured or saved.
 void Helper::status_organizer(unordered_map<string,string>& untracked_files, unordered_map<string,string>& modified_files, unordered_map<string,string>& saved_files, const string& target_file) {
     string trimmed_target_file = target_file.substr(target_file.size() - db_catch.size(), db_catch.size());
     vector<string> rows;
@@ -477,21 +468,22 @@ void Helper::status_organizer(unordered_map<string,string>& untracked_files, uno
     }
 }
 
-// Descripción: Nos permite estructurar la información de cada una de las oportunidades en las que se aplicó el guardado de versiones de archivos
+// Description: It allows us to organize the detailed information of the application of the -snapshot command.
+// Information: Unique snapshot code, execution date and time, associated comment and saved files.
 void Helper::log_organizer(Log& log, vector<Log>& log_info, unordered_multimap<string,string>& saved_files, const vector<string>& rows) {
     string temp_hash;
     string temp_date;
     string temp_comment;
-    // Recorremos todas las filas extraídas de la base de datos de versiones de archivos guardados 
+    // We go through all the rows extracted from the database of saved versions.
     for (const auto& row : rows) {
-        // Extraemos los items de cada una de las filas y las almacenamos en un contenedor
+        // We extract the items from each of the rows and store them in a container.
         vector<string> items;
         items_extractor(items, row);
-        // Insertamos en una estructura de tipo unordered_map el valor hash del snapshot como clave...
-        // y el nombre del archivo como valor asociado
+        // We insert, in a structure of type unordered_map, the hash value of the snapshot as key; 
+        // and, the name of the file as an associated value.
         saved_files.insert(make_pair(items.at(db_pos::snap_hash),items.at(db_pos::file)));
-        // Extraemos del grupo de versiones de archivos los valores: valor hash del snapshot, fecha y hora del guardado de los archivos...
-        // y, el comentario que escribe el usuario con respecto a la acción realizada o motivo del guardado de archivos
+        // We extract the following values from the version group: hash value of the snapshot, date and time of saving the files.
+        // and, the comment that the user writes regarding the action taken or the reason for saving files.
         if (temp_hash != items.at(db_pos::snap_hash)) {
             log.snapshot_code = items.at(db_pos::snap_hash);
             log.snapshot_date = items.at(db_pos::snap_date);
@@ -502,7 +494,7 @@ void Helper::log_organizer(Log& log, vector<Log>& log_info, unordered_multimap<s
     }
 }
 
-// Descripción: Nos permite agrupar archivos según su estado: No rastreados, modificados, capturados o guardados 
+// Description: It allows us to group files according to their status: 'saved and modified' and 'saved and not modified'.
 void Helper::processed_files_organizer(vector<string>& saved_modified, vector<string>& saved_not_modified, const unordered_map<string,string>& modified_files, const unordered_map<string,string>& saved_files, const string& target_file) {
     for (auto saved_file : saved_files) {
         if (modified_files.empty()) {
@@ -530,6 +522,7 @@ void Helper::processed_files_organizer(vector<string>& saved_modified, vector<st
 }
 
 
+// Description: It allows us to sort and eliminate duplicate items within a container.
 void Helper::duplicate_organizer(vector<string>& items) {
     std::sort(items.begin(), items.end());
     items.erase(std::unique(items.begin(), items.end()), items.end());

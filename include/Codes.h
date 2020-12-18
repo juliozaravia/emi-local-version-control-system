@@ -1,8 +1,8 @@
 /*
  * Project: EMI Personal Control Version System 
  * File: Codes file 
- * Description: Archivo de apoyo. Nos permite tener disponibles todos los códigos
- * necesarios para ejecutar las operaciones solicitadas por el usuario
+ * Description: Support header file. It allows us to have all the necessary codes 
+ * available to execute the operations requested by the user.
  * @author
  * Julio Zaravia <hello@juliozaravia.com>
  */
@@ -10,7 +10,7 @@
 #ifndef CODES_H
 #define CODES_H
 
-// Listado de códigos para operaciones que finalizan exitosamente
+// List of codes for operations that complete successfully.
 enum success_codes {
     emi_repository_created = 100,
     version_catched,
@@ -22,7 +22,7 @@ enum success_codes {
     version_restored
 };
 
-// Listado de códigos para operaciones truncadas por algún evento imprevisto que se puede recuperar
+// List of codes for operations truncated by some unexpected event that can be recovered.
 enum warning_codes {
     emi_repository_exists = 200,
     parent_emi_repository_exists,
@@ -40,7 +40,7 @@ enum warning_codes {
     snapcode_not_found
 };
 
-// Listado de códigos para operaciones truncadas por algún evento imprevisto que no se puede recuperar
+// List of codes for operations truncated by some unforeseen event that cannot be recovered.
 enum error_codes {
     unable_to_manipulate_files_or_directories = 300,
     unable_to_open_files,
@@ -48,21 +48,19 @@ enum error_codes {
     emi_unknown_error
 };
 
-// Listado de códigos que indica el estado del repositorio emi cuando se ejecuta algún comando 
+// List of codes that indicates the status of the emi repository when a command is executed.
 enum validation_codes {
     emi_and_path_valid = 400,
     emi_and_path_not_valid,
     emi_valid_path_not_valid
 };
 
-// Listado de códigos que simbolizan mensajes de tipo Notificación
 enum notification_codes {
     cancelled_action = 500,
     no_files_found
 };
 
-// Listado de códigos que indica la posición de un determinado valor...
-// ... dentro de la base de datos de versiones de archivos capturados o guardados
+// List of codes that represent the position of a certain value within the database of captured or saved versions.
 enum db_pos {
     file,
     file_hash,
@@ -79,7 +77,7 @@ enum db_pos {
     comment
 };
 
-// Listado de códigos que sirven para modificar las actividades (o comportamiento) en un método según sea necesario
+// List of codes used to modify the activities (or behavior) in a method as necessary.
 enum action_mode {
     built,
     to_build,

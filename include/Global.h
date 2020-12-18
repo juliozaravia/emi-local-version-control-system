@@ -1,8 +1,8 @@
 /*
  * Project: EMI Personal Control Version System 
  * File: Global file - Definition
- * Description: Clase de apoyo de recursos. Nos permite tener disponibles de manera global
- * todas las variables necesarias para ejecutar las operaciones solicitadas por el usuario 
+ * Description: Resource support class. It allows us to have globally available 
+ * all the variables necessary to execute the operations requested by the user.
  * @author
  * Julio Zaravia <hello@juliozaravia.com>
  */
@@ -41,7 +41,7 @@ extern const std::string restart_command;
 extern const std::string bye_command;
 extern const std::string drop_command;
 extern const std::string get_command;
-// authorizathion
+// authorization
 extern const std::string confirmed_auth;
 extern const std::string denied_auth;
 extern const std::string keep_auth;

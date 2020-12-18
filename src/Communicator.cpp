@@ -1,8 +1,7 @@
 /*
  * Project: EMI Personal Control Version System 
  * File: Communicator Class - Implementation file 
- * Description: Clase de comunicación. Nos permite imprimir en pantalla
- * los mensajes de éxito, de alerta y de error
+ * Description: It allows us to print success, alert and error messages on the screen.
  * @author
  * Julio Zaravia <hello@juliozaravia.com>
  */
@@ -25,9 +24,8 @@ using std::unordered_multimap;
 
 Communicator::Communicator() {}
 
-// Descripción: Nos permite imprimir en pantalla las notificaciones o los mensajes de éxito asociados a alguna operación solicitada 
+// Description: It allows us to print notifications or success messages associated with any requested operation on the screen.
 void Communicator::event_reporter(int com_identifier, const std::string& command) {
-    // Dependiendo del código identificador se mostrará un mensaje u otro
     if (com_identifier == success_codes::emi_repository_created) {
         cout << "[Success Code: SC" << success_codes::emi_repository_created << "] The emi repository has been created successfully." << endl;
         cout << "Tip: Use the -look command to view the untracked files. (Usage info: Use --help)" << endl;
@@ -54,7 +52,7 @@ void Communicator::event_reporter(int com_identifier, const std::string& command
     }
 }
 
-// Descripción: Nos permite imprimir en pantalla los mensajes de alerta asociados a alguna operación solicitada 
+// Description: It allows us to print on the screen the alert messages associated with any requested operation.
 void Communicator::warning_reporter(int warning_identifier, const std::string& command) {
     if (warning_identifier == warning_codes::emi_repository_exists) {
         cout << "[Warning Code: WC" << warning_codes::emi_repository_exists << "] The emi repository already exists." << endl;
@@ -99,7 +97,7 @@ void Communicator::warning_reporter(int warning_identifier, const std::string& c
     cout << "Tip: Use --help, to get the authorized commands and how to use them correctly." << endl;
 }
 
-// Descripción: Nos permite imprimir en pantalla los mensajes de error asociados a alguna operación solicitada 
+// Description: It allows us to print on the screen the error messages associated with any requested operation.
 void Communicator::error_reporter(int error_identifier, const std::string& command, const char* error_description) {
     cout << "An error occurred while applying the " << command << " command." << endl;
     cout << "The reasons for this unexpected error can be:" << endl;
@@ -116,14 +114,14 @@ void Communicator::error_reporter(int error_identifier, const std::string& comma
     } else if (error_identifier == error_codes::emi_unknown_error) {
         cout << "An error occurred while applying the " << command << " command." << endl;
     } 
-    // A diferencia de los dos métodos anteriores, este método comunica el error específico capturado
+    // Unlike the previous two methods, this method reports the specific error caught.
     cout << "Try again. If the error persists write to support@juliozaravia.com." << endl;
     cout << "************* Copy and send the following information *************" << endl;
     cout << "[Error Code: (" << command << ") EC" << error_identifier << "]" << endl;
     cout << error_description << endl;
 }
 
-// Descripción: Nos permite imprimir en pantalla los comandos necesarios para el uso adecuado del repositorio emi
+// Description: It allows us to print on the screen the commands necessary for the proper use of the emi repository.
 void Communicator::command_reporter() {
     const int first_column_width = 15;
     const int second_column_width = 40;
@@ -258,7 +256,7 @@ void Communicator::command_reporter() {
     cout << endl;
 }
 
-// Descripción: Nos permite imprimir en pantalla la versión y datos informativos adicionales del aplicativo emi
+// Description: It allows us to print on the screen the version and additional informative data of the emi application.
 void Communicator::version_reporter() {
     const int first_column_width = 11;
     const int second_column_width = 30;
@@ -283,7 +281,7 @@ void Communicator::version_reporter() {
     cout << "- From Puuu to Chiii." << endl;
 }
 
-// Descripción: Nos permite imprimir en pantalla los archivos disponibles para procesar agrupándolos según su estado
+// Description: It allows us to print the files available for processing on the screen, grouping them according to their status.
 void Communicator::status_reporter(const unordered_map<string,string>& untracked_files,
         const unordered_map<string,string>& modified_files,
         const unordered_map<string,string>& standby_files,
@@ -338,8 +336,7 @@ void Communicator::status_reporter(const unordered_map<string,string>& untracked
     }
 }
 
-// Descripción: Nos permite imprimir en pantalla todos los bloques de archivos guardados...
-// ... Agrupándolos por su código de snapshot correspondiente
+// Description: It allows us to print on the screen all the blocks of saved files, grouping them by their corresponding snapshot code.
 void Communicator::log_reporter(const vector<Log>& log_info, const unordered_multimap<string,string>& saved_files, const string& current_path) {
     if (log_info.empty()) {
         cout << "There are no saved versions." << endl;
@@ -371,7 +368,7 @@ void Communicator::log_reporter(const vector<Log>& log_info, const unordered_mul
     }
 }
 
-// Descripción: Nos permite imprimir en pantalla una solicitud de autorización para realizar una acción en el sistema
+// Description: It allows us to print on the screen an authorization request to carry out a specific operation.
 void Communicator::authorization_reporter(const string& command) {
     vector<string> message;
     vector<string> options;

@@ -19,20 +19,20 @@
 namespace fs = std::filesystem;
 
 int main(int argc, char* argv[]) {
-    // Declaramos las variables iniciales que serán cargadas con data mediante las funciones de formateo y validación.
-    // Nota: Utilizamos la librería filesystem para capturar la ruta actual y la transformamos a cadena.
+    // We declare the initial variables that will be filled with data through the formatting and validation functions.
+    // Note: We use the filesystem library to capture the current path and transform it into a text string.
     std::string current_path = fs::current_path().string();
     std::vector<std::string> arg_container;
     int validation_result = 0;
 
-    // Creamos (inicializamos) el objeto "starter" para ejecutar las operaciones antes mencionadas.
-    // Alimentamos las funciones con las variables necesarias.
+    // We create (initialize) the "starter" object to execute the previously mentioned operations.
+    // We feed the functions with the necessary variables.
     Starter starter(current_path, argc, argv);
     starter.input_formatter(arg_container);
 
-    // Creamos (inicializamos) el objeto "printer" para mostrar en pantalla los mensajes de éxito o error según sea el caso
-    // Para los casos específicos del comando "--help" y el comando "--version" no se realizará validación del repositorio emi
-    // Debido a que estos comandos son informativos y están disponibles sin necesidad de crear un repositorio
+    // We create (initialize) the "printer" object to display success, warning or error messages as appropriate.
+    // For the specific cases of the "--help" command and the "--version" command, the emi repository will not be validated...
+    // ... because these commands are informative and available without creating a repository.
     Communicator printer;
     std::string command = arg_container.at(1);
     if ((command == help_command) || (command == version_command)) {
@@ -49,14 +49,14 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // Comprobamos que el comando haya sido ejecutado desde una ruta válida
+    // We check that the command has been executed from a valid path.
     starter.startup_validator(validation_result);
-    // Creamos (inicializamos) el objeto "manager" que controlará las actividades desencadenadas por el comando
+    // We create (initialize) the "manager" object that will allow us to control the activities triggered by the command entered.
     Manager manager(current_path, arg_container);
-    // Verificamos, según el comando ingresado, que nos encontremos en una ruta válida 
-    // Adicionalmente validamos que el comando haya sido escrito correctamente y con la cantidad requerida de argumentos
-    // Cada una de las eventualidades / problemas / errores encontrados al aplicar el comando ingresado será capturado por un bloque try / catch
-    // Este bloque imprimirá el error respectivo para lectura del usuario
+    // We verify, according to the command entered, that we are on a valid path.
+    // Additionally, we validate that the command has been written correctly and with the required number of arguments.
+    // Each of the eventualities / problems / errors encountered when applying the entered command will be caught by a try / catch block.
+    // This block will print the respective error for the user to read.
     if (validation_result == validation_codes::emi_and_path_valid) {
         if (arg_container.size() == 2) {
             if (command == start_command) {

@@ -1,8 +1,8 @@
 /*
  * Project: EMI Personal Control Version System 
  * File: Manager Class - Definition file 
- * Description: Clase de distribución de operaciones. Permite distribuir y asignar las responsabilidades  
- * entre los métodos de apoyo y de ejecución para llevar a cabo la solicitud realizada por el usuario 
+ * Description: Operations distribution class. It allows us to distribute and assign responsibilities between 
+ * the support and execution methods to carry out the request made by the user.
  * @author
  * Julio Zaravia <hello@juliozaravia.com>
  */
