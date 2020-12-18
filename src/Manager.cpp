@@ -259,38 +259,6 @@ void Manager::multiple_catch_manager() {
             }
         }
 
-        std::cout << "old_data" << std::endl;
-        for (auto data : old_data) {
-            std::cout << "data.file -> " << data.file << std::endl;
-            std::cout << "data.hash-> " << data.file_hash << std::endl;
-        }
-        std::cout << "*************" << std::endl;
-        std::cout << "catched_not_modified" << std::endl;
-        for (auto data : catched_not_modified) {
-            std::cout << "data.file -> " << data << std::endl;
-        }
-        std::cout << "*************" << std::endl;
-        std::cout << "catched_modified_data" << std::endl;
-        for (auto data : catched_modified_data) {
-            std::cout << "data.file -> " << data.file << std::endl;
-            std::cout << "data.hash -> " << data.file_hash << std::endl;
-        }
-        std::cout << "*************" << std::endl;
-        std::cout << "saved_modified_data" << std::endl;
-        for (auto data : saved_modified_data) {
-            std::cout << "data.file -> " << data.file << std::endl;
-            std::cout << "data.hash -> " << data.file_hash << std::endl;
-        }
-        std::cout << "*************" << std::endl;
-        std::cout << "untracked_data" << std::endl;
-        for (auto data : untracked_data) {
-            std::cout << "data.file -> " << data.file << std::endl;
-            std::cout << "data.hash -> " << data.file_hash << std::endl;
-        }
-        std::cout << "*************" << std::endl;
-
-
-        
         Builder builder;
         // We check the status of the containers. A container with data must always be processed.
         if (!old_data.empty()) {
