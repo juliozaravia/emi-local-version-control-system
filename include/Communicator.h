@@ -1,9 +1,9 @@
 /*
- * Project: EMI Personal Control Version System 
+ * Project: Emi Local Version Control System 
  * File: Communicator Class - Definition file 
  * Description: Communication class. It allows us to print success, alert and error messages on the screen.
  * @author
- * Julio Zaravia <hello@juliozaravia.com>
+ * Julio Zaravia <hey@juliozaravia.com>
  */
 
 #ifndef COMMUNICATOR_H

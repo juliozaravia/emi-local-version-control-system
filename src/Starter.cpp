@@ -1,10 +1,10 @@
 /*
- * Project: EMI Personal Control Version System 
+ * Project: Emi Local Version Control System 
  * File: Starter Class - Implementation file
  * Description: Starting class. It allows us to format and validate the data entered 
  * by the user before transporting it to the distribution class.
  * @author
- * Julio Zaravia <hello@juliozaravia.com>
+ * Julio Zaravia <hey@juliozaravia.com>
  */
 
 #include <string>

@@ -1,10 +1,10 @@
 /*
- * Project: EMI Personal Control Version System 
+ * Project: Emi Local Version Control System 
  * File: Manager Class - Implementation file
  * Description: Operations distribution class. It allows us to distribute and assign responsibilities between 
  * the support and execution methods to carry out the request made by the user.
  * @author
- * Julio Zaravia <hello@juliozaravia.com>
+ * Julio Zaravia <hey@juliozaravia.com>
  */
 
 #include <string>
@@ -108,6 +108,7 @@ void Manager::simple_catch_manager() {
                     // We compare the hash value of the version stored in the database and the hash value of the current file version.
                     // We do this in order to determine if the file was modified after it was captured.
                     helper.content_extractor<string,string>(temporal_file_hash, main_row, db_pos::file_hash);
+                    std::cout << "revisa-> " << temporal_file_hash << std::endl;
                     bool is_same_hash = helper.hash_comparator(temporal_file_hash, data.file_hash);
                     if (is_same_hash) {
                         printer.warning_reporter(warning_codes::identical_version_saved);
@@ -272,10 +273,6 @@ void Manager::multiple_catch_manager() {
                 builder.data_inserter<vector<string>>(catched_not_modified, base.db_catch_file);
             }
         }         
-        /*if (!catched_not_modified.empty()) { 
-            // We insert the versions of the files whose most recent version is equal to the last version registered in the database of captured versions.
-            builder.data_inserter<vector<string>>(catched_not_modified, base.db_catch_file);
-        }*/
         if (!catched_modified_data.empty()) {
             // We transport (copy and rename) the most recent versions of the files to the directory of captured versions.
             // We register the data of the versions in the database of captured versions.
@@ -620,7 +617,7 @@ void Manager::ignore_manager() {
     bool file_exists = helper.existence_checker<string>(file_or_folder, status);
     if (file_exists) {
         // We look for the file that will be processed in the database of captured versions and in the database of saved versions.
-        // This is done in order to determine if a version of the file has already been captured or saved previously.
+        // This is done in order to determine if a version of the file has been captured or saved previously.
         string catch_row = helper.row_extractor(file_or_folder, base.db_catch_file);
         string main_row = helper.row_extractor(file_or_folder, base.db_main_file);
         if (catch_row.empty() && main_row.empty()) {

@@ -1,10 +1,10 @@
 /*
- * Project: EMI Personal Control Version System 
+ * Project: Emi Local Version Control System 
  * File: Codes file 
  * Description: Support header file. It allows us to have all the necessary codes 
  * available to execute the operations requested by the user.
  * @author
- * Julio Zaravia <hello@juliozaravia.com>
+ * Julio Zaravia <hey@juliozaravia.com>
  */
 
 #ifndef CODES_H

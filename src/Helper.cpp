@@ -1,10 +1,10 @@
 /*
- * Project: EMI Personal Control Version System 
+ * Project: Emi Local Version Control System 
  * File: Helper Class - Implementation file
  * Description: Operations support class. It allows us to carry out complementary and support actions 
  * for the main actions such as creating, registering and deleting directories and / or files, among other actions.
  * @author
- * Julio Zaravia <hello@juliozaravia.com>
+ * Julio Zaravia <hey@juliozaravia.com>
  */
 
 #include <string>
@@ -103,7 +103,6 @@ string Helper::row_extractor(const string& file, const string& target_file) {
         // If they match, the loop ends and the found value is returned.
         if (file == trimmed_file) {
             extracted_row = row;
-            break;
         }
     }
     return extracted_row;

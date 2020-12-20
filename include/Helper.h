@@ -1,10 +1,10 @@
 /*
- * Project: EMI Personal Control Version System 
+ * Project: Emi Local Version Control System 
  * File: Helper Class - Definition file 
  * Description: Operations support class. It allows us to carry out complementary and support actions 
  * for the main actions such as creating, registering and deleting directories and / or files, among other actions.
  * @author
- * Julio Zaravia <hello@juliozaravia.com>
+ * Julio Zaravia <hey@juliozaravia.com>
  */
 
 #ifndef HELPER_H

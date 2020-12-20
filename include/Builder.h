@@ -1,10 +1,10 @@
 /*
- * Project: EMI Personal Control Version System 
+ * Project: Emi Local Version Control System 
  * File: Builder Class - Definition file 
  * Description: Execution class. It allows us to perform the main actions such as 
  * creation, registration and deletion of directories and / or files among other actions.
  * @author
- * Julio Zaravia <hello@juliozaravia.com>
+ * Julio Zaravia <hey@juliozaravia.com>
  */
 
 #ifndef BUILDER_H

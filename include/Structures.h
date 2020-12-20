@@ -1,9 +1,9 @@
 /*
- * Project: EMI Personal Control Version System 
+ * Project: Emi Local Version Control System 
  * File: Structures file 
  * Description: File containing all the structures used for data extraction and version processing.
  * @author
- * Julio Zaravia <hello@juliozaravia.com>
+ * Julio Zaravia <hey@juliozaravia.com>
  */
 
 #ifndef STRUCTURES_H

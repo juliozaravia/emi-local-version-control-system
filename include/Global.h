@@ -1,10 +1,10 @@
 /*
- * Project: EMI Personal Control Version System 
+ * Project: Emi Local Version Control System 
  * File: Global file - Definition
  * Description: Resource support class. It allows us to have globally available 
  * all the variables necessary to execute the operations requested by the user.
  * @author
- * Julio Zaravia <hello@juliozaravia.com>
+ * Julio Zaravia <hey@juliozaravia.com>
  */
 
 #ifndef GLOBAL_H

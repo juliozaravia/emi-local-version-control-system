@@ -1,9 +1,9 @@
 /*
- * Project: EMI Personal Control Version System 
+ * Project: Emi Local Version Control System 
  * File: Communicator Class - Implementation file 
  * Description: It allows us to print success, alert and error messages on the screen.
  * @author
- * Julio Zaravia <hello@juliozaravia.com>
+ * Julio Zaravia <hey@juliozaravia.com>
  */
 
 #include <iostream>
@@ -126,6 +126,34 @@ void Communicator::command_reporter() {
     const int first_column_width = 15;
     const int second_column_width = 40;
     const std::string separator = "********************";
+    cout << "### Command: " << help_command << endl;
+    cout << separator << endl;
+    cout << std::left << std::setw(first_column_width) << "# Description: ";
+    cout << std::left << std::setw(second_column_width) << "It allows us to view a list of all allowed commands and their application.";
+    cout << endl;
+    cout << std::left << std::setw(first_column_width) << "# Parameters: ";
+    cout << std::left << std::setw(second_column_width) << "It does not require parameters.";
+    cout << endl;
+    cout << std::left << std::setw(first_column_width) << "# How to use: ";
+    cout << std::left << std::setw(second_column_width) << "emi --help";
+    cout << endl;
+    cout << "# Considerations: " << endl;
+    cout << "\t- This command can be executed without the need to create an emi repository." << endl;
+    cout << endl;
+    cout << "### Command: " << version_command << endl;
+    cout << separator << endl;
+    cout << std::left << std::setw(first_column_width) << "# Description: ";
+    cout << std::left << std::setw(second_column_width) << "It allows us to view the version and other additional details of the Emi project.";
+    cout << endl;
+    cout << std::left << std::setw(first_column_width) << "# Parameters: ";
+    cout << std::left << std::setw(second_column_width) << "It does not require parameters.";
+    cout << endl;
+    cout << std::left << std::setw(first_column_width) << "# How to use: ";
+    cout << std::left << std::setw(second_column_width) << "emi --version";
+    cout << endl;
+    cout << "# Considerations: " << endl;
+    cout << "\t- This command can be executed without the need to create an emi repository." << endl;
+    cout << endl;
     cout << "### Command: " << start_command << endl;
     cout << separator << endl;
     cout << std::left << std::setw(first_column_width) << "# Description: ";
@@ -275,7 +303,7 @@ void Communicator::command_reporter() {
 void Communicator::version_reporter() {
     const int first_column_width = 11;
     const int second_column_width = 30;
-    cout << "EMI Mini Control Version System - Version 1.0" << endl;
+    cout << "Emi Local Version Control System - Version 1.0" << endl;
     cout << "Copyright (C) 2020 - Julio Zaravia" << endl;
     cout << "**************************************************" << endl;
     cout << std::left << std::setw(first_column_width) << "LinkedIn:";
@@ -285,7 +313,10 @@ void Communicator::version_reporter() {
     cout << std::left << std::setw(second_column_width) << "www.github.com/juliozaravia"; 
     cout << endl;
     cout << std::left << std::setw(first_column_width) << "Blog:";
-    cout << std::left << std::setw(second_column_width) << "www.juliozaravia.com/blog"; 
+    cout << std::left << std::setw(second_column_width) << "www.juliozaravia.com"; 
+    cout << endl;
+    cout << std::left << std::setw(first_column_width) << "E-mail:";
+    cout << std::left << std::setw(second_column_width) << "hey@juliozaravia.com"; 
     cout << endl;
     cout << "**************************************************" << endl;
     cout << "This is free software made for learning purposes." << endl;

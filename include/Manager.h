@@ -1,10 +1,10 @@
 /*
- * Project: EMI Personal Control Version System 
+ * Project: Emi Local Version Control System 
  * File: Manager Class - Definition file 
  * Description: Operations distribution class. It allows us to distribute and assign responsibilities between 
  * the support and execution methods to carry out the request made by the user.
  * @author
- * Julio Zaravia <hello@juliozaravia.com>
+ * Julio Zaravia <hey@juliozaravia.com>
  */
 
 #ifndef MANAGER_H
