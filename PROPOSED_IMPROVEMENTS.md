@@ -1,5 +1,5 @@
 ## **General List of Proposed Improvements**
-**Note: ** *It is a bad idea to read this file before reading the README.md file. Read the README.md file to get context.*
+**Note:** *It is a bad idea to read this file before reading the README.md file. Read the README.md file to get context.*
 
 - **Schedule an error log**. Every time an error prevents Emi from working, the error message should be recorded in a log, along with the date and time of the event.
 - **Restore bot**. When an error occurs, it is likely that it affects the files that are being processed. There should be a bot that is in charge of checking if the processed files were affected and restoring them so that the operation can continue.
