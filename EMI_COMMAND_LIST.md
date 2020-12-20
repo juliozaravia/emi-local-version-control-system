@@ -1,6 +1,7 @@
 ## **Emi Command List**
 **Note:** *It is a bad idea to read this file before reading the README.md file. Read the README.md file to get context.*
 
+
 **Command: --help**
 ********************
 - Description: It allows us to view a list of all allowed commands and their application.
@@ -9,6 +10,7 @@
 - Considerations:
     - This command can be executed without the need to create an emi repository.
 
+
 **Command: --version**
 ********************
 - Description: It allows us to view the version and other additional details of the Emi project.
@@ -16,6 +18,7 @@
 - How to use:  emi --version
 - Considerations:
     - This command can be executed without the need to create an emi repository.
+
 
 **Command: -start**
 ********************
@@ -26,6 +29,7 @@
     - The repository is created in the current path under the name of emi_base.
     - The emi_base folder should not be deleted manually.
 
+
 **Command: -look**
 ********************
 - Description: It shows us a list of files grouped according to their status.
@@ -34,11 +38,13 @@
 - Considerations:
     - Saved versions are excluded from this list, they can be viewed through -log.
 
+
 **Command: -catch**
 ********************
 - Description: It captures the latest version of a file and puts it in the standby stage.
 - Parameters:  To capture a single file: the relative file path. To capture all available files: the 'all' subcommand.
 - How to use:  emi -catch some_folder/file_to_capture or emi -catch all
+
 
 **Command: -drop**
 ********************
@@ -49,6 +55,7 @@
     - Only the versions of files captured by -catch that are in the standby stage can be released.
     - The file version cannot be released if the file has already been saved by applying -snapshot.
 
+
 **Command: -ignore**
 ********************
 - Description: It allows us to register a file or directory in the ignore list. An ignored file or directory cannot be used by emi.
@@ -56,6 +63,7 @@
 - How to use:  emi -ignore some_folder/some_sub_folder/file_to_ignore
 - Considerations:
     - Files captured in the standby stage cannot be registered in the ignore list.
+
 
 **Command: -snapshot**
 ********************
@@ -67,11 +75,13 @@
     - The comment must be enclosed in quotation marks to be valid.
     - The number of versions that will be saved when applying this command is equal to the number of captured versions.
 
+
 **Command: -log**
 ********************
 - Description: It shows us a list of the saved versions grouping them by each application of -snapshot.
 - Parameters:  It does not require parameters.
 - How to use:  emi -log
+
 
 **Command: -get**
 ********************
@@ -81,6 +91,7 @@
 - Considerations:
     - You can choose whether or not the saved versions replace the current versions when restored.
     - If the current version of a file is replaced by a saved version, the current version cannot be recovered.
+
 
 **Command: -restart**
 ********************
