@@ -1,5 +1,5 @@
 ## **Emi Command List**
-**Note:** *It is a bad idea to read this file before reading the README.md file. Read the README.md file to get context.*
+**Note:** *It is a bad idea to read this file before reading the README.md file. [Read the README.md file to get context.](https://github.com/juliozaravia/emi-local-version-control-system/blob/main/README.md)*
 
 ********************
 **Command: --help**
